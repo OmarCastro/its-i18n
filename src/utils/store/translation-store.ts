@@ -5,13 +5,12 @@ interface Translations {
 
 interface TranslationsDefinition {
     extends?: string | string[],
-    translationsFromExtends?: Translations | Translations[]
     translations: Translations
 }
 
 
 interface StoreData {
-    languages: TranslationsDefinition
+    languages: Record<string, TranslationsDefinition>
     location: string
 }
 
@@ -61,6 +60,57 @@ function setStore(acc: StoreData, storeData: StoreData){
 
 }
 
+const isLocale = (locale: string) => {
+    try {
+        new Intl.Locale(locale)
+        return true
+    } catch {
+        return false
+    }
+}
+
+function isTranslationMap(json): json is Translations {
+    if(typeof json !== "object" || Array.isArray(json)){
+        return false
+    }
+    return Object.keys(json).every(key => typeof[json[key]] === "string")
+}
+
+const getTranslationsFromData = async (store: StoreInfo, locale: string) : Promise<Translations> => {
+    const computed = store.computedTranslationsFromLanguage
+    if(computed[locale]){
+        return computed[locale]
+    }
+    const definition = store.data.languages[locale]
+    if(!definition){ return {} }
+    if(!definition.extends){
+        return definition.translations
+    }
+    const extendsArray = [].concat(definition.extends as any) as string[]
+    const translationsFromExtends = {}
+    for(const extend of extendsArray){
+        if(isLocale(extend)){
+            const translations = await getTranslationsFromData(store, extend)
+            Object.assign(translationsFromExtends, translations)
+            continue
+        } 
+
+        const url = new URL(extend, store.data.location)
+        const response = await fetch(url)
+        const json = await response.json()
+        if(!isTranslationMap(json)){
+            console.error("expected json from url %o to be a map of translations, ignoring data", url)
+            continue
+        } 
+        Object.assign(translationsFromExtends, json)
+    }
+
+    computed[locale] = {
+        ...translationsFromExtends,
+        ...definition.translations
+    }
+    return computed[locale];
+}
 
 const StorePrototype = {
     loadTranslations(data){
@@ -87,6 +137,10 @@ const StorePrototype = {
             languages.push(intlLang)
         }
         const result = {}
+        for(const language of languages.reverse()){
+            const translations = await getTranslationsFromData(this, language)
+            Object.assign(result, translations)            
+        }
         this.computedTranslationsFromLanguage[locale.baseName] = result
         return result
 
