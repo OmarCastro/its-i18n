@@ -1,4 +1,4 @@
-import { importLanguage } from "../language-importer/mod.js"
+import { importLanguage } from "../i18n-importer/mod.js"
 
 interface Translations {
     [key: string]: string
