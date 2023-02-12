@@ -1,3 +1,4 @@
+import { importLanguage } from "../language-importer/mod.js"
 
 interface Translations {
     [key: string]: string
@@ -89,20 +90,10 @@ const getTranslationsFromData = async (store: StoreInfo, locale: string) : Promi
     const extendsArray = [].concat(definition.extends as any) as string[]
     const translationsFromExtends = {}
     for(const extend of extendsArray){
-        if(isLocale(extend)){
-            const translations = await getTranslationsFromData(store, extend)
-            Object.assign(translationsFromExtends, translations)
-            continue
-        } 
-
-        const url = new URL(extend, store.data.location)
-        const response = await fetch(url)
-        const json = await response.json()
-        if(!isTranslationMap(json)){
-            console.error("expected json from url %o to be a map of translations, ignoring data", url)
-            continue
-        } 
-        Object.assign(translationsFromExtends, json)
+        const translations = isLocale(extend) ? 
+            await getTranslationsFromData(store, extend) :
+            await importLanguage(extend, store.data.location)
+        Object.assign(translationsFromExtends, translations)
     }
 
     computed[locale] = {
