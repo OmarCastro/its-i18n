@@ -13,13 +13,14 @@ interface Context {
 
 /**
  * 
- * Translates key into value, in case of failure returns the current key
+ * Asynchronously translates key into value, in case of failure returns the current key
+ * 
  * 
  * @param key - translation key
  * @param context - context where the trasnlation is being run
  * @returns the translated key 
  */
-export function translate(key:string, context?: Context): string {
+export function translate(key:string, context?: Context): Promise<string> {
     console.error("Not implemented yet, on failure mode: returning the current key")
-    return key
+    return Promise.resolve(key)
 }
