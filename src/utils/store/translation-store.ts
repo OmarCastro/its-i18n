@@ -1,4 +1,4 @@
-import { importLanguage } from "../i18n-importer/mod.js"
+import { importLanguage } from "../i18n-importer/mod.ts"
 
 interface Translations {
     [key: string]: string
@@ -23,8 +23,8 @@ type StoreInfo = {
 }
 
 type StorePrototype = {
-    loadTranslations(this: Store, data: StoreData)
-    translationsFromLanguage(this: Store, locale: string | Intl.Locale)
+    loadTranslations(this: Store, data: StoreData): void
+    translationsFromLanguage(this: Store, locale: string | Intl.Locale): Promise<Translations>
 
 }
 
@@ -70,7 +70,7 @@ const isLocale = (locale: string) => {
     }
 }
 
-function isTranslationMap(json): json is Translations {
+function isTranslationMap(json: any): json is Translations {
     if(typeof json !== "object" || Array.isArray(json)){
         return false
     }

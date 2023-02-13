@@ -1,4 +1,4 @@
-import { implementation } from "./provider.js";
+import { implementation } from "./provider.ts";
 
 type ImportLanguage = typeof implementation.importLanguage
 export const importLanguage: ImportLanguage = (url, base) => implementation.importLanguage(url, base)
