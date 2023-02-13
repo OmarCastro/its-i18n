@@ -70,11 +70,34 @@ const isLocale = (locale: string) => {
     }
 }
 
-function isTranslationMap(json: any): json is Translations {
-    if(typeof json !== "object" || Array.isArray(json)){
-        return false
+function normalizeTranslationData(data: StoreData) {
+    const originalLangs = data.languages
+    const languages = {} as typeof originalLangs
+    const result: StoreData = {
+        location: data.location,
+        languages
     }
-    return Object.keys(json).every(key => typeof[json[key]] === "string")
+    
+    for(const localeString of Object.keys(data.languages) ){
+        let locale: Intl.Locale;
+        try {
+            locale = new Intl.Locale(localeString)
+        } catch {
+            console.error(`Error: Invalid locale ${localeString}, it will not be added to the I18n store`)
+            continue
+        }
+        const {baseName} = locale
+        if(baseName !== localeString){
+            if(originalLangs[baseName]){
+                console.error(`Error: Invalid locale "${localeString}", it also conflicts with correct locale "${baseName}", it will not be added to the I18n store`)
+                continue
+            } else {
+                console.warn(`Warn: Invalid locale "${localeString}", fixed to locale "${baseName}"`)
+            }
+        }
+        languages[baseName] = structuredClone(originalLangs[localeString])
+    }
+    return result;
 }
 
 const getTranslationsFromData = async (store: StoreInfo, locale: string) : Promise<Translations> => {
@@ -105,7 +128,7 @@ const getTranslationsFromData = async (store: StoreInfo, locale: string) : Promi
 
 const StorePrototype = {
     loadTranslations(data){
-        this.data = structuredClone(data)
+        this.data = normalizeTranslationData(data)
         this.computedTranslationsFromLanguage = {}
     },
 
@@ -130,7 +153,7 @@ const StorePrototype = {
         const result = {}
         for(const language of languages.reverse()){
             const translations = await getTranslationsFromData(this, language)
-            Object.assign(result, translations)            
+            Object.assign(result, translations)
         }
         this.computedTranslationsFromLanguage[locale.baseName] = result
         return result
