@@ -1,36 +1,5 @@
 import { importLanguage } from "../i18n-importer/mod.ts"
 
-interface Translations {
-    [key: string]: string
-}
-
-interface TranslationsDefinition {
-    extends?: string | string[],
-    translations: Translations
-}
-
-
-interface StoreData {
-    languages: Record<string, TranslationsDefinition>
-    location: string
-}
-
-
-
-type StoreInfo = {
-    data: StoreData
-    computedTranslationsFromLanguage: Record<string, Translations>
-}
-
-type StorePrototype = {
-    loadTranslations(this: Store, data: StoreData): void
-    translationsFromLanguage(this: Store, locale: string | Intl.Locale): Promise<Translations>
-
-}
-
-type Store = StorePrototype & StoreInfo
-
-
 const emptyObj = Object.freeze({})
 const intialDataStore = Object.freeze({
     languages: emptyObj,
@@ -137,11 +106,76 @@ const StorePrototype = {
     }
 } as StorePrototype
  
-
-export function i18nTanslationStore(): Store{
-    return Object.assign(Object.create(StorePrototype), {
-        data: intialDataStore,
-        computedTranslationsDefaultContext: {},
-        computedTranslationsByContextData: {}
-    })
+/**
+ * Creates a translation store
+ */
+export function i18nTanslationStore(): Store {
+    const result = Object.create(StorePrototype) as Store
+    result.data = intialDataStore
+    result.computedTranslationsFromLanguage = {}
+    return result
 }
+
+
+//=== Type declarations
+
+
+type Translations = Record<string, string>
+
+type TranslationsDefinition = {
+    /**
+     * `extends` variable saves a list of files to load, can be a string if it is to load a single file
+     * When there are multiple files, the keys are merged, files in next value of the list overrides the previous
+     * one in case of conflicts.
+     */
+    extends?: string | string[],
+    /**
+     * List of translations, merges with all keys from `extends`, overriding any conflicting key in case of conflicts
+     */
+    translations: Translations
+}
+
+
+type StoreData = {
+    /**
+     * Store data languages
+     */
+    languages: Record<string, TranslationsDefinition>
+    /**
+     * location of stored data, used to get relative path to load additional i18n files
+     */
+    location: string
+}
+
+
+
+type StoreInfo = {
+    /**
+     * Store data where all infomation is saved with loadTranslations()
+     */
+    data: StoreData
+
+    /**
+     * Map of calculated languages with translationsFromLanguage(), used for
+     * memoization
+     */
+    computedTranslationsFromLanguage: Record<string, Translations>
+}
+
+type StorePrototype = {
+    /**
+     * loads translations in data
+     */
+    loadTranslations(this: Store, data: StoreData): void
+
+    /**
+     * 
+     * @param locale - Intl.Locale of a string definition
+     * @returns {} if locale as string is an invalid locale 
+     * @returns all translations from language
+     */
+    translationsFromLanguage(this: Store, locale: string | Intl.Locale): Promise<Translations>
+
+}
+
+type Store = StorePrototype & StoreInfo
