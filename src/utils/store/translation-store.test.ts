@@ -49,7 +49,7 @@ test("Given a new store, when loadTranslations ", async ({step: originalStep, ex
         expect(Object.keys(store.data.languages)).toEqual(["en", "en-US"])
 
     })
-    await step('with "en" & "en-UK", should warn about invalid and fixed locale', async () => {
+    await step('with "en" & "en-UK", should warn about invalid locale "en-UK" and fixes it to "en-GB"', async () => {
         const store = i18nTanslationStore()
         store.loadTranslations(storeDataWithLangs({
             en: {translations},
