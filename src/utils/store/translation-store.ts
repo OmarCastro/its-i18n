@@ -37,30 +37,6 @@ const intialDataStore = Object.freeze({
     location: ""
 }) as StoreData
 
-/////////////
-// Getters //
-/////////////
-
-function translationsDefaultContext(store: StoreData){
-    const {extends: ext, translationsFromExtends, translations} = store.languages
-    if(ext != null && translationsFromExtends == null){
-        throw Error("translationsFromExtends shuld have been already loaded before running this method")
-    }
-    return {
-        ...translationsFromExtends,
-        ...translations
-    }
-
-}
-
-/////////////
-// Setters //
-/////////////
-
-function setStore(acc: StoreData, storeData: StoreData){
-
-}
-
 const isLocale = (locale: string) => {
     try {
         new Intl.Locale(locale)
