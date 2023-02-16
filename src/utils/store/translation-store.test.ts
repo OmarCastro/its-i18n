@@ -138,6 +138,30 @@ test("Given a new store, when loadTranslations from location", async ({step: ori
 
     })
 
+    await step('from "import-extends-outer/base/i18n.json" should load wihout problems', async () => {
+
+        const impl = i18nImporterImplWith({ readFrom })
+        provide(impl)
+
+        const basePathFolder = "./translation-store.test.ts--filesystem/import-extends-outer/base"
+        const base = import.meta.url
+        const location = `${basePathFolder}/i18n.json`
+        const json = await impl.importI18nJson(location, base);
+
+
+        const store = i18nTanslationStore()
+        store.loadTranslations({
+            location: new URL(location, base).pathname,
+            languages: json 
+        })
+        expect(consoleCalls).toEqual({ error: [], warn: [] })
+        expect(store.data.languages).toEqual({
+            "en": { "extends": "../languages/en/translations.en.json" },
+            "es": { "extends": "../languages/es/translations.es.json" },
+            "pt": { "extends": "../languages/pt/translations.pt.json" }        
+        })
+    })
+
     console.warn = originalConsoleWarn
     console.error = originalConsoleError
 
