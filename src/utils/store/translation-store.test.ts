@@ -116,7 +116,7 @@ test("Given a new store, when loadTranslations from location", async ({step: ori
 
     await step('from "import-extends/i18n.json" should load wihout problems', async () => {
 
-        const impl = i18nImporterImplWith({readFrom})
+        const impl = i18nImporterImplWith({ readFrom })
         provide(impl)
 
         const base = import.meta.url
@@ -130,10 +130,13 @@ test("Given a new store, when loadTranslations from location", async ({step: ori
             languages: json 
         })
         expect(consoleCalls).toEqual({ error: [], warn: [] })
-        expect(Object.keys(store.data.languages)).toEqual(["en", "es", "pt"])
+        expect(store.data.languages).toEqual({
+            "en": { "extends": "./translations.en.json" },
+            "es": { "extends": "./translations.es.json" },
+            "pt": { "extends": "./translations.pt.json" }
+        })
 
     })
-    
 
     console.warn = originalConsoleWarn
     console.error = originalConsoleError
@@ -245,7 +248,7 @@ test("Given a completed storeData, when getting translationsFromLanguage ", asyn
     
 })
 
-function i18nImporterImplWith({readFrom}){
+function i18nImporterImplWith({readFrom}: {readFrom:  Parameters<Parameters<typeof test>[1]>[0]["readFrom"]}){
     return {
         importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))) ,
         importLanguage: async (url, base) => JSON.parse(await readFrom(new URL(url, base))) ,
