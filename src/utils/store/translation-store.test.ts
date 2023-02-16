@@ -1,6 +1,6 @@
 import { test } from '../../../test-utils/unit/test.ts';
 import { i18nTanslationStore } from './translation-store.ts';
-
+import  {provide} from "../i18n-importer/provider.ts"
 
 test("Given a new store, when loadTranslations ", async ({step: originalStep, expect}) => {
 
@@ -95,6 +95,50 @@ test("Given a new store, when loadTranslations ", async ({step: originalStep, ex
     
 })
 
+test("Given a new store, when loadTranslations from location", async ({step: originalStep, expect, readFrom}) => {
+
+    const consoleCalls = { error: [] as any[], warn: [] as any[] }
+    const originalConsoleWarn = console.warn
+    const originalConsoleError = console.error
+    console.warn = (...args) => {
+        consoleCalls.warn.push(args)
+    }
+
+    console.error = (...args: any[]) => {
+        consoleCalls.error.push(args)
+    } 
+
+    const step = async (...args: Parameters<typeof originalStep>) => {
+        consoleCalls.error.length = 0
+        consoleCalls.warn.length = 0
+        return await originalStep.apply(null, args)
+    }
+
+    await step('from "import-extends/i18n.json" should load wihout problems', async () => {
+
+        const impl = i18nImporterImplWith({readFrom})
+        provide(impl)
+
+        const base = import.meta.url
+        const location = "./translation-store.test.ts--filesystem/import-extends/i18n.json"
+        const json = await impl.importI18nJson(location, base);
+
+
+        const store = i18nTanslationStore()
+        store.loadTranslations({
+            location: new URL(location, base).pathname,
+            languages: json 
+        })
+        expect(consoleCalls).toEqual({ error: [], warn: [] })
+        expect(Object.keys(store.data.languages)).toEqual(["en", "es", "pt"])
+
+    })
+    
+
+    console.warn = originalConsoleWarn
+    console.error = originalConsoleError
+
+})
 
 
 test("Given a completed storeData, when getting translationsFromLanguage ", async ({step, expect}) => {
@@ -200,5 +244,12 @@ test("Given a completed storeData, when getting translationsFromLanguage ", asyn
     
     
 })
+
+function i18nImporterImplWith({readFrom}){
+    return {
+        importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))) ,
+        importLanguage: async (url, base) => JSON.parse(await readFrom(new URL(url, base))) ,
+    } as Parameters<typeof provide>[0]
+}
 
 
