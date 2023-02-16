@@ -75,6 +75,20 @@ test("Given a new store, when loadTranslations ", async ({step: originalStep, ex
         expect(Object.keys(store.data.languages)).toEqual(["en", "en-GB"])
 
     })
+
+    await step('with "en", "en-GB" & "en-ABC", should log error of invalid locale "en-ABC" and should discard only the invalid one', async () => {
+        const store = i18nTanslationStore()
+        store.loadTranslations(storeDataWithLangs({
+            en: {translations},
+            "en-GB": {translations},
+            "en-ABC": {translations},
+        }))
+        expect(consoleCalls).toEqual({ error: [
+            ['Error: Invalid locale "en-ABC", it will not be added to the I18n store']
+        ], warn: [] })
+        expect(Object.keys(store.data.languages)).toEqual(["en", "en-GB"])
+
+    })
     
     console.warn = originalConsoleWarn
     console.error = originalConsoleError

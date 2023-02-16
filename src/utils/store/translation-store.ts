@@ -28,7 +28,7 @@ function normalizeTranslationData(data: StoreData) {
         try {
             locale = new Intl.Locale(localeString)
         } catch {
-            console.error(`Error: Invalid locale ${localeString}, it will not be added to the I18n store`)
+            console.error(`Error: Invalid locale "${localeString}", it will not be added to the I18n store`)
             continue
         }
         const {baseName} = locale
