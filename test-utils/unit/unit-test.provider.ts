@@ -3,6 +3,7 @@
 export interface TestAPI {
     expect: any
     step(description: string, step: () => Promise<any>): any
+    readFrom(path: URL): Promise<string>
 }
 
 export interface Test {
@@ -36,7 +37,8 @@ const fn = async () => {
             globalThis.Deno.test(`${description}`, async (t) => {
                 await test({
                     step: t.step,
-                    expect
+                    expect,
+                    readFrom: async (url) => await globalThis.Deno.readTextFile(url.pathname)
                 });
             }) 
             
@@ -56,7 +58,8 @@ const fn = async () => {
             test(description, async () => {
                 await t({
                     step: test.step,
-                    expect
+                    expect,
+                    readFrom: async (url) => await importModule("node:fs/promises").then(({readFile}) => readFile(url.pathname))
                 });
             }) 
         })
@@ -77,7 +80,8 @@ const fn = async () => {
                     console.log("--"+description)
                     await test()
                 },
-                expect
+                expect,
+                readFrom: async (url) => { throw new Error("readFrom not implemented yet")}
             });
         })
     }
