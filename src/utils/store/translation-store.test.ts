@@ -167,6 +167,58 @@ test("Given a new store, when loadTranslations from location", async ({step: ori
 
 })
 
+test('Given a storeData loaded from "import-extends/i18n.json", when getting translationsFromLanguage ', async ({step, expect, readFrom}) => {
+
+    let importLanguageCalls = [] as {url: string, base: string}[];
+    const impl =  {
+        importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))) ,
+        importLanguage: async (url, base) => (importLanguageCalls.push({url, base}) ,JSON.parse(await readFrom(new URL(url, base)))) ,
+    } as Parameters<typeof provide>[0]
+
+    provide(impl)
+
+    const base = import.meta.url
+    const location = "./translation-store.test.ts--filesystem/import-extends/i18n.json"
+    const json = await impl.importI18nJson(location, base);
+
+    const store = i18nTanslationStore()
+    store.loadTranslations({
+        location: new URL(location, base).toString(),
+        languages: json 
+    })
+
+    await step('"importLanguage", load engish languages only once', async () => {
+        await store.translationsFromLanguage("en")
+        await store.translationsFromLanguage("en-US")
+        await store.translationsFromLanguage("en-Latn-US")
+        expect(importLanguageCalls).toEqual([{url: store.data.languages.en.extends, base: store.data.location}])
+    })
+
+
+    await step('"en", should import & return english translations', async () => {
+        expect(await store.translationsFromLanguage("en")).toEqual({
+            "hello world": "hello world",
+            "I like red color": "I like red color",
+            "I will go in a bus": "I will go in a bus"
+        })
+    })
+    await step('"en-US", should still return english translations', async () => {
+        expect(await store.translationsFromLanguage("en-US")).toEqual({
+            "hello world": "hello world",
+            "I like red color": "I like red color",
+            "I will go in a bus": "I will go in a bus"
+        })
+    })
+    await step('"en-Latn-US", should still return english translations', async () => {
+        expect(await store.translationsFromLanguage("en-Latn-US")).toEqual({
+            "hello world": "hello world",
+            "I like red color": "I like red color",
+            "I will go in a bus": "I will go in a bus"
+        })
+    })
+    
+})
+
 
 test("Given a completed storeData, when getting translationsFromLanguage ", async ({step, expect}) => {
 
