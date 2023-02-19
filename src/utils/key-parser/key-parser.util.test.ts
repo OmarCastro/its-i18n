@@ -2,20 +2,32 @@
 import { test } from '../../../test-utils/unit/test.ts';
 import { parseKey, getAST, states } from './key-parser.util.ts';
 
-test("Given a simple string, getAST should return a AST with one token", async ({step, expect}) => {
+test("Given a simple string, getAST should return an AST with one token", async ({step, expect}) => {
     
     const ast = getAST("hello world");
     expect(ast.tokens).toEqual([{ start: 0, end: 11, type: states.normal, text: "hello world", childTokens: []}])
 
 });
 
-test("Given a simple string, getAST should return a AST with 3 tokens", async ({step, expect}) => {
+test("Given a simple template string, getAST should return an AST with 3 tokens", async ({step, expect}) => {
     
     const ast = getAST("hello {} world");
     expect(ast.tokens).toEqual([
         { start: 0, end: 6, type: states.normal, text: "hello ", childTokens: [] },
         { start: 7, end: 7, type: states.capture, text: "", childTokens: [] },
         { start: 8, end: 14, type: states.normal, text: " world", childTokens: [] },
+    ])
+
+});
+
+
+test('Given a template string with "number" keyword, getAST should return an AST with 3 tokens', async ({step, expect}) => {
+    
+    const ast = getAST("I see {number} worlds");
+    expect(ast.tokens).toEqual([
+        { start: 0, end: 6, type: states.normal, text: "I see ", childTokens: [] },
+        { start: 7, end: 13, type: states.capture, text: "number", childTokens: [] },
+        { start: 14, end: 21, type: states.normal, text: " worlds", childTokens: [] },
     ])
 
 });
