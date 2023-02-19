@@ -32,6 +32,13 @@ test('Given a template string with "number" keyword, getAST should return an AST
 
 });
 
+test('Given a string with escaped initial curly brace, getAST should return an AST with 1 tokens', async ({step, expect}) => {
+    
+    const ast = getAST("hello \\{} world");
+    expect(ast.tokens).toEqual([{ start: 0, end: 15, type: states.normal, text: "hello \\{} world", childTokens: []}])
+
+});
+
 test("Given a simple string, parseKey should return a result with max priority", async ({step, expect}) => {
     
     const parseKeyResult = parseKey("hello world");
