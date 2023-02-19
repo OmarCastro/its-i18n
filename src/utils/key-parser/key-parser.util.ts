@@ -52,6 +52,7 @@ stateMachine[states.sq_string] = singleQuoteStringState
 stateMachine[states.dq_string] = doubleQuoteStringState
 stateMachine[states.bt_string] = backtickStringState
 stateMachine[states.capture] = captureState
+stateMachine[states.escape] = escapeState
 
 
 export function getAST(key: string): AST{
@@ -87,6 +88,15 @@ export function getAST(key: string): AST{
 
         if(nextState === states.previous){
             setCurrentState(previousState)
+            if(currentToken.type === states.escape){
+                if(currentToken.parentNode === rootnode){
+                    currentToken = rootnode.tokens.pop() as TmpToken
+                    continue
+                }
+                currentToken = currentToken.parentNode as TmpToken
+                continue
+            }
+            
             currentToken.end = i
             if(currentToken.parentNode === rootnode){
                 rootnode.tokens.push(currentToken)
