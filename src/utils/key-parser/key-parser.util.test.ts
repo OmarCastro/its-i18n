@@ -1,8 +1,20 @@
 
 import { test } from '../../../test-utils/unit/test.ts';
-import { parseKey } from './key-parser.util.ts';
+import { parseKey, getAST } from './key-parser.util.ts';
 
+test("Given a simple string, getAST should return a AST with one token", async ({step, expect}) => {
+    
+    const ast = getAST("hello world");
+    expect(ast.tokens.length).toEqual(1)
 
+});
+
+test("Given a simple string, getAST should return a AST with one token", async ({step, expect}) => {
+    
+    const ast = getAST("hello {} world");
+    expect(ast.tokens.length).toEqual(3)
+
+});
 
 test("Given a simple string, parseKey should return a result with max priority", async ({step, expect}) => {
     
