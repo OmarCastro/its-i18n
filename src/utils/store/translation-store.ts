@@ -1,9 +1,9 @@
-import { importLanguage } from "../i18n-importer/mod.ts"
+import { importLanguage } from '../i18n-importer/mod.ts'
 
 const emptyObj = Object.freeze({})
 const intialDataStore = Object.freeze({
   languages: emptyObj,
-  location: "",
+  location: '',
 }) as StoreData
 
 const isLocale = (locale: string) => {
@@ -78,7 +78,7 @@ const StorePrototype = {
   },
 
   async translationsFromLanguage(locale): Promise<Translations> {
-    if (typeof locale == "string") {
+    if (typeof locale == 'string') {
       return await this.translationsFromLanguage(new Intl.Locale(locale))
     }
     if (this.computedTranslationsFromLanguage[locale.baseName]) {
