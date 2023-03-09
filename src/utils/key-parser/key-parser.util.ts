@@ -75,7 +75,7 @@ export function getAST(key: string): AST {
   }
 
   const length = key.length
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     const ch = key.charCodeAt(i)
 
     const nextState = currentMachineState[ch]
@@ -123,7 +123,7 @@ export function getAST(key: string): AST {
           childTokens: [],
         }
         break
-      default:
+      default: {
         const newToken = {
           parentNode: currentToken,
           start: i + 1,
@@ -132,6 +132,7 @@ export function getAST(key: string): AST {
           childTokens: [],
         }
         currentToken = newToken
+      }
     }
     setCurrentState(nextState)
   }

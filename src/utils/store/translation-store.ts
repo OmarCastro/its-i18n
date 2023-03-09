@@ -57,7 +57,7 @@ const getTranslationsFromData = async (store: StoreInfo, locale: string): Promis
   if (!definition.extends) {
     return definition.translations
   }
-  const extendsArray = [].concat(definition.extends as any) as string[]
+  const extendsArray = [].concat(definition.extends as never) as string[]
   const translationsFromExtends = {}
   for (const extend of extendsArray) {
     const translations = isLocale(extend) ? await getTranslationsFromData(store, extend) : await importLanguage(extend, store.data.location)
