@@ -15,25 +15,29 @@ function isi18nDefinition(json): json is I18nDefinitionMap {
   return Object.keys(json).every((key) => typeof [json[key]] === 'string')
 }
 
+export async function importLanguage(reqUrl: string | URL, base: string | URL) {
+  const url = new URL(reqUrl, base)
+  const response = await fetch(url)
+  const json = await response.json()
+  if (!isTranslationMap(json)) {
+    console.error('expected json from url %o to be a map of translations, returning empty translation', url)
+    return {}
+  }
+  return json
+}
+
+export async function importI18nJson(reqUrl: string | URL, base: string | URL) {
+  const url = new URL(reqUrl, base)
+  const response = await fetch(url)
+  const json = await response.json()
+  if (!isi18nDefinition(json)) {
+    console.error('expected json from url %o to be a map of translations, returning empty translation', url)
+    return {}
+  }
+  return json
+}
+
 provide({
-  async importLanguage(reqUrl, base) {
-    const url = new URL(reqUrl, base)
-    const response = await fetch(url)
-    const json = await response.json()
-    if (!isTranslationMap(json)) {
-      console.error('expected json from url %o to be a map of translations, returning empty translation', url)
-      return {}
-    }
-    return json
-  },
-  async importI18nJson(reqUrl, base) {
-    const url = new URL(reqUrl, base)
-    const response = await fetch(url)
-    const json = await response.json()
-    if (!isi18nDefinition(json)) {
-      console.error('expected json from url %o to be a map of translations, returning empty translation', url)
-      return {}
-    }
-    return json
-  },
+  importLanguage,
+  importI18nJson,
 })
