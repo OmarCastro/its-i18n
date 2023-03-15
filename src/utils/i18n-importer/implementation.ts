@@ -1,6 +1,10 @@
 import type { I18nDefinition, I18nDefinitionMap, Translations } from './provider.ts'
 import { provide } from './provider.ts'
 
+type I18nDefinitionMapResponse = {
+  [key: string]: Partial<I18nDefinition>
+}
+
 function isTranslationMap(json: Translations): json is Translations {
   if (typeof json !== 'object' || Array.isArray(json)) {
     return false
@@ -8,7 +12,7 @@ function isTranslationMap(json: Translations): json is Translations {
   return Object.keys(json).every((key) => typeof [json[key]] === 'string')
 }
 
-function isi18nDefinition(definition: I18nDefinition): definition is I18nDefinition {
+function isi18nDefinition(definition: Partial<I18nDefinition>): definition is Partial<I18nDefinition> {
   const { extends: xtends, translations } = definition
   if (xtends == null) {
     return true
@@ -23,11 +27,22 @@ function isi18nDefinition(definition: I18nDefinition): definition is I18nDefinit
   return false
 }
 
-function isi18nDefinitionMap(json: I18nDefinitionMap): json is I18nDefinitionMap {
+function isI18nDefinitionMap(json: I18nDefinitionMapResponse): json is I18nDefinitionMapResponse {
   if (typeof json !== 'object' || Array.isArray(json)) {
     return false
   }
   return Object.keys(json).every((key) => isi18nDefinition(json[key]))
+}
+
+function normalizeI18nDefinitionMap(response: I18nDefinitionMapResponse): I18nDefinitionMap {
+  const result = Object.fromEntries(
+    Object.entries(response).map(([key, value]) => [key, {
+      ...value,
+      translations: value.translations ?? {},
+    }]),
+  )
+
+  return result
 }
 
 export async function importLanguage(reqUrl: string | URL, base: string | URL): Promise<Translations> {
@@ -45,11 +60,11 @@ export async function importI18nJson(reqUrl: string | URL, base: string | URL): 
   const url = new URL(reqUrl, base)
   const response = await fetch(url)
   const json = await response.json()
-  if (!isi18nDefinitionMap(json)) {
+  if (!isI18nDefinitionMap(json)) {
     console.error('expected json from url %o to be a map of translations, instead returned %o, returning empty translation', url.href, json)
     return {}
   }
-  return json
+  return normalizeI18nDefinitionMap(json)
 }
 
 provide({
