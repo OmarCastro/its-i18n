@@ -1,4 +1,9 @@
 {
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["dom", "esnext"],
+    "strict": false
+  },
   "fmt": {
     "files": {
       "include": ["src/"],
