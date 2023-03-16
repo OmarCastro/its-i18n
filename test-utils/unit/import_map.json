@@ -1,0 +1,10 @@
+{
+    "imports": {
+      "jsdom": "https://esm.sh/jsdom@21.1.1"
+    },
+    "scopes": {
+      "https://esm.sh/v111/jsdom@21.1.1/deno/jsdom.js": {
+        "https://deno.land/std@0.177.0/node/vm.ts": "./deno-node-override/vm.ts"
+      }
+    }
+  }
