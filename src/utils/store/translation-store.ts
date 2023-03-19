@@ -108,8 +108,8 @@ const StorePrototype = {
 /**
  * Creates a translation store
  */
-export function i18nTanslationStore(): Store {
-  const result = Object.create(StorePrototype) as Store
+export function i18nTanslationStore(): TranslationStore {
+  const result = Object.create(StorePrototype) as TranslationStore
   result.data = intialDataStore
   result.computedTranslationsFromLanguage = {}
   return result
@@ -132,7 +132,7 @@ type TranslationsDefinition = {
   translations: Translations
 }
 
-type StoreData = {
+export type StoreData = {
   /**
    * Store data languages
    */
@@ -160,14 +160,14 @@ type StorePrototype = {
   /**
    * loads translations in data
    */
-  loadTranslations(this: Store, data: StoreData): void
+  loadTranslations(this: TranslationStore, data: StoreData): void
 
   /**
    * @param locale - Intl.Locale of a string definition
    * @returns {} if locale as string is an invalid locale
    * @returns all translations from language
    */
-  translationsFromLanguage(this: Store, locale: string | Intl.Locale): Promise<Translations>
+  translationsFromLanguage(this: TranslationStore, locale: string | Intl.Locale): Promise<Translations>
 }
 
-type Store = StorePrototype & StoreInfo
+export type TranslationStore = StorePrototype & StoreInfo

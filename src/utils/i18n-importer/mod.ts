@@ -1,4 +1,5 @@
 import { implementation } from './provider.ts'
+export type { I18nDefinition, I18nDefinitionMap } from './provider.ts'
 
 type ImportLanguage = typeof implementation.importLanguage
 export const importLanguage: ImportLanguage = (url, base) => implementation.importLanguage(url, base)
