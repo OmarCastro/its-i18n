@@ -8,7 +8,9 @@ type NormalizedI18nDefinition = {
 type NormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
 
 
-type NonNormalizedI18nDefinition = {
+type NonNormalizedI18nDefinition = string |
+string[] |
+{
   extends?: string[] | string
   translations: Translations
 } | {
@@ -18,16 +20,35 @@ type NonNormalizedI18nDefinition = {
 
 type NonNormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
 
+function normalizeExtendsArray(extendsArray: string[]){
+  const result = [] as typeof extendsArray 
+  for(const importPath of extendsArray){
+    result.push(importPath)
+  }
+  return result
+}
 
-function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): NormalizedI18nDefinition{
-  const extensions = [] as string[]
+/**
+ * Normalizes the i18n definition model data
+ * @param data 
+ * @returns 
+ */
+export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): NormalizedI18nDefinition{
   const translations = {}
+  if(typeof data === "string"){
+    return {extends: [data], translations}
+  }
+  const extensions = [] as string[]
+
+  if(Array.isArray(data)){
+    return {extends: normalizeExtendsArray(data), translations}
+  }
   const {extends: extdensVal, translations: translationsVal} = data
   if(typeof extdensVal === "string"){
     extensions.push(extdensVal)
   } else if(Array.isArray(extdensVal)){
-    for(const ext of extdensVal){
-      extensions.push(ext)
+    for(const importPath of extdensVal){
+      extensions.push(importPath)
     }
   }
 
