@@ -27,8 +27,11 @@ type ErrorList = {
 }[]
 
 export function validateImportPath(path: string): { valid: boolean; error?: string } {
+  if (path == null) {
+    return { valid: false, error: `expected string instead of ${path}` }
+  }
   if (typeof path !== 'string') {
-    return { valid: false, error: `expected string, instead of ${typeof path}` }
+    return { valid: false, error: `expected string instead of ${typeof path}` }
   }
   if (path === '') {
     return { valid: false, error: `cannot import empty path` }
@@ -70,7 +73,7 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
 
   if (Array.isArray(data)) {
     const extendsArrayResult = normalizeExtendsArray(data)
-    const errors = extendsArrayResult.errors.map(({ path, message }) => ({ path: `extends${path}`, message }))
+    const errors = extendsArrayResult.errors
     const result = { extends: extendsArrayResult.result, translations }
     return { result, errors }
   }
