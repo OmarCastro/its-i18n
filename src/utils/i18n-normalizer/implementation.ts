@@ -26,7 +26,7 @@ type ErrorList = {
   message: string
 }[]
 
-function verifyImportPath(path: string): {valid: boolean, error?: string} {
+export function validateImportPath(path: string): {valid: boolean, error?: string} {
   if(typeof path !== "string"){
     return {valid: false, error:  `expected string, instead of ${typeof path}`}
   }
@@ -41,7 +41,7 @@ function normalizeExtendsArray(extendsArray: string[]): { result: typeof extends
   const result = [] as typeof extendsArray
   const errors = [] as ErrorList
   for (const [index, importPath] of extendsArray.entries()) {
-    const checkResult = verifyImportPath(importPath)
+    const checkResult = validateImportPath(importPath)
     if(!checkResult.valid){
       errors.push({path: `[${index}]`, message: `${checkResult.error}, ignoring extends` })
       continue
@@ -58,14 +58,22 @@ function normalizeExtendsArray(extendsArray: string[]): { result: typeof extends
  * 
  * @returns normalized i18n definition
  */
-export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition, context: any[] = []): NormalizedI18nDefinition {
+export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): {result: NormalizedI18nDefinition, errors: ErrorList} {
   const translations = {}
+
+  if(data === ''){
+    return {result: {extends: [], translations}, errors:  [{path: "", message:`cannot import empty path, ignoring extends`}]}
+  }
+
   if (typeof data === 'string') {
-    return { extends: [data], translations }
+    return { result: {extends: [data], translations }, errors: []}
   }
 
   if (Array.isArray(data)) {
-    return { extends: normalizeExtendsArray(data).result, translations }
+    const extendsArrayResult = normalizeExtendsArray(data)
+    const errors = extendsArrayResult.errors.map(({path, message}) => ({path: `extends${path}` , message}))
+    const result = { extends: extendsArrayResult.result, translations }
+    return { result, errors }
   }
 
   const { extends: extdensVal, translations: translationsVal } = data
@@ -73,15 +81,22 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition, conte
     Object.entries(translationsVal).forEach(([key, val]) => translations[key] = val)
   }
 
+  if (extdensVal === '') {
+    return {result: {extends: [], translations}, errors:  [{path: "extends", message:`cannot import empty path, ignoring extends`}]}
+  }
+
   if (typeof extdensVal === 'string') {
-    return { extends: [extdensVal], translations }
+    return { result: {extends: [extdensVal], translations }, errors: []}
   }
 
   if (Array.isArray(extdensVal)) {
-    return { extends: normalizeExtendsArray(extdensVal).result, translations }
+    const extendsArrayResult = normalizeExtendsArray(extdensVal)
+    const errors = extendsArrayResult.errors.map(({path, message}) => ({path: `extends${path}` , message}))
+    const result = { extends: extendsArrayResult.result, translations }
+    return { result, errors }
   }
 
-  return { extends: [], translations }
+  return {result: {extends: [], translations}, errors:  [{path: "", message:`invalid type`}]}
 }
 
 /**
@@ -94,7 +109,7 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition, conte
 function normalizeI18nInfoDefinitionMap(data: NonNormalizedI18nDefinitionMap, context: any[] = []): NormalizedI18nDefinitionMap {
   return Object.fromEntries(
     Object.entries(data).map(
-      ([lang, i18nDefninition]) => [lang, normalizeI18nDefinition(i18nDefninition)],
+      ([lang, i18nDefninition]) => [lang, normalizeI18nDefinition(i18nDefninition).result],
     ),
   )
 }
