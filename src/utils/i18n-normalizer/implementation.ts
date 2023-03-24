@@ -26,12 +26,11 @@ type ErrorList = {
   message: string
 }[]
 
+const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
+
 export function validateImportPath(path: string): { valid: boolean; error?: string } {
-  if (path == null) {
-    return { valid: false, error: `expected string instead of ${path}` }
-  }
   if (typeof path !== 'string') {
-    return { valid: false, error: `expected string instead of ${typeof path}` }
+    return { valid: false, error: `expected string instead of ${typeOf(path)}` }
   }
   if (path === '') {
     return { valid: false, error: `cannot import empty path` }
@@ -84,7 +83,7 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
   }
 
   if (extdensVal === '') {
-    return { result: { extends: [], translations }, errors: [{ path: 'extends', message: `cannot import empty path, ignoring extends` }] }
+    return { result: { extends: [], translations }, errors: [{ path: '.extends', message: `cannot import empty path, ignoring extends` }] }
   }
 
   if (typeof extdensVal === 'string') {
@@ -93,9 +92,16 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
 
   if (Array.isArray(extdensVal)) {
     const extendsArrayResult = normalizeExtendsArray(extdensVal)
-    const errors = extendsArrayResult.errors.map(({ path, message }) => ({ path: `extends${path}`, message }))
+    const errors = extendsArrayResult.errors.map(({ path, message }) => ({ path: `.extends${path}`, message }))
     const result = { extends: extendsArrayResult.result, translations }
     return { result, errors }
+  }
+
+  if (Object.hasOwn(data, 'extends')) {
+    return {
+      result: { extends: [], translations },
+      errors: [{ path: '.extends', message: `expected string or string array (string[]) instead of ${typeOf(extdensVal)}` }],
+    }
   }
 
   return { result: { extends: [], translations }, errors: [{ path: '', message: `invalid type` }] }
@@ -108,10 +114,13 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
  *
  * @returns normalized i18n definition map
  */
-function normalizeI18nInfoDefinitionMap(data: NonNormalizedI18nDefinitionMap): NormalizedI18nDefinitionMap {
-  return Object.fromEntries(
-    Object.entries(data).map(
-      ([lang, i18nDefninition]) => [lang, normalizeI18nDefinition(i18nDefninition).result],
-    ),
-  )
+function normalizeI18nInfoDefinitionMap(data: NonNormalizedI18nDefinitionMap): { result: NormalizedI18nDefinition; errors: ErrorList } {
+  return Object.entries(data).reduce((acc, [lang, i18nDefninition]) => {
+    const normalizedResult = normalizeI18nDefinition(i18nDefninition)
+    const langJsonPath = `[${JSON.stringify(lang)}]`
+    const errors = normalizedResult.errors.map(({ path, message }) => ({ path: `${langJsonPath}${path}`, message }))
+    acc.result[lang] = normalizedResult.result
+    acc.errors.push(...errors)
+    return acc
+  }, { result: {}, errors: [] as ErrorList } as ReturnType<typeof normalizeI18nInfoDefinitionMap>)
 }
