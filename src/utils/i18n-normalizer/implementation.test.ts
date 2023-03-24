@@ -35,7 +35,7 @@ test('Given an valid array, normalizeI18nDefinition normalizes to an tuple exten
 })
 
 test('Given an array with errors, normalizeI18nDefinition normalizes to an tuple extends with erros', ({ expect }) => {
-  const input = ['lang.en.json', '', null, undefined] as unknown as string[]
+  const input = ['lang.en.json', '', null, undefined] as never
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
@@ -46,6 +46,20 @@ test('Given an array with errors, normalizeI18nDefinition normalizes to an tuple
       { path: '[1]', message: 'cannot import empty path, ignoring extends' },
       { path: '[2]', message: 'expected string instead of null, ignoring extends' },
       { path: '[3]', message: 'expected string instead of undefined, ignoring extends' },
+    ],
+  })
+})
+
+test('Given an object with null extends, normalizeI18nDefinition normalizes to an tuple extends with erros', ({ expect }) => {
+  const input = { extends: null } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: {
+      extends: [],
+      translations: {},
+    },
+    errors: [
+      { path: '.extends', message: 'expected string or string array (string[]) instead of null' },
     ],
   })
 })
