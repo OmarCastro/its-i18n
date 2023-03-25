@@ -80,3 +80,15 @@ test('Given an object with extends arry with errors, normalizeI18nDefinition nor
     ],
   })
 })
+
+test('Given an object with valid extends array, normalizeI18nDefinition normalizes to an tuple extends', ({ expect }) => {
+  const input = { extends: ['lang.en.json', 'customization.en.json'] } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: {
+      extends: ['lang.en.json', 'customization.en.json'],
+      translations: {},
+    },
+    errors: [],
+  })
+})
