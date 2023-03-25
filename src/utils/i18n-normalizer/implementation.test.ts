@@ -50,7 +50,7 @@ test('Given an array with errors, normalizeI18nDefinition normalizes to an tuple
   })
 })
 
-test('Given an object with null extends, normalizeI18nDefinition normalizes to an tuple extends with erros', ({ expect }) => {
+test('Given an object with null extends, normalizeI18nDefinition normalizes to empty definition with error', ({ expect }) => {
   const input = { extends: null } as never
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
@@ -60,6 +60,20 @@ test('Given an object with null extends, normalizeI18nDefinition normalizes to a
     },
     errors: [
       { path: '.extends', message: 'expected string or string array (string[]) instead of null' },
+    ],
+  })
+})
+
+test('Given an object with empty string extends, normalizeI18nDefinition normalizes to empty definition with error', ({ expect }) => {
+  const input = { extends: '' } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: {
+      extends: [],
+      translations: {},
+    },
+    errors: [
+      { path: '.extends', message: 'cannot import empty path, ignoring extends' },
     ],
   })
 })
