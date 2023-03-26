@@ -1,6 +1,15 @@
 import { test } from '../../../test-utils/unit/test.ts'
 import { normalizeI18nDefinition } from './implementation.ts'
 
+test('Given an invalid input type, normalizeI18nDefinition returns empty definition with error', ({ expect }) => {
+  const input = null as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: { extends: [], translations: {} },
+    errors: [{ path: '', message: `invalid type` }],
+  })
+})
+
 test('Given an empty string, normalizeI18nDefinition returns empty definition with error', ({ expect }) => {
   const input = ''
   const result = normalizeI18nDefinition(input)
