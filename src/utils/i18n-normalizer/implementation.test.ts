@@ -87,6 +87,18 @@ test('Given an object with empty string extends, normalizeI18nDefinition normali
   })
 })
 
+test('Given a valid extends string, normalizeI18nDefinition normalizes to an singluar tuple extends', ({ expect }) => {
+  const input = { extends: 'lang.en.json' }
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: {
+      extends: ['lang.en.json'],
+      translations: {},
+    },
+    errors: [],
+  })
+})
+
 test('Given an object with extends arry with errors, normalizeI18nDefinition normalizes to an tuple extends with erros', ({ expect }) => {
   const input = { extends: [null, 'lang.en.json', '', 123, {}] } as never
   const result = normalizeI18nDefinition(input)
@@ -122,5 +134,27 @@ test('Given an object with valid extends array and translation, normalizeI18nDef
   expect(result).toEqual({
     result: input,
     errors: [],
+  })
+})
+
+test('Given an valid translation object, normalizeI18nDefinition returns an result with an empty extends', ({ expect }) => {
+  const input = {
+    translations: {
+      'hello world': 'olá mundo',
+    },
+  }
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: { extends: [], translations: input.translations },
+    errors: [],
+  })
+})
+
+test('Given an invalid object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
+  const input = { lorem: ['lang.en.json', 'customization.en.json'], ipsum: {} } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: { extends: [], translations: {} },
+    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translation" keys' }],
   })
 })
