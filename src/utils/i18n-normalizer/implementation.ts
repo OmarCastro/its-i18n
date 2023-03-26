@@ -27,6 +27,7 @@ type ErrorList = {
 }[]
 
 const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
+const isPlainObject = (value) => value?.constructor === Object
 
 export function validateImportPath(path: string): { valid: boolean; error?: string } {
   if (typeof path !== 'string') {
@@ -52,6 +53,25 @@ function normalizeExtendsArray(extendsArray: string[]): { result: typeof extends
   return { result, errors }
 }
 
+function normalizesExtendsValue(extdensVal: unknown): { result: string[]; errors: ErrorList } {
+  if (extdensVal === '') {
+    return { result: [], errors: [{ path: '', message: `cannot import empty path, ignoring extends` }] }
+  }
+
+  if (typeof extdensVal === 'string') {
+    return { result: [extdensVal], errors: [] }
+  }
+
+  if (Array.isArray(extdensVal)) {
+    return normalizeExtendsArray(extdensVal)
+  }
+
+  return {
+    result: [],
+    errors: [{ path: '', message: `expected string or string array (string[]) instead of ${typeOf(extdensVal)}` }],
+  }
+}
+
 /**
  * Normalizes the i18n definition model data
  *
@@ -60,51 +80,59 @@ function normalizeExtendsArray(extendsArray: string[]): { result: typeof extends
  * @returns normalized i18n definition
  */
 export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { result: NormalizedI18nDefinition; errors: ErrorList } {
-  const translations = {}
-
   if (data === '') {
-    return { result: { extends: [], translations }, errors: [{ path: '', message: `cannot import empty path, ignoring extends` }] }
+    return {
+      result: { extends: [], translations: {} },
+      errors: [{ path: '', message: `cannot import empty path, ignoring extends` }],
+    }
   }
 
   if (typeof data === 'string') {
-    return { result: { extends: [data], translations }, errors: [] }
+    return { result: { extends: [data], translations: {} }, errors: [] }
   }
 
   if (Array.isArray(data)) {
     const extendsArrayResult = normalizeExtendsArray(data)
     const errors = extendsArrayResult.errors
-    const result = { extends: extendsArrayResult.result, translations }
+    const result = { extends: extendsArrayResult.result, translations: {} }
     return { result, errors }
   }
 
-  const { extends: extdensVal, translations: translationsVal } = data
-  if (translationsVal != null) {
-    Object.entries(translationsVal).forEach(([key, val]) => translations[key] = val)
+  if (!isPlainObject(data)) {
+    return { result: { extends: [], translations: {} }, errors: [{ path: '', message: `invalid type` }] }
   }
 
-  if (extdensVal === '') {
-    return { result: { extends: [], translations }, errors: [{ path: '.extends', message: `cannot import empty path, ignoring extends` }] }
+  let extendsValue = [] as NormalizedI18nDefinition['extends']
+  const tranlsationValue = {} as NormalizedI18nDefinition['translations']
+  const errors = [] as ErrorList
+  const hasExtends = Object.hasOwn(data, 'extends')
+  const hasTranslations = Object.hasOwn(data, 'translations')
+
+  if (hasExtends) {
+    const extendsValueResult = normalizesExtendsValue(data.extends)
+    errors.push(...extendsValueResult.errors.map(({ path, message }) => ({ path: `.extends${path}`, message })))
+    extendsValue = extendsValueResult.result
   }
 
-  if (typeof extdensVal === 'string') {
-    return { result: { extends: [extdensVal], translations }, errors: [] }
-  }
-
-  if (Array.isArray(extdensVal)) {
-    const extendsArrayResult = normalizeExtendsArray(extdensVal)
-    const errors = extendsArrayResult.errors.map(({ path, message }) => ({ path: `.extends${path}`, message }))
-    const result = { extends: extendsArrayResult.result, translations }
-    return { result, errors }
-  }
-
-  if (Object.hasOwn(data, 'extends')) {
-    return {
-      result: { extends: [], translations },
-      errors: [{ path: '.extends', message: `expected string or string array (string[]) instead of ${typeOf(extdensVal)}` }],
+  if (hasTranslations) {
+    if (isPlainObject(data.translations)) {
+      Object.entries(data.translations!).forEach(([key, value]) => {
+        tranlsationValue[key] = value
+      })
     }
   }
 
-  return { result: { extends: [], translations }, errors: [{ path: '', message: `invalid type` }] }
+  if (hasExtends || hasTranslations) {
+    return {
+      result: { extends: extendsValue, translations: tranlsationValue },
+      errors,
+    }
+  }
+
+  return {
+    result: { extends: [], translations: {} },
+    errors: [{ path: '', message: `invalid object, the object must have "extends" or "translation" keys` }],
+  }
 }
 
 /**
