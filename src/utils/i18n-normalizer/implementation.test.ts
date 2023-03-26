@@ -115,3 +115,12 @@ test('Given an object with valid extends array, normalizeI18nDefinition normaliz
     errors: [],
   })
 })
+
+test('Given an object with valid extends array and translation, normalizeI18nDefinition returns an equal result', ({ expect }) => {
+  const input = { extends: ['lang.en.json', 'customization.en.json'], translations: {} }
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: input,
+    errors: [],
+  })
+})
