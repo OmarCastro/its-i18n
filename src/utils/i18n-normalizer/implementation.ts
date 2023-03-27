@@ -28,6 +28,7 @@ type ErrorList = {
 
 const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
 const isPlainObject = (value) => value?.constructor === Object
+const properyPath = (propName: string) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `[${JSON.stringify(propName)}]`
 
 export function validateImportPath(path: string): { valid: boolean; error?: string } {
   if (typeof path !== 'string') {
@@ -142,13 +143,48 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
  *
  * @returns normalized i18n definition map
  */
-function normalizeI18nInfoDefinitionMap(data: NonNormalizedI18nDefinitionMap): { result: NormalizedI18nDefinition; errors: ErrorList } {
-  return Object.entries(data).reduce((acc, [lang, i18nDefninition]) => {
+function normalizeI18nInfoDefinitionMap(
+  data: NonNormalizedI18nDefinitionMap,
+): { result: NormalizedI18nDefinition; warnings: ErrorList; errors: ErrorList } {
+  const result = {} as NormalizedI18nDefinition
+  const errors = [] as ErrorList
+  const warnings = [] as ErrorList
+
+  for (const [localeString, i18nDefninition] of Object.keys(data)) {
+    let locale: Intl.Locale
+    try {
+        locale = new Intl.Locale(localeString)
+      } catch {
+      errors.push({
+        path: properyPath(localeString),
+        message: `invalid locale "${localeString}", it will be ignored`,
+      })
+      continue
+    }
+
+    const { baseName } = locale
+    if (baseName !== localeString) {
+      if (data[baseName]) {
+        errors.push({
+          path: properyPath(localeString),
+          message: `invalid locale "${localeString}", it also conflicts with correct locale "${baseName}", it will be ignored`,
+        })
+        continue
+      } else {
+        warnings.push({
+          path: properyPath(localeString),
+          message: `invalid locale "${localeString}", fixed to locale "${baseName}"`,
+        })
+      }
+    }
+
     const normalizedResult = normalizeI18nDefinition(i18nDefninition)
-    const langJsonPath = `[${JSON.stringify(lang)}]`
-    const errors = normalizedResult.errors.map(({ path, message }) => ({ path: `${langJsonPath}${path}`, message }))
-    acc.result[lang] = normalizedResult.result
-    acc.errors.push(...errors)
-    return acc
-  }, { result: {}, errors: [] as ErrorList } as ReturnType<typeof normalizeI18nInfoDefinitionMap>)
+    if (normalizedResult.errors.length) {
+      const propPath = properyPath(localeString)
+      errors.push(...normalizedResult.errors.map(({ path, message }) => ({ path: `${propPath}${path}`, message })))
+    }
+    result[baseName] = normalizedResult.result
+  }
+
+  return { result, warnings, errors }
 }
