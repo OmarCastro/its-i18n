@@ -28,7 +28,8 @@ type ErrorList = {
 
 const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
 const isPlainObject = (value) => value?.constructor === Object
-const properyPath = (propName: string) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `[${JSON.stringify(propName)}]`
+const properyPath = (propName: string) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
+const mergePath = (prop1: string, prop2: string) => prop1 + (prop2.startsWith('.[') ? prop2.substring(1) : prop2)
 
 export function validateImportPath(path: string): { valid: boolean; error?: string } {
   if (typeof path !== 'string') {
@@ -46,7 +47,7 @@ function normalizeExtendsArray(extendsArray: string[]): { result: typeof extends
   for (const [index, importPath] of extendsArray.entries()) {
     const checkResult = validateImportPath(importPath)
     if (!checkResult.valid) {
-      errors.push({ path: `[${index}]`, message: `${checkResult.error}, ignoring extends` })
+      errors.push({ path: `.[${index}]`, message: `${checkResult.error}, ignoring extends` })
       continue
     }
     result.push(importPath)
@@ -111,7 +112,7 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
 
   if (hasExtends) {
     const extendsValueResult = normalizesExtendsValue(data.extends)
-    errors.push(...extendsValueResult.errors.map(({ path, message }) => ({ path: `.extends${path}`, message })))
+    errors.push(...extendsValueResult.errors.map(({ path, message }) => ({ path: mergePath('.extends', path), message })))
     extendsValue = extendsValueResult.result
   }
 
@@ -181,7 +182,7 @@ export function normalizeI18nDefinitionMap(
     const normalizedResult = normalizeI18nDefinition(i18nDefninition)
     if (normalizedResult.errors.length) {
       const propPath = properyPath(localeString)
-      errors.push(...normalizedResult.errors.map(({ path, message }) => ({ path: `${propPath}${path}`, message })))
+      errors.push(...normalizedResult.errors.map(({ path, message }) => ({ path: mergePath(propPath, path), message })))
     }
     result[baseName] = normalizedResult.result
   }
