@@ -158,3 +158,12 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
     errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translation" keys' }],
   })
 })
+
+test('Given an invalid object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
+  const input = { lorem: ['lang.en.json', 'customization.en.json'], ipsum: {} } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: { extends: [], translations: {} },
+    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translation" keys' }],
+  })
+})
