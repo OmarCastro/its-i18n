@@ -249,3 +249,23 @@ test('Given an i18n with an reserved locale such as "en-UK" locale, returns a no
     errors: [],
   })
 })
+
+test('Given an i18n with an conflicting locale such as "en-UK" & "en-gb" locale, returns a normalized definition removing invaild locale without fixing and merging with the correct one', ({ expect }) => {
+  const inputMap = {
+    'en': 'lang.en.json',
+    'en-UK': 'lang.en-uk.json',
+    'en-GB': 'lang.en-gb.json',
+  } as never
+  const result = normalizeI18nDefinitionMap(inputMap)
+  expect(result).toEqual({
+    result: {
+      'en': { extends: ['lang.en.json'], translations: {} },
+      'en-GB': { extends: ['lang.en-gb.json'], translations: {} },
+    },
+    errors: [{
+      path: '.["en-UK"]',
+      message: 'invalid locale "en-UK", it also conflicts with correct locale "en-GB", it will be ignored',
+    }],
+    warnings: [],
+  })
+})
