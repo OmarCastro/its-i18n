@@ -210,3 +210,23 @@ test('Given an i18n with configuration error, returns a normalized definition wi
     warnings: [],
   })
 })
+
+test('Given an i18n with invalid locale, returns a normalized definition with errors and without the invalid locale', ({ expect }) => {
+  const inputMap = {
+    'lorepm ipsum': 'lang.invalid.json',
+    'es': 'lang.es.json',
+  } as never
+  const result = normalizeI18nDefinitionMap(inputMap)
+  expect(result).toEqual({
+    result: {
+      'es': { extends: ['lang.es.json'], translations: {} },
+    },
+    errors: [
+      {
+        path: '.["lorepm ipsum"]',
+        message: 'invalid locale "lorepm ipsum", it will be ignored',
+      },
+    ],
+    warnings: [],
+  })
+})
