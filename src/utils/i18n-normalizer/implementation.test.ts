@@ -1,5 +1,5 @@
 import { test } from '../../../test-utils/unit/test.ts'
-import { normalizeI18nDefinition } from './implementation.ts'
+import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from './implementation.ts'
 
 test('Given an invalid input type, normalizeI18nDefinition returns empty definition with error', ({ expect }) => {
   const input = null as never
@@ -52,9 +52,9 @@ test('Given an array with errors, normalizeI18nDefinition normalizes to an tuple
       translations: {},
     },
     errors: [
-      { path: '[1]', message: 'cannot import empty path, ignoring extends' },
-      { path: '[2]', message: 'expected string instead of null, ignoring extends' },
-      { path: '[3]', message: 'expected string instead of undefined, ignoring extends' },
+      { path: '.[1]', message: 'cannot import empty path, ignoring extends' },
+      { path: '.[2]', message: 'expected string instead of null, ignoring extends' },
+      { path: '.[3]', message: 'expected string instead of undefined, ignoring extends' },
     ],
   })
 })
