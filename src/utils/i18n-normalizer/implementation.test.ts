@@ -167,3 +167,46 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
     errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translation" keys' }],
   })
 })
+
+test('Given a valid object, normalizeI18nDefinitionMap returns a normalized definition map', ({ expect }) => {
+  const inputMap = {
+    'pt': ['lang.pt.json', 'customization.pt.json'],
+    'pt-BR': 'customization-br.pt-BR.json',
+  }
+  const result = normalizeI18nDefinitionMap(inputMap)
+  expect(result).toEqual({
+    result: {
+      'pt': { extends: ['lang.pt.json', 'customization.pt.json'], translations: {} },
+      'pt-BR': { extends: ['customization-br.pt-BR.json'], translations: {} },
+    },
+    errors: [],
+    warnings: [],
+  })
+})
+
+test('Given an i18n with configuration error, returns a normalized definition with errors', ({ expect }) => {
+  const inputMap = {
+    'pt': {
+      extends: ['lang.pt.json', 'customization.pt.json', null],
+    },
+    'pt-BR': ['customization-br.pt-BR.json', null],
+  } as never
+  const result = normalizeI18nDefinitionMap(inputMap)
+  expect(result).toEqual({
+    result: {
+      'pt': { extends: ['lang.pt.json', 'customization.pt.json'], translations: {} },
+      'pt-BR': { extends: ['customization-br.pt-BR.json'], translations: {} },
+    },
+    errors: [
+      {
+        path: '.pt.extends[2]',
+        message: 'expected string instead of null, ignoring extends',
+      },
+      {
+        path: '.["pt-BR"][1]',
+        message: 'expected string instead of null, ignoring extends',
+      },
+    ],
+    warnings: [],
+  })
+})
