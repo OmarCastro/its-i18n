@@ -19,7 +19,7 @@ type NonNormalizedI18nDefinition =
     translations?: Translations
   }
 
-type NonNormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
+type NonNormalizedI18nDefinitionMap = Record<string, NonNormalizedI18nDefinition>
 
 type ErrorList = {
   path: string
@@ -143,18 +143,18 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
  *
  * @returns normalized i18n definition map
  */
-function normalizeI18nInfoDefinitionMap(
+export function normalizeI18nDefinitionMap(
   data: NonNormalizedI18nDefinitionMap,
-): { result: NormalizedI18nDefinition; warnings: ErrorList; errors: ErrorList } {
-  const result = {} as NormalizedI18nDefinition
+): { result: NormalizedI18nDefinitionMap; warnings: ErrorList; errors: ErrorList } {
+  const result = {} as NormalizedI18nDefinitionMap
   const errors = [] as ErrorList
   const warnings = [] as ErrorList
 
-  for (const [localeString, i18nDefninition] of Object.keys(data)) {
+  for (const [localeString, i18nDefninition] of Object.entries(data)) {
     let locale: Intl.Locale
     try {
-        locale = new Intl.Locale(localeString)
-      } catch {
+      locale = new Intl.Locale(localeString)
+    } catch {
       errors.push({
         path: properyPath(localeString),
         message: `invalid locale "${localeString}", it will be ignored`,
