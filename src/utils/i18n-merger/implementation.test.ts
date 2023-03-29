@@ -1,16 +1,16 @@
 import { test } from '../../../test-utils/unit/test.ts'
-import { merge } from './implementation.ts'
+import { builder } from './implementation.ts'
 
 test('Given a single data, merge return a normalized definition', ({ expect }) => {
-  merge()
   const oldFetch = fetch
-  const input = {
+
+  const result = builder.addMap({
     'en': { 'extends': './translations.en.json', translations: {} },
     'es': { 'extends': './translations.es.json', translations: {} },
     'pt': { 'extends': './translations.pt.json', translations: {} },
-  }
+  }, 'map.all.json').build()
 
-  expect(merge(input)).toEqual({
+  expect(result).toEqual({
     'en': { 'extends': ['./translations.en.json'], translations: {} },
     'es': { 'extends': ['./translations.es.json'], translations: {} },
     'pt': { 'extends': ['./translations.pt.json'], translations: {} },
