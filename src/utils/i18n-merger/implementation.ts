@@ -1,7 +1,16 @@
 import type { I18nDefinition, I18nDefinitionMap } from '../i18n-importer/mod.ts'
+import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from '../i18n-normalizer/mod.ts'
 
-type I18nLangDefinition = I18nDefinition & { language: Intl.Locale | string }
-type I18nLangMergeData = I18nDefinitionMap | I18nLangDefinition
+type I18nLangMergeData = {
+  kind: 'map'
+  data: I18nDefinitionMap
+  location: URL | string
+} | {
+  kind: 'definition'
+  location: URL | string
+  language: Intl.Locale | string
+  data: I18nDefinition
+}
 
 type I18nMergeIntermediaryResult = {
   [language: string]: {
@@ -10,7 +19,7 @@ type I18nMergeIntermediaryResult = {
   }
 }
 
-export const merge = (...data: I18nLangMergeData[]) => {
+const merge = (...data: I18nLangMergeData[]) => {
   const mergeLang = (acc: I18nMergeIntermediaryResult, i18nDefinition: I18nDefinition, language: string) => {
     const { translations, extends: ext } = i18nDefinition
     const strLang = language.toString()
@@ -33,12 +42,12 @@ export const merge = (...data: I18nLangMergeData[]) => {
   }
 
   const result = data.reduce<I18nMergeIntermediaryResult>((acc, value) => {
-    if (value.language) {
-      return mergeLang(acc, value as I18nLangDefinition, value.language.toString())
+    if (value.kind === 'definition') {
+      return mergeLang(acc, value.data, value.language.toString())
     }
 
-    return Object.entries(value).reduce<I18nMergeIntermediaryResult>((acc, [lang, def]) => {
-      return mergeLang(acc, def as I18nLangDefinition, lang)
+    return Object.entries(value.data).reduce<I18nMergeIntermediaryResult>((acc, [lang, def]) => {
+      return mergeLang(acc, def, lang)
     }, acc)
   }, {})
 
@@ -53,18 +62,22 @@ export const merge = (...data: I18nLangMergeData[]) => {
   )
 }
 
-const mergeInstance = (data: I18nLangMergeData[]) => {
+const memoizedMerge = (data: I18nLangMergeData[]) => {
   let buildResult = () => {
     const result = merge(...data)
     buildResult = () => result
     return result
   }
+  return () => buildResult()
+}
+
+const mergeInstance = (data: I18nLangMergeData[]) => {
   return Object.freeze({
-    add: (...i18nInfo: I18nLangMergeData[]) => mergeInstance([...data, ...i18nInfo]),
-    build: () => buildResult(),
+    addMap: (i18nInfo: I18nDefinitionMap, location: URL | string) => mergeInstance([...data, { kind: 'map', data: i18nInfo, location }]),
+    addDefinitionOnLanguage: (i18nDef: I18nDefinition, language: Intl.Locale | string, location: URL | string) =>
+      mergeInstance([...data, { kind: 'definition', language, data: i18nDef, location }]),
+    build: memoizedMerge(data),
   })
 }
 
-const Merger = () => {
-  return mergeInstance([])
-}
+export const builder = mergeInstance([])
