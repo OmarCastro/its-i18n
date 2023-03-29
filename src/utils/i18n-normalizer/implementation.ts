@@ -1,13 +1,13 @@
-type Translations = Record<string, string>
+export type Translations = Record<string, string>
 
-type NormalizedI18nDefinition = {
+export type NormalizedI18nDefinition = {
   extends: string[]
   translations: Translations
 }
 
-type NormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
+export type NormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
 
-type NonNormalizedI18nDefinition =
+export type I18nDefinition =
   | string
   | string[]
   | {
@@ -19,7 +19,7 @@ type NonNormalizedI18nDefinition =
     translations?: Translations
   }
 
-type NonNormalizedI18nDefinitionMap = Record<string, NonNormalizedI18nDefinition>
+export type I18nDefinitionMap = Record<string, I18nDefinition>
 
 type ErrorList = {
   path: string
@@ -81,7 +81,7 @@ function normalizesExtendsValue(extdensVal: unknown): { result: string[]; errors
  *
  * @returns normalized i18n definition
  */
-export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { result: NormalizedI18nDefinition; errors: ErrorList } {
+export function normalizeI18nDefinition(data: I18nDefinition): { result: NormalizedI18nDefinition; errors: ErrorList } {
   if (data === '') {
     return {
       result: { extends: [], translations: {} },
@@ -145,7 +145,7 @@ export function normalizeI18nDefinition(data: NonNormalizedI18nDefinition): { re
  * @returns normalized i18n definition map
  */
 export function normalizeI18nDefinitionMap(
-  data: NonNormalizedI18nDefinitionMap,
+  data: I18nDefinitionMap,
 ): { result: NormalizedI18nDefinitionMap; warnings: ErrorList; errors: ErrorList } {
   const result = {} as NormalizedI18nDefinitionMap
   const errors = [] as ErrorList
