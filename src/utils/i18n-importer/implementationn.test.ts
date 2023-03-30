@@ -1,12 +1,12 @@
 import { test } from '../../../test-utils/unit/test.ts'
 import { importI18nJson, importTranslations } from './implementation.ts'
 
-test('Given fetching a json returns a valid, complete json, it should return the same json', async ({ expect }) => {
+test('Given fetching a json returns a valid, normalized json, it should return the same json', async ({ expect }) => {
   const oldFetch = fetch
   const expectedResult = {
-    'en': { 'extends': './translations.en.json', translations: {} },
-    'es': { 'extends': './translations.es.json', translations: {} },
-    'pt': { 'extends': './translations.pt.json', translations: {} },
+    'en': { 'extends': ['./translations.en.json'], translations: {} },
+    'es': { 'extends': ['./translations.es.json'], translations: {} },
+    'pt': { 'extends': ['./translations.pt.json'], translations: {} },
   }
   globalThis.fetch = () =>
     Promise.resolve({
@@ -19,7 +19,7 @@ test('Given fetching a json returns a valid, complete json, it should return the
   globalThis.fetch = oldFetch
 })
 
-test('Given fetching a json returns a json without translation, it should fill it with empty translations', async ({ expect }) => {
+test('Given fetching a non normalized json returns a json without translation, it should return a normalized translations', async ({ expect }) => {
   const oldFetch = fetch
   const expectedResult = {
     'en': { 'extends': './translations.en.json' },
@@ -33,9 +33,9 @@ test('Given fetching a json returns a json without translation, it should fill i
 
   const result = await importI18nJson('.', import.meta.url)
   expect(result).toEqual({
-    'en': { 'extends': './translations.en.json', translations: {} },
-    'es': { 'extends': './translations.es.json', translations: {} },
-    'pt': { 'extends': './translations.pt.json', translations: {} },
+    'en': { 'extends': ['./translations.en.json'], translations: {} },
+    'es': { 'extends': ['./translations.es.json'], translations: {} },
+    'pt': { 'extends': ['./translations.pt.json'], translations: {} },
   })
 
   globalThis.fetch = oldFetch
