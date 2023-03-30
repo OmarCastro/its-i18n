@@ -1,4 +1,4 @@
-import { importLanguage } from '../i18n-importer/mod.ts'
+import { importTranslations } from '../i18n-importer/mod.ts'
 
 const emptyObj = Object.freeze({})
 const intialDataStore = Object.freeze({
@@ -60,7 +60,9 @@ const getTranslationsFromData = async (store: StoreInfo, locale: string): Promis
   const extendsArray = [].concat(definition.extends as never) as string[]
   const translationsFromExtends = {}
   for (const extend of extendsArray) {
-    const translations = isLocale(extend) ? await getTranslationsFromData(store, extend) : await importLanguage(extend, store.data.location)
+    const translations = isLocale(extend)
+      ? await getTranslationsFromData(store, extend)
+      : await importTranslations(extend, store.data.location)
     Object.assign(translationsFromExtends, translations)
   }
 

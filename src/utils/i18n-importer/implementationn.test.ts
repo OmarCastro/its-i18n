@@ -1,5 +1,5 @@
 import { test } from '../../../test-utils/unit/test.ts'
-import { importI18nJson, importLanguage } from './implementation.ts'
+import { importI18nJson, importTranslations } from './implementation.ts'
 
 test('Given fetching a json returns a valid, complete json, it should return the same json', async ({ expect }) => {
   const oldFetch = fetch

@@ -170,7 +170,7 @@ test('Given a storeData loaded from "import-extends/i18n.json", when getting tra
   let importLanguageCalls = [] as { url: string; base: string }[]
   const impl = {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-    importLanguage: async (url, base) => (importLanguageCalls.push({ url, base }), JSON.parse(await readFrom(new URL(url, base)))),
+    importTranslations: async (url, base) => (importLanguageCalls.push({ url, base }), JSON.parse(await readFrom(new URL(url, base)))),
   } as Parameters<typeof provide>[0]
 
   provide(impl)
@@ -317,6 +317,6 @@ test('Given a completed storeData, when getting translationsFromLanguage ', asyn
 function i18nImporterImplWith({ readFrom }: { readFrom: Parameters<Parameters<typeof test>[1]>[0]['readFrom'] }) {
   return {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-    importLanguage: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
+    importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
   } as Parameters<typeof provide>[0]
 }

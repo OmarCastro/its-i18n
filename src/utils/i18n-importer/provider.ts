@@ -12,12 +12,12 @@ export interface I18nDefinitionMap {
 }
 
 export interface Implementation {
-  importLanguage(url: string, base: string): Promise<Translations>
+  importTranslations(url: string, base: string): Promise<Translations>
   importI18nJson(url: string, base: string): Promise<I18nDefinitionMap>
 }
 
 const defaultImplementation = Object.freeze({
-  importLanguage: () => (console.error('importLanguage not implemented'), Promise.resolve({})),
+  importTranslations: () => (console.error('importLanguage not implemented'), Promise.resolve({})),
   importI18nJson: () => (console.error('importLanguage not implemented'), Promise.resolve({})),
 } as Implementation)
 
@@ -26,8 +26,8 @@ export const implementation = Object.seal({
 })
 
 export function provide(newImpl: Implementation) {
-  if (typeof newImpl?.importLanguage === 'function') {
-    implementation.importLanguage = newImpl.importLanguage
+  if (typeof newImpl?.importTranslations === 'function') {
+    implementation.importTranslations = newImpl.importTranslations
   }
   if (typeof newImpl?.importI18nJson === 'function') {
     implementation.importI18nJson = newImpl.importI18nJson

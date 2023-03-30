@@ -45,7 +45,7 @@ function normalizeI18nDefinitionMap(response: I18nDefinitionMapResponse): I18nDe
   return result
 }
 
-export async function importLanguage(reqUrl: string | URL, base: string | URL): Promise<Translations> {
+export async function importTranslations(reqUrl: string | URL, base: string | URL): Promise<Translations> {
   const url = new URL(reqUrl, base)
   const response = await fetch(url)
   const json = await response.json()
@@ -68,6 +68,6 @@ export async function importI18nJson(reqUrl: string | URL, base: string | URL): 
 }
 
 provide({
-  importLanguage,
+  importTranslations,
   importI18nJson,
 })
