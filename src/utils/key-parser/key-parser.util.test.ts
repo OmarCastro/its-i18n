@@ -42,6 +42,29 @@ test('Given a template string with "number" keyword, getAST should return an AST
   ])
 })
 
+test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', async ({ step, expect }) => {
+  const ast = getAST('I see { /^[0-9]/ } worlds')
+  expect(ast.tokens).toEqual([
+    { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
+    {
+      start: 7,
+      end: 17,
+      type: states.capture,
+      text: ' /^[0-9]/ ',
+      childTokens: [
+        { start: 9, end: 15, type: states.regex, text: '^[0-9]', childTokens: [] },
+      ],
+    },
+    {
+      start: 18,
+      end: 25,
+      type: states.normal,
+      text: ' worlds',
+      childTokens: [],
+    },
+  ])
+})
+
 test('Given a string with escaped initial curly brace, getAST should return an AST with 1 tokens', async ({ step, expect }) => {
   const ast = getAST('hello \\{} world')
   expect(ast.tokens).toEqual([{
@@ -63,12 +86,24 @@ test('Given a simple string, parseKey should return a result with max priority',
   })
 })
 
-test('Given a dynamic string, parseKey should return a result', async ({ step, expect }) => {
+test('Given a simple dynamic string, parseKey should return a result', async ({ step, expect }) => {
   const parseKeyResult = parseKey('hello {}')
-  const { priority, key } = parseKeyResult
+  const { priority, key, normalizedKey } = parseKeyResult
 
-  expect({ priority, key }).toEqual({
+  expect({ priority, key, normalizedKey }).toEqual({
     priority: [0, 0, 1],
     key: 'hello {}',
+    normalizedKey: key,
+  })
+})
+
+test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', async ({ step, expect }) => {
+  const parseKeyResult = parseKey('hello { number }')
+  const { priority, key, normalizedKey } = parseKeyResult
+
+  expect({ priority, key, normalizedKey }).toEqual({
+    priority: [0, 0, 1],
+    key: 'hello { number }',
+    normalizedKey: 'hello {number}',
   })
 })
