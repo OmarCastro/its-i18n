@@ -49,7 +49,6 @@ stateMachine[states.regex] = regexState
 stateMachine[states.sq_string] = singleQuoteStringState
 stateMachine[states.dq_string] = doubleQuoteStringState
 stateMachine[states.bt_string] = backtickStringState
-stateMachine[states.capture] = captureState
 stateMachine[states.escape] = escapeState
 
 export function getAST(key: string): AST {
@@ -156,11 +155,23 @@ export function getAST(key: string): AST {
   }
 }
 
+const tokenToString = [] as ((Token) => string)[]
+tokenToString[states.normal] = (token) => token.text
+tokenToString[states.capture] = (token) => `{${token.text.trim()}}`
+tokenToString[states.regex] = (token) => token.text
+tokenToString[states.sq_string] = (token) => token.text
+tokenToString[states.dq_string] = (token) => token.text
+tokenToString[states.bt_string] = (token) => token.text
+
+function getNormalizedKey(ast: AST): string {
+  return ast.tokens.map((token) => tokenToString[token.type](token)).join('')
+}
+
 export function parseKey(key: string) {
   const result = {
     priority: [0, 0, 0],
     key,
-  } as parseResult
+  } as ParseResult
 
   const ast = getAST(key)
   const captures = ast.tokens.filter((token) => token.type === states.capture)
@@ -168,11 +179,13 @@ export function parseKey(key: string) {
   if (captures.length <= 0) {
     result.priority[0] = 1
     result.matches = matchesEquality(key)
+    result.normalizedKey = key
     return result
   }
 
   result.priority[2] = 1
   result.matches = matchesEquality(key)
+  result.normalizedKey = getNormalizedKey(ast)
   return result
 }
 
@@ -181,12 +194,13 @@ const matchesEquality = (key: string) => (text: string) => text === key
 
 /// types
 
-type parseResult = {
+type ParseResult = {
   /**
    * Defined the priority of parsing
    */
   priority: [number, number, number]
   key: string
+  normalizedKey: string
   matches(text: string): boolean
 }
 
