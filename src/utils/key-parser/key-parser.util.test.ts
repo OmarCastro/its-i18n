@@ -16,7 +16,7 @@ test('Given a simple template string, getAST should return an AST with 3 tokens'
   const ast = getAST('hello {} world')
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'hello ', childTokens: [] },
-    { start: 7, end: 7, type: states.capture, text: '', childTokens: [] },
+    { start: 6, end: 8, type: states.capture, text: '{}', childTokens: [] },
     { start: 8, end: 14, type: states.normal, text: ' world', childTokens: [] },
   ])
 })
@@ -26,11 +26,11 @@ test('Given a template string with "number" keyword, getAST should return an AST
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
     {
-      start: 7,
-      end: 13,
+      start: 6,
+      end: 14,
       type: states.capture,
-      text: 'number',
-      childTokens: [],
+      text: '{number}',
+      childTokens: [{ start: 7, end: 13, type: 2, text: 'number', childTokens: [] }],
     },
     {
       start: 14,
@@ -47,17 +47,42 @@ test('Given a template string with "regex" keyword, getAST should return an AST 
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
     {
-      start: 7,
-      end: 17,
+      start: 6,
+      end: 18,
       type: states.capture,
-      text: ' /^[0-9]/ ',
+      text: '{ /^[0-9]/ }',
       childTokens: [
-        { start: 9, end: 15, type: states.regex, text: '^[0-9]', childTokens: [] },
+        { start: 8, end: 16, type: states.regex, text: '/^[0-9]/', childTokens: [] },
       ],
     },
     {
       start: 18,
       end: 25,
+      type: states.normal,
+      text: ' worlds',
+      childTokens: [],
+    },
+  ])
+})
+
+test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', async ({ step, expect }) => {
+  const ast = getAST('I see { number | string } worlds')
+  expect(ast.tokens).toEqual([
+    { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
+    {
+      start: 6,
+      end: 25,
+      type: states.capture,
+      text: '{ number | string }',
+      childTokens: [
+        { start: 8, end: 14, type: states.capture_expr, text: 'number', childTokens: [] },
+        { start: 15, end: 16, type: states.capture_expr_sep, text: '|', childTokens: [] },
+        { start: 17, end: 23, type: states.capture_expr, text: 'string', childTokens: [] },
+      ],
+    },
+    {
+      start: 25,
+      end: 32,
       type: states.normal,
       text: ' worlds',
       childTokens: [],
@@ -105,5 +130,16 @@ test('Given a string with spaces inside curly braces {}, parseKey should return 
     priority: [0, 0, 1],
     key: 'hello { number }',
     normalizedKey: 'hello {number}',
+  })
+})
+
+test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', async ({ step, expect }) => {
+  const parseKeyResult = parseKey('hello { number | string }')
+  const { priority, key, normalizedKey } = parseKeyResult
+
+  expect({ priority, key, normalizedKey }).toEqual({
+    priority: [0, 0, 1],
+    key: 'hello { number | string }',
+    normalizedKey: 'hello {number|string}',
   })
 })
