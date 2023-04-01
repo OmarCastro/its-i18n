@@ -155,7 +155,7 @@ export function normalizeI18nDefinition(data: I18nDefinition): { result: Normali
 
   return {
     result: { extends: [], translations: {} },
-    errors: [{ path: '', message: `invalid object, the object must have "extends" or "translation" keys` }],
+    errors: [{ path: '', message: `invalid object, the object must have "extends" or "translations" keys` }],
   }
 }
 

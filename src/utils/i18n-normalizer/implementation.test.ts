@@ -155,7 +155,7 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: { extends: [], translations: {} },
-    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translation" keys' }],
+    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translations" keys' }],
   })
 })
 
@@ -164,7 +164,7 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: { extends: [], translations: {} },
-    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translation" keys' }],
+    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translations" keys' }],
   })
 })
 
