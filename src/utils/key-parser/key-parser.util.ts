@@ -12,35 +12,79 @@ export enum states {
 }
 
 const ch = (char: string) => char.charCodeAt(0)
-const normalState = [] as states[]
-normalState[ch('{')] = states.capture
-normalState[ch('\\')] = states.escape
 
-const captureState = [] as states[]
-captureState[ch('}')] = states.previous
-captureState[ch('/')] = states.regex
-captureState[ch('\'')] = states.sq_string
-captureState[ch('"')] = states.dq_string
-captureState[ch('`')] = states.bt_string
-captureState[ch('\\')] = states.escape
+const defaultNextState = (() => {
+  const state = [] as states[]
+  state[states.normal] = states.normal
+  state[states.capture] = states.capture
+  state[states.regex] = states.regex
+  state[states.sq_string] = states.sq_string
+  state[states.dq_string] = states.dq_string
+  state[states.bt_string] = states.bt_string
+  state[states.escape] = states.previous
+  state[states.previous] = states.previous
+  return state
+})()
 
-const regexState = [] as states[]
-regexState[ch('/')] = states.previous
-regexState[ch('\\')] = states.escape
+const normalState = (() => {
+  const state = [] as states[]
+  state[ch('{')] = states.capture
+  state[ch('\\')] = states.escape
+  return state
+})()
 
-const singleQuoteStringState = [] as states[]
-singleQuoteStringState[ch('\'')] = states.previous
-singleQuoteStringState[ch('\\')] = states.escape
+const captureState = (() => {
+  const state = [] as states[]
+  state[ch('}')] = states.previous
+  state[ch('/')] = states.regex
+  state[ch('\'')] = states.sq_string
+  state[ch('"')] = states.dq_string
+  state[ch('`')] = states.bt_string
+  state[ch('\\')] = states.escape
+  state[ch('\t')] = states.capture
+  state[ch(' ')] = states.capture
+  state[ch('\n')] = states.capture
+  return state
+})()
 
-const doubleQuoteStringState = [] as states[]
-doubleQuoteStringState[ch('"')] = states.previous
-doubleQuoteStringState[ch('\\')] = states.escape
+const captureExprState = (() => {
+  const state = [] as states[]
+  state[ch('\\')] = states.previous
+  state[ch('\t')] = states.previous
+  state[ch(' ')] = states.previous
+  state[ch('\n')] = states.previous
+  return state
+})()
 
-const backtickStringState = [] as states[]
-backtickStringState[ch('`')] = states.previous
-backtickStringState[ch('\\')] = states.escape
+const regexState = (() => {
+  const state = [] as states[]
+  state[ch('/')] = states.previous
+  state[ch('\\')] = states.escape
+  return state
+})()
 
-const escapeState = new Proxy([], { get: () => states.previous }) as states[]
+const singleQuoteStringState = (() => {
+  const state = [] as states[]
+  state[ch('\'')] = states.previous
+  state[ch('\\')] = states.escape
+  return state
+})()
+
+const doubleQuoteStringState = (() => {
+  const state = [] as states[]
+  state[ch('"')] = states.previous
+  state[ch('\\')] = states.escape
+  return state
+})()
+
+const backtickStringState = (() => {
+  const state = [] as states[]
+  state[ch('`')] = states.previous
+  state[ch('\\')] = states.escape
+  return state
+})()
+
+const escapeState = [] as states[]
 
 const stateMachine = [] as states[][]
 stateMachine[states.normal] = normalState
@@ -77,7 +121,7 @@ export function getAST(key: string): AST {
   for (let i = 0; i < length; i++) {
     const ch = key.charCodeAt(i)
 
-    const nextState = currentMachineState[ch]
+    const nextState = currentMachineState[ch] ?? defaultNextState[currentState]
     if (nextState == null || nextState === currentState) continue
 
     if (nextState === states.previous) {
@@ -155,13 +199,17 @@ export function getAST(key: string): AST {
   }
 }
 
-const tokenToString = [] as ((Token) => string)[]
-tokenToString[states.normal] = (token) => token.text
-tokenToString[states.capture] = (token) => `{${token.text.trim()}}`
-tokenToString[states.regex] = (token) => token.text
-tokenToString[states.sq_string] = (token) => token.text
-tokenToString[states.dq_string] = (token) => token.text
-tokenToString[states.bt_string] = (token) => token.text
+const tokenToString = (() => {
+  const mapper = [] as ((Token) => string)[]
+  const defaultMapper = (token) => token.text
+  mapper[states.normal] = defaultMapper
+  mapper[states.capture] = (token) => `{${token.text.trim()}}`
+  mapper[states.regex] = defaultMapper
+  mapper[states.sq_string] = defaultMapper
+  mapper[states.dq_string] = defaultMapper
+  mapper[states.bt_string] = defaultMapper
+  return mapper
+})()
 
 function getNormalizedKey(ast: AST): string {
   return ast.tokens.map((token) => tokenToString[token.type](token)).join('')
