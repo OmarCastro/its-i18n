@@ -27,9 +27,9 @@ type ErrorList = {
 }[]
 
 const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
-const isPlainObject = (value) => value?.constructor === Object
+const isPlainObject = (value): value is Record<string, unknown> => value?.constructor === Object
 const properyPath = (propName: string) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
-const mergePath = (prop1: string, prop2: string) => prop1 + (prop2.startsWith('.[') ? prop2.substring(1) : prop2)
+const mergePath = (prop1: string, prop2: string) => prop1 + (prop2 === '.' || prop2.startsWith('.[') ? prop2.substring(1) : prop2)
 
 export function validateImportPath(path: string): { valid: boolean; error?: string } {
   if (typeof path !== 'string') {
@@ -72,6 +72,28 @@ function normalizesExtendsValue(extdensVal: unknown): { result: string[]; errors
     result: [],
     errors: [{ path: '', message: `expected string or string array (string[]) instead of ${typeOf(extdensVal)}` }],
   }
+}
+
+export function normalizeTranslations(translations: Translations): { result: Translations; errors: ErrorList } {
+  if (!isPlainObject(translations)) {
+    return {
+      result: {},
+      errors: [{ path: '', message: `expected a plain object instead of ${typeOf(translations)}` }],
+    }
+  }
+
+  const result = {}
+  const errors = [] as ErrorList
+
+  for (const [key, value] of Object.entries(translations)) {
+    if (typeof value !== 'string') {
+      errors.push({ path: properyPath(key), message: `expected string instead of ${typeOf(value)}` })
+      continue
+    }
+    result[key] = value
+  }
+
+  return { result, errors }
 }
 
 /**
@@ -118,7 +140,7 @@ export function normalizeI18nDefinition(data: I18nDefinition): { result: Normali
 
   if (hasTranslations) {
     if (isPlainObject(data.translations)) {
-      Object.entries(data.translations!).forEach(([key, value]) => {
+      Object.entries(data.translations).forEach(([key, value]) => {
         tranlsationValue[key] = value
       })
     }
