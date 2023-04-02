@@ -1,4 +1,4 @@
-export { normalizeI18nDefinition, normalizeI18nDefinitionMap } from './implementation.ts'
+export { normalizeI18nDefinition, normalizeI18nDefinitionMap, normalizeTranslations } from './implementation.ts'
 export type {
   I18nDefinition,
   I18nDefinitionMap,
