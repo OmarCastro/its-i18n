@@ -63,3 +63,21 @@ test('Given `fetch` returns a json with errors, `importI18nJson` should return a
 
   globalThis.fetch = oldFetch
 })
+
+test('Given `fetch` returns a valid non normalized json, `importTranslations` should return the same json', async ({ expect }) => {
+  const oldFetch = fetch
+  const fetchResult = {
+    'hello world': 'olá mundo',
+    'I like red color': 'Gosto da cor vermelha',
+    'I will go in a bus': 'Irei de autocarro',
+  }
+  globalThis.fetch = () =>
+    Promise.resolve({
+      json: () => Promise.resolve(fetchResult),
+    } as Response)
+
+  const result = await importTranslations('.', import.meta.url)
+  expect(result).toEqual(fetchResult)
+
+  globalThis.fetch = oldFetch
+})
