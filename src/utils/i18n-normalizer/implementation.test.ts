@@ -168,6 +168,36 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
   })
 })
 
+test('Given an object only with an invalid translation object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
+  const input = { translations: '' } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: { extends: [], translations: {} },
+    errors: [{ path: '.translations', message: 'expected a plain object instead of string' }],
+  })
+})
+
+test('Given an object only with an invalid translation object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
+  const input = {
+    translations: {
+      'hello world': 'olá mundo',
+      'I like red color': 'Gosto da cor vermelha',
+      'I will go in a bus': { lorem: 'ipsum' },
+    },
+  } as never
+  const result = normalizeI18nDefinition(input)
+  expect(result).toEqual({
+    result: {
+      extends: [],
+      translations: {
+        'hello world': 'olá mundo',
+        'I like red color': 'Gosto da cor vermelha',
+      },
+    },
+    errors: [{ path: '.translations["I will go in a bus"]', message: 'expected string instead of object' }],
+  })
+})
+
 test('Given a valid object, normalizeI18nDefinitionMap returns a normalized definition map', ({ expect }) => {
   const inputMap = {
     'pt': ['lang.pt.json', 'customization.pt.json'],
@@ -190,12 +220,28 @@ test('Given an i18n with configuration error, returns a normalized definition wi
       extends: ['lang.pt.json', 'customization.pt.json', null],
     },
     'pt-BR': ['customization-br.pt-BR.json', null],
+    es: {
+      translations: {
+        'hello world': 'hola mundo',
+        'I like red color': 'Me gusta la color roja',
+        'I will go in a bus': 'Iré en un autobús',
+        'lorem ipsum': { 'and I': 'mus fail' },
+      },
+    },
   } as never
   const result = normalizeI18nDefinitionMap(inputMap)
   expect(result).toEqual({
     result: {
       'pt': { extends: ['lang.pt.json', 'customization.pt.json'], translations: {} },
       'pt-BR': { extends: ['customization-br.pt-BR.json'], translations: {} },
+      es: {
+        extends: [],
+        translations: {
+          'hello world': 'hola mundo',
+          'I like red color': 'Me gusta la color roja',
+          'I will go in a bus': 'Iré en un autobús',
+        },
+      },
     },
     errors: [
       {
@@ -205,6 +251,10 @@ test('Given an i18n with configuration error, returns a normalized definition wi
       {
         path: '.["pt-BR"][1]',
         message: 'expected string instead of null, ignoring extends',
+      },
+      {
+        path: '.es.translations["lorem ipsum"]',
+        message: 'expected string instead of object',
       },
     ],
     warnings: [],

@@ -74,7 +74,7 @@ function normalizesExtendsValue(extdensVal: unknown): { result: string[]; errors
   }
 }
 
-export function normalizeTranslations(translations: Translations): { result: Translations; errors: ErrorList } {
+export function normalizeTranslations(translations: unknown): { result: Translations; errors: ErrorList } {
   if (!isPlainObject(translations)) {
     return {
       result: {},
@@ -127,7 +127,7 @@ export function normalizeI18nDefinition(data: I18nDefinition): { result: Normali
   }
 
   let extendsValue = [] as NormalizedI18nDefinition['extends']
-  const tranlsationValue = {} as NormalizedI18nDefinition['translations']
+  let translationsValue = {} as NormalizedI18nDefinition['translations']
   const errors = [] as ErrorList
   const hasExtends = Object.hasOwn(data, 'extends')
   const hasTranslations = Object.hasOwn(data, 'translations')
@@ -139,16 +139,14 @@ export function normalizeI18nDefinition(data: I18nDefinition): { result: Normali
   }
 
   if (hasTranslations) {
-    if (isPlainObject(data.translations)) {
-      Object.entries(data.translations).forEach(([key, value]) => {
-        tranlsationValue[key] = value
-      })
-    }
+    const translationsValueResult = normalizeTranslations(data.translations)
+    errors.push(...translationsValueResult.errors.map(({ path, message }) => ({ path: mergePath('.translations', path), message })))
+    translationsValue = translationsValueResult.result
   }
 
   if (hasExtends || hasTranslations) {
     return {
-      result: { extends: extendsValue, translations: tranlsationValue },
+      result: { extends: extendsValue, translations: translationsValue },
       errors,
     }
   }
