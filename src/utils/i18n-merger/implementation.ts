@@ -1,5 +1,11 @@
-import type { I18nDefinition, I18nDefinitionMap } from '../i18n-importer/mod.ts'
-import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from '../i18n-normalizer/mod.ts'
+import type { I18nDefinitionMap } from '../i18n-importer/mod.ts'
+import {
+  I18nDefinition,
+  NormalizedI18nDefinition,
+  normalizeI18nDefinition,
+  normalizeI18nDefinitionMap,
+  Translations,
+} from '../i18n-normalizer/mod.ts'
 
 type I18nLangMergeData = {
   kind: 'map'
@@ -10,27 +16,26 @@ type I18nLangMergeData = {
   location: URL | string
   language: Intl.Locale | string
   data: I18nDefinition
+} | {
+  kind: 'translations'
+  location: URL | string
+  language: Intl.Locale | string
 }
 
 type I18nMergeIntermediaryResult = {
   [language: string]: {
     extends: Set<string>
-    translations: I18nDefinition['translations']
+    translations: Translations
   }
 }
 
 const merge = (...data: I18nLangMergeData[]) => {
-  const mergeLang = (acc: I18nMergeIntermediaryResult, i18nDefinition: I18nDefinition, language: string) => {
-    const { translations, extends: ext } = i18nDefinition
+  const mergeLang = (acc: I18nMergeIntermediaryResult, i18nDefinition: NormalizedI18nDefinition, language: string) => {
+    const { translations, extends: ext } = normalizeI18nDefinition(i18nDefinition).result
     const strLang = language.toString()
     const definition = acc[strLang] || { extends: new Set(), translations: {} }
     const definitionExtSet = definition.extends
-
-    if (typeof ext === 'string') {
-      definitionExtSet.add(ext)
-    } else if (Array.isArray(ext)) {
-      ext.forEach((e) => definitionExtSet.add(e))
-    }
+    ext.forEach((e) => definitionExtSet.add(e))
 
     definition.translations = {
       ...definition.translations,
@@ -42,11 +47,20 @@ const merge = (...data: I18nLangMergeData[]) => {
   }
 
   const result = data.reduce<I18nMergeIntermediaryResult>((acc, value) => {
-    if (value.kind === 'definition') {
-      return mergeLang(acc, value.data, value.language.toString())
+    const { location, kind } = value
+    const locationStr = typeof location === 'string' ? location : location.href
+    if (kind === 'definition') {
+      const i18nDefinition = normalizeI18nDefinition(value.data).result
+      return mergeLang(acc, i18nDefinition, value.language.toString())
     }
 
-    return Object.entries(value.data).reduce<I18nMergeIntermediaryResult>((acc, [lang, def]) => {
+    if (kind === 'translations') {
+      const i18nDefinition = normalizeI18nDefinition(locationStr).result
+      return mergeLang(acc, i18nDefinition, value.language.toString())
+    }
+
+    const i18nDefinitionMap = normalizeI18nDefinitionMap(value.data).result
+    return Object.entries(i18nDefinitionMap).reduce<I18nMergeIntermediaryResult>((acc, [lang, def]) => {
       return mergeLang(acc, def, lang)
     }, acc)
   }, {})
@@ -76,6 +90,8 @@ const mergeInstance = (data: I18nLangMergeData[]) => {
     addMap: (i18nInfo: I18nDefinitionMap, location: URL | string) => mergeInstance([...data, { kind: 'map', data: i18nInfo, location }]),
     addDefinitionOnLanguage: (i18nDef: I18nDefinition, language: Intl.Locale | string, location: URL | string) =>
       mergeInstance([...data, { kind: 'definition', language, data: i18nDef, location }]),
+    addTranslations: (location: URL | string, language: Intl.Locale | string) =>
+      mergeInstance([...data, { kind: 'translations', language, location }]),
     build: memoizedMerge(data),
   })
 }
