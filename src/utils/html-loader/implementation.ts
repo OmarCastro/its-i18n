@@ -1,33 +1,65 @@
-import { type I18nDefinitionMap, importI18nJson } from '../i18n-importer/mod.ts'
+import { type I18nDefinitionMap, importI18nJson, importTranslations, type Translations } from '../i18n-importer/mod.ts'
 import { i18nTanslationStore, type StoreData, type TranslationStore } from '../store/translation-store.ts'
+import { builder } from '../i18n-merger/mod.ts'
 
-export async function loadI18n(document: Document): Promise<TranslationStore> {
-  const store = i18nTanslationStore()
+async function loadLocaleMaps({ document, location, merger }: { document: Document; location: Location; merger: typeof builder }) {
+  const locationHref = location.href
 
-  const deferrdPromises = [] as Promise<I18nDefinitionMap>[]
+  const localeMaps = document.querySelectorAll('link[rel="i18n-locale-map"]')
+  if (localeMaps.length <= 0) {
+    return merger
+  }
 
-  const location = window.location.href
+  const deferredMapPromises = [] as Promise<[I18nDefinitionMap, URL]>[]
 
-  const storeData = {
-    location,
-    languages: {},
-  } as StoreData
-
-  document.querySelectorAll('link[rel="i18n-locale-map"]').forEach((link) => {
+  localeMaps.forEach((link) => {
     const href = link.getAttribute('href')!
-    deferrdPromises.push(importI18nJson(href, window.location.href))
+    deferredMapPromises.push(importI18nJson(href, locationHref).then((result) => [result, new URL(href, locationHref)]))
   })
 
-  await Promise.allSettled(deferrdPromises).then((results) =>
-    results.forEach((result) => {
-      if (result.status === 'rejected') {
-        console.error('error loading file: %o', result.reason)
-        return
-      }
-      Object.entries(result.value.languages ?? {})
-      storeData.languages
-    })
-  )
+  const promiseResults = await Promise.allSettled(deferredMapPromises)
+
+  return promiseResults.reduce((merger, settled) => {
+    if (settled.status === 'rejected') {
+      console.error('error loading file: %o', settled.reason)
+      return merger
+    }
+    return merger.addMap(...settled.value)
+  }, merger)
+}
+
+function loadTranslations({ document, location, merger }: { document: Document; location: Location; merger: typeof builder }) {
+  const locationHref = location.href
+
+  const translationsMaps = document.querySelectorAll('link[rel="i18n-translation-map"]')
+  if (translationsMaps.length <= 0) {
+    return merger
+  }
+
+  return [...translationsMaps].reduce((merger, link) => {
+    const href = link.getAttribute('href')!
+    const lang = link.getAttribute('lang')!
+    try {
+      const locale = new Intl.Locale(lang)
+      return merger.addTranslations(new URL(href, locationHref), locale)
+    } catch {
+      console.error(`invalid locale "${lang}", it will be ignored`)
+    }
+    return merger
+  }, merger)
+}
+
+export async function loadI18n({ document, location }: { document: Document; location: Location } = window): Promise<TranslationStore> {
+  const locationHref = location.href
+  const localeMapMerger = await loadLocaleMaps({ document, location, merger: builder })
+  const finalMerger = loadTranslations({ document, location, merger: localeMapMerger })
+
+  const store = i18nTanslationStore()
+
+  store.loadTranslations({
+    location: locationHref,
+    languages: finalMerger.build(),
+  })
 
   return store
 }
