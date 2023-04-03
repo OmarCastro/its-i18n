@@ -1,5 +1,5 @@
 import { implementation } from './provider.ts'
-export type { I18nDefinition, I18nDefinitionMap } from './provider.ts'
+export type { I18nDefinition, I18nDefinitionMap, Translations } from './provider.ts'
 
 type ImportTranslations = typeof implementation.importTranslations
 export const importTranslations: ImportTranslations = (url, base) => implementation.importTranslations(url, base)
