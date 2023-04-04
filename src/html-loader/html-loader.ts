@@ -2,7 +2,7 @@ import { type I18nDefinitionMap, importI18nJson, importTranslations, type Transl
 import { i18nTanslationStore, type StoreData, type TranslationStore } from '../utils/store/translation-store.ts'
 import { builder } from '../utils/i18n-merger/mod.ts'
 
-async function loadLocaleMaps({ document, location, merger }: { document: Document; location: Location; merger: typeof builder }) {
+async function loadLocaleMaps({ document, location, merger }: LoadPartParameters) {
   const locationHref = location.href
 
   const localeMaps = document.querySelectorAll('link[rel="i18n-locale-map"]')
@@ -28,7 +28,7 @@ async function loadLocaleMaps({ document, location, merger }: { document: Docume
   }, merger)
 }
 
-function loadTranslations({ document, location, merger }: { document: Document; location: Location; merger: typeof builder }) {
+function loadTranslations({ document, location, merger }: LoadPartParameters) {
   const locationHref = location.href
 
   const translationsMaps = document.querySelectorAll('link[rel="i18n-translation-map"]')
@@ -53,17 +53,33 @@ function loadTranslations({ document, location, merger }: { document: Document; 
   }, merger)
 }
 
-export async function loadI18n({ document, location }: { document: Document; location: Location } = window): Promise<TranslationStore> {
-  const locationHref = location.href
+export async function loadI18n({ document, location }: LoadI18nParams = window): Promise<TranslationStore> {
+  location = typeof location === 'string' ? new URL(location) : location
   const localeMapMerger = await loadLocaleMaps({ document, location, merger: builder })
   const finalMerger = loadTranslations({ document, location, merger: localeMapMerger })
 
   const store = i18nTanslationStore()
 
   store.loadTranslations({
-    location: locationHref,
+    location: location.href,
     languages: finalMerger.build(),
   })
 
   return store
+}
+
+/** This type is compatible with both URL objects and window.location */
+type BaseURL = {
+  href: string
+}
+
+type LoadPartParameters = {
+  document: Document
+  location: BaseURL
+  merger: typeof builder
+}
+
+type LoadI18nParams = {
+  document: Document
+  location: BaseURL | string
 }
