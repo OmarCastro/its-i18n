@@ -38,7 +38,11 @@ function loadTranslations({ document, location, merger }: { document: Document; 
 
   return [...translationsMaps].reduce((merger, link) => {
     const href = link.getAttribute('href')!
-    const lang = link.getAttribute('lang')!
+    const lang = link.getAttribute('lang')
+    if (lang == null) {
+      console.error('link %o requires a lang attribute, it will be ignored', link)
+      return merger
+    }
     try {
       const locale = new Intl.Locale(lang)
       return merger.addTranslations(new URL(href, locationHref), locale)
