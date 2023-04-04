@@ -1,8 +1,8 @@
-import { window } from '../../../test-utils/unit/init-dom.ts'
-import { test } from '../../../test-utils/unit/test.ts'
-import { loadI18n } from './implementation.ts'
-import { provide } from '../i18n-importer/provider.ts'
-import { normalizeI18nDefinitionMap } from '../i18n-normalizer/mod.ts'
+import { window } from '../../test-utils/unit/init-dom.js'
+import { test } from '../../test-utils/unit/test.js'
+import { loadI18n } from './implementation.js'
+import { provide } from '../utils/i18n-importer/provider.js'
+import { normalizeI18nDefinitionMap } from '../utils/i18n-normalizer/mod.js'
 
 const html = String.raw
 
