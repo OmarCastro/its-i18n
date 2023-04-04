@@ -1,6 +1,6 @@
-import { type I18nDefinitionMap, importI18nJson, importTranslations, type Translations } from '../utils/i18n-importer/mod.js'
-import { i18nTanslationStore, type StoreData, type TranslationStore } from '../utils/store/translation-store.js'
-import { builder } from '../utils/i18n-merger/mod.js'
+import { type I18nDefinitionMap, importI18nJson, importTranslations, type Translations } from '../utils/i18n-importer/mod.ts'
+import { i18nTanslationStore, type StoreData, type TranslationStore } from '../utils/store/translation-store.ts'
+import { builder } from '../utils/i18n-merger/mod.ts'
 
 async function loadLocaleMaps({ document, location, merger }: { document: Document; location: Location; merger: typeof builder }) {
   const locationHref = location.href
