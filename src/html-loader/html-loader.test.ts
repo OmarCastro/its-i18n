@@ -1,6 +1,6 @@
 import { window } from '../../test-utils/unit/init-dom.js'
 import { test } from '../../test-utils/unit/test.js'
-import { loadI18n } from './implementation.js'
+import { loadI18n } from './html-loader.js'
 import { provide } from '../utils/i18n-importer/provider.js'
 import { normalizeI18nDefinitionMap } from '../utils/i18n-normalizer/mod.js'
 
