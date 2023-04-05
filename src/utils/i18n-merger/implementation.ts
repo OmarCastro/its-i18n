@@ -30,12 +30,20 @@ type I18nMergeIntermediaryResult = {
 }
 
 const merge = (...data: I18nLangMergeData[]) => {
-  const mergeLang = (acc: I18nMergeIntermediaryResult, i18nDefinition: NormalizedI18nDefinition, language: string) => {
+  const mergeLang = (
+    acc: I18nMergeIntermediaryResult,
+    i18nDefinition: NormalizedI18nDefinition,
+    language: string,
+    locationBase: string | URL,
+  ) => {
     const { translations, extends: ext } = normalizeI18nDefinition(i18nDefinition).result
     const strLang = language.toString()
     const definition = acc[strLang] || { extends: new Set(), translations: {} }
     const definitionExtSet = definition.extends
-    ext.forEach((e) => definitionExtSet.add(e))
+    ext.forEach((e) => {
+      const extendsLocation = new URL(e, locationBase).href
+      definitionExtSet.add(extendsLocation)
+    })
 
     definition.translations = {
       ...definition.translations,
@@ -51,17 +59,17 @@ const merge = (...data: I18nLangMergeData[]) => {
     const locationStr = typeof location === 'string' ? location : location.href
     if (kind === 'definition') {
       const i18nDefinition = normalizeI18nDefinition(value.data).result
-      return mergeLang(acc, i18nDefinition, value.language.toString())
+      return mergeLang(acc, i18nDefinition, value.language.toString(), location)
     }
 
     if (kind === 'translations') {
       const i18nDefinition = normalizeI18nDefinition(locationStr).result
-      return mergeLang(acc, i18nDefinition, value.language.toString())
+      return mergeLang(acc, i18nDefinition, value.language.toString(), location)
     }
 
     const i18nDefinitionMap = normalizeI18nDefinitionMap(value.data).result
     return Object.entries(i18nDefinitionMap).reduce<I18nMergeIntermediaryResult>((acc, [lang, def]) => {
-      return mergeLang(acc, def, lang)
+      return mergeLang(acc, def, lang, location)
     }, acc)
   }, {})
 
