@@ -1,7 +1,7 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../test-utils/unit/test.ts'
 import { getAST, parseKey, states } from './key-parser.util.ts'
 
-test('Given a simple string, getAST should return an AST with one token', async ({ step, expect }) => {
+test('Given a simple string, getAST should return an AST with one token', ({ expect }) => {
   const ast = getAST('hello world')
   expect(ast.tokens).toEqual([{
     start: 0,
@@ -12,7 +12,7 @@ test('Given a simple string, getAST should return an AST with one token', async 
   }])
 })
 
-test('Given a simple template string, getAST should return an AST with 3 tokens', async ({ step, expect }) => {
+test('Given a simple template string, getAST should return an AST with 3 tokens', ({ expect }) => {
   const ast = getAST('hello {} world')
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'hello ', childTokens: [] },
@@ -21,7 +21,7 @@ test('Given a simple template string, getAST should return an AST with 3 tokens'
   ])
 })
 
-test('Given a template string with "number" keyword, getAST should return an AST with 3 tokens', async ({ step, expect }) => {
+test('Given a template string with "number" keyword, getAST should return an AST with 3 tokens', ({ expect }) => {
   const ast = getAST('I see {number} worlds')
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
@@ -42,7 +42,7 @@ test('Given a template string with "number" keyword, getAST should return an AST
   ])
 })
 
-test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', async ({ step, expect }) => {
+test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', ({ expect }) => {
   const ast = getAST('I see { /^[0-9]/ } worlds')
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
@@ -65,7 +65,7 @@ test('Given a template string with "regex" keyword, getAST should return an AST 
   ])
 })
 
-test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', async ({ step, expect }) => {
+test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', ({ expect }) => {
   const ast = getAST('I see { number | string } worlds')
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
@@ -90,7 +90,7 @@ test('Given a template string with "regex" keyword, getAST should return an AST 
   ])
 })
 
-test('Given a string with escaped initial curly brace, getAST should return an AST with 1 tokens', async ({ step, expect }) => {
+test('Given a string with escaped initial curly brace, getAST should return an AST with 1 tokens', ({ expect }) => {
   const ast = getAST('hello \\{} world')
   expect(ast.tokens).toEqual([{
     start: 0,
@@ -101,7 +101,7 @@ test('Given a string with escaped initial curly brace, getAST should return an A
   }])
 })
 
-test('Given a simple string, parseKey should return a result with max priority', async ({ step, expect }) => {
+test('Given a simple string, parseKey should return a result with max priority', ({ expect }) => {
   const parseKeyResult = parseKey('hello world')
   const { priority, key } = parseKeyResult
 
@@ -111,7 +111,7 @@ test('Given a simple string, parseKey should return a result with max priority',
   })
 })
 
-test('Given a simple dynamic string, parseKey should return a result', async ({ step, expect }) => {
+test('Given a simple dynamic string, parseKey should return a result', ({ expect }) => {
   const parseKeyResult = parseKey('hello {}')
   const { priority, key, normalizedKey } = parseKeyResult
 
@@ -122,7 +122,7 @@ test('Given a simple dynamic string, parseKey should return a result', async ({ 
   })
 })
 
-test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', async ({ step, expect }) => {
+test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', ({ expect }) => {
   const parseKeyResult = parseKey('hello { number }')
   const { priority, key, normalizedKey } = parseKeyResult
 
@@ -133,7 +133,7 @@ test('Given a string with spaces inside curly braces {}, parseKey should return 
   })
 })
 
-test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', async ({ step, expect }) => {
+test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', ({ expect }) => {
   const parseKeyResult = parseKey('hello { number | string }')
   const { priority, key, normalizedKey } = parseKeyResult
 

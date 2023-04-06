@@ -23,8 +23,7 @@
       "include": ["src/"],
       "exclude": [
         "src/utils/store/translation-store.test.ts--filesystem",
-        "src/utils/store/translation-store.test.ts",
-        "src/utils/key-parser/key-parser.util.test.ts"
+        "src/utils/store/translation-store.test.ts"
       ]
     },
     "rules": {
