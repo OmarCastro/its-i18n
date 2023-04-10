@@ -132,7 +132,7 @@ test('observeLangFromElement should trigger multiple observing elements when anc
   // assert
   expect(triggeredEvents).toEqual({
     level3: true,
-    level4: true,
+    level4: false,
     level5: true,
     level5_2: true,
   })
@@ -184,18 +184,20 @@ test('observeLangFromElement should not trigger event when a new lang was added 
     `
   const level3Div = document.querySelector('.level-3') as Element
   const level4Div = document.querySelector('.level-4') as Element
-  const rootEvent = { triggered: false }
-  const level4DivLangEvent = { triggered: false }
+  const triggeredEvents = {
+    rootEvent: false,
+    level4DivLangEvent: false,
+  }
 
   // act
   observeLangFromElement(level4Div)
   level4Div.addEventListener(eventName, () => {
-    level4DivLangEvent.triggered = true
+    triggeredEvents.level4DivLangEvent = true
   }, { once: true })
 
   await new Promise<void>((resolve) => {
     document.addEventListener(rootEventName, () => {
-      rootEvent.triggered = true, resolve()
+      triggeredEvents.rootEvent = true, resolve()
     }, { once: true })
     level3Div.setAttribute('lang', 'pt')
   })
@@ -203,9 +205,9 @@ test('observeLangFromElement should not trigger event when a new lang was added 
   unobserveLangFromElement(level4Div)
 
   // assert
-  expect({ rootEvent: rootEvent.triggered, level4DivLangEvent: level4DivLangEvent.triggered, level4DivNewLang }).toEqual({
+  expect({ ...triggeredEvents, level4DivNewLang }).toEqual({
     rootEvent: true,
-    level4DivLangEvent: true,
+    level4DivLangEvent: false,
     level4DivNewLang: 'pt',
   })
 })
