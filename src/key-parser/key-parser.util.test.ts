@@ -116,7 +116,7 @@ test('Given a simple dynamic string, parseKey should return a result', ({ expect
   const { priority, key, normalizedKey } = parseKeyResult
 
   expect({ priority, key, normalizedKey }).toEqual({
-    priority: [0, 0, 1],
+    priority: [0, 1, 1],
     key: 'hello {}',
     normalizedKey: key,
   })
@@ -127,7 +127,7 @@ test('Given a string with spaces inside curly braces {}, parseKey should return 
   const { priority, key, normalizedKey } = parseKeyResult
 
   expect({ priority, key, normalizedKey }).toEqual({
-    priority: [0, 0, 1],
+    priority: [0, 1, 1],
     key: 'hello { number }',
     normalizedKey: 'hello {number}',
   })
@@ -138,7 +138,7 @@ test('Given a string with spaces inside curly braces {}, parseKey should return 
   const { priority, key, normalizedKey } = parseKeyResult
 
   expect({ priority, key, normalizedKey }).toEqual({
-    priority: [0, 0, 1],
+    priority: [0, 1, 1],
     key: 'hello { number | string }',
     normalizedKey: 'hello {number|string}',
   })

@@ -235,6 +235,7 @@ export function parseKey(key: string) {
 
   const ast = getAST(key)
   const captures = ast.tokens.filter((token) => token.type === states.capture)
+  result.ast = ast
 
   if (captures.length <= 0) {
     result.priority[0] = 1
@@ -243,6 +244,7 @@ export function parseKey(key: string) {
     return result
   }
 
+  result.priority[1] = captures.length
   result.priority[2] = 1
   result.matches = matchesEquality(key)
   result.normalizedKey = getNormalizedKey(ast)
@@ -257,11 +259,15 @@ const matchesEquality = (key: string) => (text: string) => text === key
 type ParseResult = {
   /**
    * Defined the priority of parsing
+   * first number is either 1 when it is exact match (there is no capture group), 0 otherwise
+   * second number is the number of capture groups.
+   * third number is the sum of capture group values
    */
   priority: [number, number, number]
   key: string
   normalizedKey: string
   matches(text: string): boolean
+  ast: AST
 }
 
 type TmpAST = {
