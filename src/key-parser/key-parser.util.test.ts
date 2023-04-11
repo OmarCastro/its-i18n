@@ -90,6 +90,34 @@ test('Given a template string with "regex" keyword, getAST should return an AST 
   ])
 })
 
+test('Given a template string with "multiple word" keyword, getAST should return an AST with 3 tokens and capture token has 5 child tokens ', ({ expect }) => {
+  const ast = getAST('On { future date | future iso 8601 } something will happen')
+  expect(ast.tokens).toEqual([
+    { start: 0, end: 3, type: states.normal, text: 'On ', childTokens: [] },
+    {
+      start: 3,
+      end: 36,
+      type: states.capture,
+      text: '{ future date | future iso 8601 }',
+      childTokens: [
+        { start: 5, end: 11, type: 2, text: 'future', childTokens: [] },
+        { start: 12, end: 16, type: 2, text: 'date', childTokens: [] },
+        { start: 17, end: 18, type: 3, text: '|', childTokens: [] },
+        { start: 19, end: 25, type: 2, text: 'future', childTokens: [] },
+        { start: 26, end: 29, type: 2, text: 'iso', childTokens: [] },
+        { start: 30, end: 34, type: 2, text: '8601', childTokens: [] },
+      ],
+    },
+    {
+      start: 36,
+      end: 58,
+      type: states.normal,
+      text: ' something will happen',
+      childTokens: [],
+    },
+  ])
+})
+
 test('Given a string with escaped initial curly brace, getAST should return an AST with 1 tokens', ({ expect }) => {
   const ast = getAST('hello \\{} world')
   expect(ast.tokens).toEqual([{
