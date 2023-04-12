@@ -171,3 +171,14 @@ test('Given a string with spaces inside curly braces {}, parseKey should return 
     normalizedKey: 'hello {number|string}',
   })
 })
+
+test('Given a string with spaces between multi-word keywords {}, parseKey should return a result with a normalized key', ({ expect }) => {
+  const parseKeyResult = parseKey('hello {  future  date | unix  timestamp    }')
+  const { priority, key, normalizedKey } = parseKeyResult
+
+  expect({ priority, key, normalizedKey }).toEqual({
+    priority: [0, 1, 1],
+    key: 'hello {  future  date | unix  timestamp    }',
+    normalizedKey: 'hello {future date|unix timestamp}',
+  })
+})
