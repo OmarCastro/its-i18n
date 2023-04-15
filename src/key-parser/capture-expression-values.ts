@@ -5,7 +5,7 @@ const baseCapureExpressions = {
 
   'string': {
     value: 300,
-  }
+  },
 } satisfies CaptureExpressionMap
 
 const specialCapureExpressions = {
@@ -14,7 +14,7 @@ const specialCapureExpressions = {
   },
 
   'any': {
-    value: 100
+    value: 100,
   },
 } satisfies CaptureExpressionMap
 
@@ -31,7 +31,7 @@ const baseTimeCaptureExpressions = {
   'date': {
     value: 500,
   },
-} as Record<string, {value: number}>
+} as Record<string, { value: number }>
 
 const relativeTimeCaptureExpresionPrefix = {
   past: {
@@ -45,7 +45,7 @@ const relativeTimeCaptureExpresionPrefix = {
   future: {
     additionalvalue: 50,
   },
-} as Record<string, {additionalvalue: number}>
+} as Record<string, { additionalvalue: number }>
 
 const timeIntervalCaptureExpresionPrefix = {
   millisecond: {
@@ -79,25 +79,23 @@ const timeIntervalCaptureExpresionPrefix = {
   year: {
     additionalvalue: 24,
   },
-} as Record<string, {additionalvalue: number}>
-
+} as Record<string, { additionalvalue: number }>
 
 const timeCaptureExpresions = (() => {
   const result = {} as CaptureExpressionMap
-  const {entries} = Object
-  for(const [baseKey, baseInfo] of entries(baseTimeCaptureExpressions)){
+  const { entries } = Object
+  for (const [baseKey, baseInfo] of entries(baseTimeCaptureExpressions)) {
     result[baseKey] = baseInfo
-    for(const [relativePrefixKey, relativePrefixInfo] of entries(relativeTimeCaptureExpresionPrefix)){
+    for (const [relativePrefixKey, relativePrefixInfo] of entries(relativeTimeCaptureExpresionPrefix)) {
       const infoWithRelTime = {
         ...baseInfo,
-        value: baseInfo.value + relativePrefixInfo.additionalvalue
+        value: baseInfo.value + relativePrefixInfo.additionalvalue,
       }
       result[`${relativePrefixKey} ${baseKey}`] = infoWithRelTime
-      for(const [intervalKey, intervalnfo] of entries(timeIntervalCaptureExpresionPrefix)){
-
+      for (const [intervalKey, intervalnfo] of entries(timeIntervalCaptureExpresionPrefix)) {
         result[`${relativePrefixKey} ${intervalKey} ${baseKey}`] = {
           ...infoWithRelTime,
-          value: infoWithRelTime.value + intervalnfo.additionalvalue
+          value: infoWithRelTime.value + intervalnfo.additionalvalue,
         }
       }
     }
@@ -118,6 +116,6 @@ export const captureExpressions = {
   special: specialCapureExpressions,
   named: {
     ...baseCapureExpressions,
-    ...timeCaptureExpresions
-  }
+    ...timeCaptureExpresions,
+  },
 }
