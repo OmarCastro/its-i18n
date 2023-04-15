@@ -65,7 +65,7 @@ test('Given a template string with "regex" keyword, getAST should return an AST 
   ])
 })
 
-test('Given a template string with "regex" keyword, getAST should return an AST with 3 tokens and capture token has regex step ', ({ expect }) => {
+test('Given a template string with "number" or "string" keyword, getAST should return an AST with 3 tokens and capture token has 2 expressions', ({ expect }) => {
   const ast = getAST('I see { number | string } worlds')
   expect(ast.tokens).toEqual([
     { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
@@ -90,6 +90,31 @@ test('Given a template string with "regex" keyword, getAST should return an AST 
   ])
 })
 
+test('Given a template string with normalized "number" or "string" keyword, getAST should return an AST with 3 tokens and capture token has 2 expressions', ({ expect }) => {
+  const ast = getAST('I see {number|string} worlds')
+  expect(ast.tokens).toEqual([
+    { start: 0, end: 6, type: states.normal, text: 'I see ', childTokens: [] },
+    {
+      start: 6,
+      end: 21,
+      type: states.capture,
+      text: '{number|string}',
+      childTokens: [
+        { start: 7, end: 13, type: states.capture_expr, text: 'number', childTokens: [] },
+        { start: 13, end: 14, type: states.capture_expr_sep, text: '|', childTokens: [] },
+        { start: 14, end: 20, type: states.capture_expr, text: 'string', childTokens: [] },
+      ],
+    },
+    {
+      start: 21,
+      end: 28,
+      type: states.normal,
+      text: ' worlds',
+      childTokens: [],
+    },
+  ])
+})
+
 test('Given a template string with "multiple word" keyword, getAST should return an AST with 3 tokens and capture token has 5 child tokens ', ({ expect }) => {
   const ast = getAST('On { future date | future iso 8601 } something will happen')
   expect(ast.tokens).toEqual([
@@ -100,12 +125,12 @@ test('Given a template string with "multiple word" keyword, getAST should return
       type: states.capture,
       text: '{ future date | future iso 8601 }',
       childTokens: [
-        { start: 5, end: 11, type: 2, text: 'future', childTokens: [] },
-        { start: 12, end: 16, type: 2, text: 'date', childTokens: [] },
-        { start: 17, end: 18, type: 3, text: '|', childTokens: [] },
-        { start: 19, end: 25, type: 2, text: 'future', childTokens: [] },
-        { start: 26, end: 29, type: 2, text: 'iso', childTokens: [] },
-        { start: 30, end: 34, type: 2, text: '8601', childTokens: [] },
+        { start: 5, end: 11, type: states.capture_expr, text: 'future', childTokens: [] },
+        { start: 12, end: 16, type: states.capture_expr, text: 'date', childTokens: [] },
+        { start: 17, end: 18, type: states.capture_expr_sep, text: '|', childTokens: [] },
+        { start: 19, end: 25, type: states.capture_expr, text: 'future', childTokens: [] },
+        { start: 26, end: 29, type: states.capture_expr, text: 'iso', childTokens: [] },
+        { start: 30, end: 34, type: states.capture_expr, text: '8601', childTokens: [] },
       ],
     },
     {

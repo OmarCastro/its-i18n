@@ -57,6 +57,7 @@ const captureExprState = (() => {
   state[ch('\\')] = states.previous_ignore
   state[ch('\t')] = states.previous_ignore
   state[ch(' ')] = states.previous_ignore
+  state[ch('|')] = states.previous_ignore
   state[ch('\n')] = states.previous_ignore
   state[ch('}')] = states.previous_ignore
   return state
