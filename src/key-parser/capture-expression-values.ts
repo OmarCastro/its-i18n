@@ -5,14 +5,18 @@ const baseCapureExpressions = {
 
   'string': {
     value: 300,
-  },
+  }
+} satisfies CaptureExpressionMap
 
+const specialCapureExpressions = {
   'regex': {
     value: 200,
   },
 
-  'any': {},
-}
+  'any': {
+    value: 100
+  },
+} satisfies CaptureExpressionMap
 
 const baseTimeCaptureExpressions = {
   // normal times
@@ -27,7 +31,7 @@ const baseTimeCaptureExpressions = {
   'date': {
     value: 500,
   },
-}
+} as Record<string, {value: number}>
 
 const relativeTimeCaptureExpresionPrefix = {
   past: {
@@ -41,9 +45,9 @@ const relativeTimeCaptureExpresionPrefix = {
   future: {
     additionalvalue: 50,
   },
-}
+} as Record<string, {additionalvalue: number}>
 
-const timeIntervaCaptureExpresionPrefix = {
+const timeIntervalCaptureExpresionPrefix = {
   millisecond: {
     additionalvalue: 33,
   },
@@ -75,8 +79,45 @@ const timeIntervaCaptureExpresionPrefix = {
   year: {
     additionalvalue: 24,
   },
+} as Record<string, {additionalvalue: number}>
+
+
+const timeCaptureExpresions = (() => {
+  const result = {} as CaptureExpressionMap
+  const {entries} = Object
+  for(const [baseKey, baseInfo] of entries(baseTimeCaptureExpressions)){
+    result[baseKey] = baseInfo
+    for(const [relativePrefixKey, relativePrefixInfo] of entries(relativeTimeCaptureExpresionPrefix)){
+      const infoWithRelTime = {
+        ...baseInfo,
+        value: baseInfo.value + relativePrefixInfo.additionalvalue
+      }
+      result[`${relativePrefixKey} ${baseKey}`] = infoWithRelTime
+      for(const [intervalKey, intervalnfo] of entries(timeIntervalCaptureExpresionPrefix)){
+
+        result[`${relativePrefixKey} ${intervalKey} ${baseKey}`] = {
+          ...infoWithRelTime,
+          value: infoWithRelTime.value + intervalnfo.additionalvalue
+        }
+      }
+    }
+  }
+
+  return result
+})()
+
+type CaptureExpressionMap = {
+  [expression: string]: CaptureExpressionInfo
 }
 
-const anyCaptureExpression = {
-  value: 100,
+type CaptureExpressionInfo = {
+  value: number
+}
+
+export const captureExpressions = {
+  special: specialCapureExpressions,
+  named: {
+    ...baseCapureExpressions,
+    ...timeCaptureExpresions
+  }
 }
