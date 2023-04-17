@@ -1,7 +1,9 @@
-import { states, type Token } from './key-ast.util.ts'
+import { type AST, states, type Token } from './key-ast.util.ts'
 import { captureExpressions } from './capture-expression-values.ts'
 
-function calculatePriority(captureTokens: Token[]) {
+function calculatePriorityFromTokens(tokens: Token[]) {
+  const captureTokens = tokens.filter((token) => token.type === states.capture)
+
   const captureValues = captureTokens.length
   const captureExpressionsInfo = captureTokens.map((captureToken) => {
     const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfo[]
@@ -27,7 +29,7 @@ function calculatePriority(captureTokens: Token[]) {
             type: 'regex',
             text: token.text,
           })
-
+          continue
         case states.sq_string:
         case states.dq_string:
         case states.bt_string:
@@ -35,6 +37,7 @@ function calculatePriority(captureTokens: Token[]) {
             type: 'string',
             text: token.text,
           })
+          continue
       }
     }
     if (currentExpression) {
@@ -62,11 +65,19 @@ function calculatePriority(captureTokens: Token[]) {
 
   const sum = captureExpressionsInfo.map(({ value: _ }) => _).reduce((a, b) => a + b, 0)
 
+  const priority = [captureValues, sum] as const
   return {
-    array: [captureValues, sum],
-    prioriyValue: Number.MAX_SAFE_INTEGER - (captureValues << 20) + sum,
+    priority,
+    priorityAsNumber: getNumericValuePriority(priority),
   }
 }
+
+export function calculatePriority(ast: AST) {
+  return calculatePriorityFromTokens(ast.tokens)
+}
+
+export const getNumericValuePriority = ([captureValues, sum]: readonly [number, number]) =>
+  Number.MAX_SAFE_INTEGER - (captureValues << 20) + sum
 
 type CaptureExpressionsInfo = {
   type: 'expression' | 'regex' | 'string'
