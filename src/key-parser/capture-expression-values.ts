@@ -1,20 +1,39 @@
+
+
 const baseCapureExpressions = {
   'number': {
     value: 400,
+    matchPredicate: () => (text: string) => isNumeric(text)
   },
 
   'string': {
     value: 300,
+    matchPredicate: () => (text: string) => text.startsWith('"') && text.endsWith('"')
   },
 } satisfies CaptureExpressionMap
 
 const specialCapureExpressions = {
+
+  'string': {
+    value: 1 << 20,
+    matchPredicate: (match: string) => (text: string) => match === text
+  },
+
   'regex': {
     value: 200,
+    matchPredicate: (regexPattern: string) => {
+      let result = (text: string) => {
+        const regex = new RegExp(regexPattern)
+        result = (text: string) => text.match(regex)
+        return result(text)
+      }
+      return (text: string) => result(text)
+    }
   },
 
   'any': {
     value: 100,
+    matchPredicate: () => () => true
   },
 } satisfies CaptureExpressionMap
 
@@ -110,6 +129,7 @@ type CaptureExpressionMap = {
 
 type CaptureExpressionInfo = {
   value: number
+  matchPredicate?(...match: any[]): (text: string) => boolean
 }
 
 export const captureExpressions = {
@@ -118,4 +138,9 @@ export const captureExpressions = {
     ...baseCapureExpressions,
     ...timeCaptureExpresions,
   },
+}
+
+
+function isNumeric(str: string) {
+  return typeof str === "string" && !isNaN(str as any) && !isNaN(parseFloat(str)) 
 }
