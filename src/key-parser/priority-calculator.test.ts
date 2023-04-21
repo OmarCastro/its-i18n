@@ -20,7 +20,7 @@ test('Given a simple dynamic string with "any" capture, calculatePriority should
 test('Given a simple dynamic string with "number" capture, calculatePriority should return a priority of [1, 100]', ({ expect }) => {
   const ast = getAST('I found { number } rocks')
   expect(calculatePriority(ast)).toEqual(withNumberiValue({
-    priority: [1, 100],
+    priority: [1, 400],
   }))
 })
 

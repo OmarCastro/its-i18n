@@ -52,7 +52,7 @@ function calculatePriorityFromTokens(tokens: Token[]) {
         case 'string':
           return captureExpressions.named.string.value
         case 'expression':
-          return captureExpressions.named[captureExpressionsInfo.type]?.value ?? 0
+          return captureExpressions.named[captureExpressionsInfo.text]?.value ?? 0
         case 'regex':
           captureExpressions.special.regex.value
       }
