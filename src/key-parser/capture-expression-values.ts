@@ -1,22 +1,19 @@
-
-
 const baseCapureExpressions = {
   'number': {
     value: 400,
-    matchPredicate: () => (text: string) => isNumeric(text)
+    matchPredicate: () => (text: string) => isNumeric(text),
   },
 
   'string': {
     value: 300,
-    matchPredicate: () => (text: string) => text.startsWith('"') && text.endsWith('"')
+    matchPredicate: () => (text: string) => text.startsWith('"') && text.endsWith('"'),
   },
 } satisfies CaptureExpressionMap
 
 const specialCapureExpressions = {
-
   'string': {
     value: 1 << 20,
-    matchPredicate: (match: string) => (text: string) => match === text
+    matchPredicate: (match: string) => (text: string) => match === text,
   },
 
   'regex': {
@@ -28,15 +25,14 @@ const specialCapureExpressions = {
         return result(text)
       }
       return (text: string) => result(text)
-    }
+    },
   },
 
   'any': {
     value: 100,
-    matchPredicate: () => () => true
+    matchPredicate: () => () => true,
   },
 } satisfies CaptureExpressionMap
-
 
 const baseTimeCaptureExpressions = {
   // normal times
@@ -44,16 +40,16 @@ const baseTimeCaptureExpressions = {
     value: 550,
     matchPredicate: () => {
       return (text: string) => isNumeric(text)
-    }
-
+    },
   },
 
   'iso 8601': {
     value: 550,
     matchPredicate: () => {
-      const iso8601Regex = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
+      const iso8601Regex =
+        /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
       return (text: string) => text.match(iso8601Regex) && !isNaN(Date.parse(text))
-    }
+    },
   },
 
   'date': {
@@ -65,7 +61,7 @@ const baseTimeCaptureExpressions = {
         return result(text)
       }
       return (text: string) => result(text)
-    }
+    },
   },
 } as Record<string, { value: number }>
 
@@ -146,7 +142,7 @@ type CaptureExpressionMap = {
 
 type CaptureExpressionInfo = {
   value: number
-  matchPredicate?(...match: any[]): (text: string) => boolean
+  matchPredicate?(...match: unknown[]): (text: string) => boolean
 }
 
 export const captureExpressions = {
@@ -157,7 +153,6 @@ export const captureExpressions = {
   },
 }
 
-
 function isNumeric(str: string) {
-  return typeof str === "string" && !isNaN(str as any) && !isNaN(parseFloat(str)) 
+  return typeof str === 'string' && !isNaN(str as never) && !isNaN(parseFloat(str))
 }
