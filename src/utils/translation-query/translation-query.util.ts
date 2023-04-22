@@ -13,8 +13,19 @@ type QueryResult = {
   value: TranslationValue
 }
 
+type QueryResultCache = {
+  [key: string]: QueryResult
+}
+
 type OptimizedTranslations = {
   literalKeys: Translations
+  templateKeys: {
+    [prefix: string]: {
+      parsedKey: ReturnType<typeof parseKey>
+      value: string
+    }
+  }
+  templateKeysPriorityOrder: { key: string; priority: number }[]
   prefixTemplateSearchByWords: {
     [prefix: string]: Translations
   }
@@ -23,9 +34,11 @@ type OptimizedTranslations = {
 function optimizeTranslationForQueries(translations: Translations) {
   const result: OptimizedTranslations = {
     literalKeys: {},
+    templateKeys: {},
+    templateKeysPriorityOrder: [],
     prefixTemplateSearchByWords: {},
   }
-  const { literalKeys, prefixTemplateSearchByWords } = result
+  const { literalKeys, templateKeys, templateKeysPriorityOrder, prefixTemplateSearchByWords } = result
 
   for (const [key, val] of Object.entries(translations)) {
     const parseResult = parseKey(key)
@@ -34,23 +47,48 @@ function optimizeTranslationForQueries(translations: Translations) {
       continue
     }
 
+    templateKeys[key] = {
+      parsedKey: parseResult,
+      value: val,
+    }
+    templateKeysPriorityOrder.push({ key, priority: parseResult.priorityAsNumber })
     const prefix = parseResult.ast.tokens[0].text
 
     prefixTemplateSearchByWords[prefix] ||= {}
     prefixTemplateSearchByWords[prefix][key] = val
   }
 
+  templateKeysPriorityOrder.sort((a, b) => b.priority - a.priority)
+
   return result
 }
 
+const translationOptimizations: WeakMap<Translations, { cache: QueryResultCache; optimizedMap: OptimizedTranslations }> = new WeakMap()
+
 export function queryFromTranslations(key: string, translations: Translations): QueryResult {
-  if (translations[key] != null) {
-    return {
+  let optmization = translationOptimizations.get(translations)
+  if (!optmization) {
+    optmization = {
+      cache: {},
+      optimizedMap: optimizeTranslationForQueries(translations),
+    }
+    translationOptimizations.set(translations, optmization)
+  }
+
+  const { cache, optimizedMap } = optmization
+
+  if (cache[key] != null) {
+    return cache[key]
+  }
+
+  if (optimizedMap.literalKeys[key] != null) {
+    cache[key] = {
       targetKey: key,
       translations,
       found: true,
-      value: translations[key],
+      value: optimizedMap.literalKeys[key],
     }
+    return cache[key]
   }
 
   return {
