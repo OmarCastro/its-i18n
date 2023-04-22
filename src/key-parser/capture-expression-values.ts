@@ -1,4 +1,6 @@
 import { isNumeric } from '../utils/algorithms/number.utils.ts'
+import { parseISO8601 } from '../utils/algorithms/time.utils.ts'
+import { lazyRegexMatcher } from '../utils/algorithms/regex.utils.ts'
 
 const baseCapureExpressions = {
   'number': {
@@ -20,14 +22,7 @@ const specialCapureExpressions = {
 
   'regex': {
     value: 200,
-    matchPredicate: (regexPattern: string) => {
-      let result = (text: string) => {
-        const regex = new RegExp(regexPattern)
-        result = (text: string) => text.match(regex)
-        return result(text)
-      }
-      return (text: string) => result(text)
-    },
+    matchPredicate: (regexPattern: string) => lazyRegexMatcher(regexPattern),
   },
 
   'any': {
@@ -40,30 +35,17 @@ const baseTimeCaptureExpressions = {
   // normal times
   'unix timestamp': {
     value: 550,
-    matchPredicate: () => {
-      return (text: string) => isNumeric(text)
-    },
+    matchPredicate: () => (text: string) => isNumeric(text),
   },
 
   'iso 8601': {
     value: 550,
-    matchPredicate: () => {
-      const iso8601Regex =
-        /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
-      return (text: string) => text.match(iso8601Regex) && !isNaN(Date.parse(text))
-    },
+    matchPredicate: () => (text: string) => !isNaN(parseISO8601(text)),
   },
 
   'date': {
     value: 500,
-    matchPredicate: (regexPattern: string) => {
-      let result = (text: string) => {
-        const regex = new RegExp(regexPattern)
-        result = (text: string) => text.match(regex)
-        return result(text)
-      }
-      return (text: string) => result(text)
-    },
+    matchPredicate: () => (text: string) => isNumeric(text) || !isNaN(parseISO8601(text)),
   },
 } as Record<string, { value: number }>
 
