@@ -28,3 +28,24 @@ test('Given a simple translation, queryFromTranslations with a non declared shou
     value: targetKey,
   })
 })
+
+test('Given a translation with number capure expression, queryFromTranslations with a non declared should search it and return a translated key with found flag enabled', ({ expect }) => {
+  const translations = {
+    'I found 0 balls': 'I did not found any balls',
+    'I found { number } balls': 'I did found {0} balls',
+  }
+
+  expect(queryFromTranslations('I found 0 balls', translations)).toEqual({
+    targetKey: 'I found 0 balls',
+    translations,
+    found: true,
+    value: 'I did not found any balls',
+  })
+
+  expect(queryFromTranslations('I found 5 balls', translations)).toEqual({
+    targetKey: 'I found 5 balls',
+    translations,
+    found: true,
+    value: 'I did found 5 balls',
+  })
+})
