@@ -1,3 +1,5 @@
+import { isNumeric } from '../utils/algorithms/number.utils.ts'
+
 const baseCapureExpressions = {
   'number': {
     value: 400,
@@ -151,8 +153,4 @@ export const captureExpressions = {
     ...baseCapureExpressions,
     ...timeCaptureExpresions,
   },
-}
-
-function isNumeric(str: string) {
-  return typeof str === 'string' && !isNaN(str as never) && !isNaN(parseFloat(str))
 }
