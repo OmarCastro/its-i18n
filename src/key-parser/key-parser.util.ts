@@ -1,4 +1,5 @@
 import { type AST, getAST, states, type Token } from './key-ast.util.ts'
+import { calculatePriority } from './priority-calculator.ts'
 
 const tokenToString = (() => {
   const mapper = [] as ((token: Token) => string)[]
@@ -30,24 +31,23 @@ function getNormalizedKey(ast: AST): string {
 }
 
 export function parseKey(key: string) {
+  const ast = getAST(key)
+  const { priority, priorityAsNumber } = calculatePriority(ast)
+  const captures = ast.tokens.filter((token) => token.type === states.capture)
+
   const result = {
-    priority: [0, 0, 0],
+    priority,
+    priorityAsNumber,
     key,
+    ast,
   } as ParseResult
 
-  const ast = getAST(key)
-  const captures = ast.tokens.filter((token) => token.type === states.capture)
-  result.ast = ast
-
   if (captures.length <= 0) {
-    result.priority[0] = 1
     result.matches = matchesEquality(key)
     result.normalizedKey = key
     return result
   }
 
-  result.priority[1] = captures.length
-  result.priority[2] = 1
   result.matches = matchesEquality(key)
   result.normalizedKey = getNormalizedKey(ast)
   return result
@@ -65,7 +65,8 @@ type ParseResult = {
    * second number is the number of capture groups.
    * third number is the sum of capture group values
    */
-  priority: [number, number, number]
+  priority: [number, number]
+  priorityAsNumber: number
   key: string
   normalizedKey: string
   matches(text: string): boolean
