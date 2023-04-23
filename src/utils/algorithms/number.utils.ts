@@ -1,5 +1,5 @@
 export function isNumeric(str: string) {
-  return typeof str === 'string' && !isNaN(str as never) && !isNaN(parseFloat(str))
+  return typeof str === 'string' && str.trim() === str && !isNaN(str as never) && !isNaN(parseFloat(str))
 }
 
 export function isInteger(str: string) {
