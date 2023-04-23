@@ -1,5 +1,6 @@
 import { type AST, getAST, states, type Token } from './key-ast.util.ts'
 import { calculatePriority } from './priority-calculator.ts'
+import { getMatcher } from './template-matcher.ts'
 
 const tokenToString = (() => {
   const mapper = [] as ((token: Token) => string)[]
@@ -48,7 +49,7 @@ export function parseKey(key: string) {
     return result
   }
 
-  result.matches = matchesEquality(key)
+  result.matches = getMatcher(ast)
   result.normalizedKey = getNormalizedKey(ast)
   return result
 }
