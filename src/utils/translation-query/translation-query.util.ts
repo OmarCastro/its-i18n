@@ -91,6 +91,20 @@ export function queryFromTranslations(key: string, translations: Translations): 
     return cache[key]
   }
 
+  const { templateKeys } = optimizedMap
+  for (const { key: templateKey } of optimizedMap.templateKeysPriorityOrder) {
+    if (templateKeys[templateKey].parsedKey.matches(key)) {
+      cache[key] = {
+        targetKey: key,
+        translations,
+        found: true,
+        value: templateKeys[templateKey].value,
+      }
+
+      return cache[key]
+    }
+  }
+
   return {
     targetKey: key,
     translations,
