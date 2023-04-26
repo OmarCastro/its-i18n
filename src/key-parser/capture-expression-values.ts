@@ -10,7 +10,10 @@ const baseCapureExpressions = {
 
   'string': {
     value: 300,
-    matchPredicate: () => (text: string) => text.startsWith('"') && text.endsWith('"'),
+    matchPredicate: () => (text: string) =>
+      (text.startsWith('"') && text.endsWith('"')) ||
+      (text.startsWith('\'') && text.endsWith('\'')) ||
+      (text.startsWith('`') && text.endsWith('`')),
   },
 } satisfies CaptureExpressionMap
 
