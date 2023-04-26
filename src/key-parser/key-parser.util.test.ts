@@ -90,3 +90,24 @@ test('Given a string with { number } capture key , parseKey.matches should retur
     'undefined': false,
   })
 })
+
+test('Given a string with { string } capture key , parseKey.matches should return return true only on text with quotes on them', ({ expect }) => {
+  const parseKeyResult = parseKey('The message received is { string }')
+  const { matches } = parseKeyResult
+
+  expect({
+    'The message received is ""': matches('The message received is ""'),
+    'The message received is \'\'': matches('The message received is \'\''),
+    'The message received is `yes`': matches('The message received is `yes`'),
+    'The message received is ': matches('The message received is '),
+    'The message received is "\\""': matches('The message received is "\\""'),
+    'undefined': matches(undefined as never),
+  }).toEqual({
+    'The message received is ""': true,
+    'The message received is \'\'': true,
+    'The message received is `yes`': true,
+    'The message received is ': false,
+    'The message received is "\\""': true,
+    'undefined': false,
+  })
+})
