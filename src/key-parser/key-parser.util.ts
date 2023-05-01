@@ -59,6 +59,10 @@ const matchesEquality = (key: string) => (text: string) => text === key
 
 /// types
 
+
+/**
+ * Representes the result of parsing a defined key 
+ */
 type ParseResult = {
   /**
    * Defines the key priority.
@@ -83,8 +87,22 @@ type ParseResult = {
    * @see ParseResult.priority
    */
   priorityAsNumber: number
+  /**
+   * target key used to parse
+   */
   key: string
+  /**
+   * normalized target key used to parse
+   */
   normalizedKey: string
+  /**
+   * Predicate to check if a defined text matches the key
+   * @param text - target text to parse
+   */
   matches(text: string): boolean
+
+  /**
+   * Abstract syntax tree generated as result from parsing the key
+   */
   ast: AST
 }
