@@ -61,12 +61,27 @@ const matchesEquality = (key: string) => (text: string) => text === key
 
 type ParseResult = {
   /**
-   * Defined the priority of parsing
-   * first number is either 1 when it is exact match (there is no capture group), 0 otherwise
-   * second number is the number of capture groups.
-   * third number is the sum of capture group values
+   * Defines the key priority.
+   * 
+   * When finding conflicting keys the one with the hightes priority is choosen
+   * 
+   * The priority is defined by specificity, the more specific, the highest
+   * priority it has.
+   * 
+   * The specificy is defined by 2 factors:
+   * - the lesser number of parameter
+   * - the specificity of each parameter
+   * 
+   * That is what those 2 values means in the priority key, the first value is
+   * the number of parameters in the key, and the sum of each parameter specificity value
    */
   priority: [number, number]
+
+  /**
+   * `ParseResult.priority` represented value as a number, to simplify comparing keys priorities
+   * 
+   * @see ParseResult.priority
+   */
   priorityAsNumber: number
   key: string
   normalizedKey: string
