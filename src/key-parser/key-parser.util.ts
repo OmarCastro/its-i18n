@@ -49,7 +49,9 @@ export function parseKey(key: string) {
     return result
   }
 
-  result.matches = getMatcher(ast)
+  const matcher = getMatcher(ast)
+
+  result.matches = (text) => matcher(text).isMatch
   result.normalizedKey = getNormalizedKey(ast)
   return result
 }
@@ -61,21 +63,21 @@ const matchesEquality = (key: string) => (text: string) => text === key
 
 
 /**
- * Representes the result of parsing a defined key 
+ * Representes the result of parsing a defined key
  */
 type ParseResult = {
   /**
    * Defines the key priority.
-   * 
+   *
    * When finding conflicting keys the one with the hightes priority is choosen
-   * 
+   *
    * The priority is defined by specificity, the more specific, the highest
    * priority it has.
-   * 
+   *
    * The specificy is defined by 2 factors:
    * - the lesser number of parameter
    * - the specificity of each parameter
-   * 
+   *
    * That is what those 2 values means in the priority key, the first value is
    * the number of parameters in the key, and the sum of each parameter specificity value
    */
@@ -83,7 +85,7 @@ type ParseResult = {
 
   /**
    * `ParseResult.priority` represented value as a number, to simplify comparing keys priorities
-   * 
+   *
    * @see ParseResult.priority
    */
   priorityAsNumber: number

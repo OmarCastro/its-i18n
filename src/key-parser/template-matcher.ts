@@ -4,6 +4,13 @@ import { captureExpressions } from './capture-expression-values.ts'
 
 const falsePredicate = (text: string) => false
 const truePredicate = (text: string) => false
+const emptyArray = Object.freeze([])
+const asIsFormatter = (text: string) => text
+const noMatch = Object.freeze({
+  isMatch: false,
+  parameters: emptyArray,
+  defaultFormatters: emptyArray,
+})
 
 function getMatcherFromTokens(tokens: Token[]) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
@@ -79,13 +86,22 @@ function getMatcherFromTokens(tokens: Token[]) {
   let regex: RegExp
 
   return (text: string) => {
-    if (typeof text !== 'string') return false
+    if (typeof text !== 'string') return noMatch
     regex ??= new RegExp('^' + regexStr + '$')
     const matches = text.match(regex)
     if (matches == null) {
-      return false
+      return noMatch
     }
-    return matches.slice(1).every((text, index) => captureExpressionsInfo[index].matchPredicate(text))
+
+    const parameters = matches.slice(1)
+    if (!parameters.every((text, index) => captureExpressionsInfo[index].matchPredicate(text))) {
+      return noMatch
+    }
+    return {
+      isMatch: true,
+      parameters,
+      defaultFormatters: parameters.map(() => asIsFormatter),
+    } as MatchResult
   }
 }
 
@@ -96,4 +112,12 @@ export function getMatcher(ast) {
 type CaptureExpressionsInfo = {
   type: 'expression' | 'regex' | 'string'
   text: string
+}
+
+type Formatter = (text: string) => string
+
+type MatchResult = {
+  isMatch: boolean
+  parameters: readonly string[]
+  defaultFormatters: readonly Formatter[]
 }
