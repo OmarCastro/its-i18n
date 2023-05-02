@@ -11,3 +11,15 @@ test('Given a simple string, getMatcher result should match the same sting only'
     defaultFormatters: [],
   })
 })
+
+test('Given a parameterized key, getMatcher result should match the each group in a parameter', ({ expect }) => {
+  const ast = getAST('I sort { number } balls in { number } buckets')
+  const matcher = getMatcher(ast)
+
+  const { isMatch, parameters } = matcher('I sort 130 balls in 5 buckets')
+
+  expect({ isMatch, parameters }).toEqual({
+    isMatch: true,
+    parameters: ["130", "5"],
+  })
+})
