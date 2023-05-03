@@ -20,6 +20,6 @@ test('Given a parameterized key, getMatcher result should match the each group i
 
   expect({ isMatch, parameters }).toEqual({
     isMatch: true,
-    parameters: ["130", "5"],
+    parameters: ['130', '5'],
   })
 })
