@@ -2,10 +2,14 @@ import { isNumeric } from '../utils/algorithms/number.utils.ts'
 import { parseISO8601 } from '../utils/algorithms/time.utils.ts'
 import { lazyRegexMatcher } from '../utils/algorithms/regex.utils.ts'
 
+const formatAsIs = (text: string) => text
+const defaultFormat = () => formatAsIs
+
 const baseCapureExpressions = {
   'number': {
     value: 400,
     matchPredicate: () => (text: string) => isNumeric(text),
+    defaultFormat: () => (text: string, locale: Intl.Locale) => Intl.NumberFormat(locale.baseName).format(Number(text)),
   },
 
   'string': {
@@ -14,6 +18,7 @@ const baseCapureExpressions = {
       (text.startsWith('"') && text.endsWith('"')) ||
       (text.startsWith('\'') && text.endsWith('\'')) ||
       (text.startsWith('`') && text.endsWith('`')),
+    defaultFormat,
   },
 } satisfies CaptureExpressionMap
 
@@ -21,34 +26,58 @@ const specialCapureExpressions = {
   'string': {
     value: 1 << 20,
     matchPredicate: (match: string) => (text: string) => match === text,
+    defaultFormat,
   },
 
   'regex': {
     value: 200,
     matchPredicate: (regexPattern: string) => lazyRegexMatcher(regexPattern),
+    defaultFormat,
   },
 
   'any': {
     value: 100,
     matchPredicate: () => () => true,
+    defaultFormat,
   },
 } satisfies CaptureExpressionMap
+
+const defaultDateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  fractionalSecondDigits: 3,
+  hour12: false,
+} as Intl.DateTimeFormatOptions
 
 const baseTimeCaptureExpressions = {
   // normal times
   'unix timestamp': {
     value: 550,
     matchPredicate: () => (text: string) => isNumeric(text),
+    defaultFormat: (text: string, locale: Intl.Locale) => {
+      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date(+text))
+    },
   },
 
   'iso 8601': {
     value: 550,
     matchPredicate: () => (text: string) => !isNaN(parseISO8601(text)),
+    defaultFormat: (text: string, locale: Intl.Locale) => {
+      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(parseISO8601(text))
+    },
   },
 
   'date': {
     value: 500,
     matchPredicate: () => (text: string) => isNumeric(text) || !isNaN(parseISO8601(text)),
+    defaultFormat: (text: string, locale: Intl.Locale) => {
+      const date = isNumeric(text) ? new Date(+text) : parseISO8601(text)
+      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
+    },
   },
 } as Record<string, { value: number }>
 
@@ -130,6 +159,7 @@ type CaptureExpressionMap = {
 type CaptureExpressionInfo = {
   value: number
   matchPredicate?(...match: unknown[]): (text: string) => boolean
+  defaultFormat?(...match: unknown[]): (text: string, locale: Intl.Locale) => string
 }
 
 export const captureExpressions = {
