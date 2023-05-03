@@ -1,6 +1,6 @@
 import { type AST, states, type Token } from './key-ast.util.ts'
 import { escape } from '../utils/algorithms/regex.utils.ts'
-import { captureExpressions } from './capture-expression-values.ts'
+import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 
 const falsePredicate = (text: string) => false
 const emptyArray = Object.freeze([])
@@ -8,10 +8,7 @@ const asIsFormatter = (text: string) => text
 
 const anyMatchExpression = Object.freeze({
   isMatch: true,
-  expressionInfo: Object.freeze({
-    text: '',
-    type: 'any',
-  }),
+  expressionInfo: captureExpressions.special.any,
 }) as ParameterMatchResult
 
 const noMatchExpression = Object.freeze({
@@ -73,10 +70,23 @@ function getMatcherFromTokens(tokens: Token[]) {
       })
     }
 
+    const expressionsInfoDetail = fragmentedCaptureExpressionsInfo.map((captureExpressionsInfo) => {
+      switch (captureExpressionsInfo.type) {
+        case 'string':
+          return captureExpressions.special.string
+        case 'expression':
+          return captureExpressions.named[captureExpressionsInfo.text] || null
+        case 'regex':
+          return captureExpressions.special.regex
+        default:
+          return null
+      }
+    })
+
     const predicates = fragmentedCaptureExpressionsInfo.map((captureExpressionsInfo) => {
       switch (captureExpressionsInfo.type) {
         case 'string':
-          return captureExpressions.named.string.matchPredicate()
+          return captureExpressions.special.string.matchPredicate(captureExpressionsInfo.text)
         case 'expression':
           return captureExpressions.named[captureExpressionsInfo.text]?.matchPredicate() ?? falsePredicate
         case 'regex':
@@ -94,7 +104,7 @@ function getMatcherFromTokens(tokens: Token[]) {
         }
         return {
           isMatch: true,
-          expressionInfo: fragmentedCaptureExpressionsInfo[index],
+          expressionInfo: expressionsInfoDetail[index],
         }
       },
     }
@@ -119,7 +129,7 @@ function getMatcherFromTokens(tokens: Token[]) {
     }
 
     const parameters = matches.slice(1)
-    const paramMatch = [] as CaptureExpressionsInfo[]
+    const paramMatch = [] as CaptureExpressionInfo[]
 
     for (const [index, text] of matches.slice(1).entries()) {
       const matchResult = captureExpressionsInfo[index].matchPredicate(text)
@@ -151,7 +161,7 @@ type Formatter = (text: string) => string
 type ParameterMatchResult = Readonly<
   { isMatch: false } | {
     isMatch: true
-    expressionInfo: CaptureExpressionsInfo
+    expressionInfo: CaptureExpressionInfo
   }
 >
 

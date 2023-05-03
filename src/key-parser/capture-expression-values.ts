@@ -156,7 +156,7 @@ type CaptureExpressionMap = {
   [expression: string]: CaptureExpressionInfo
 }
 
-type CaptureExpressionInfo = {
+export type CaptureExpressionInfo = {
   value: number
   matchPredicate?(...match: unknown[]): (text: string) => boolean
   defaultFormat?(...match: unknown[]): (text: string, locale: Intl.Locale) => string
