@@ -29,7 +29,7 @@ function getMatcherFromTokens(tokens: Token[]) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
 
   const captureExpressionsInfo = captureTokens.map((captureToken) => {
-    const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfo[]
+    const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfoDetail[]
     if (captureToken.childTokens.length === 0) {
       return anyMatchCaptureExpressionsInfo
     }
@@ -44,6 +44,7 @@ function getMatcherFromTokens(tokens: Token[]) {
           fragmentedCaptureExpressionsInfo.push({
             type: 'expression',
             text: currentExpression,
+            expressionInfo: captureExpressions.named[currentExpression],
           })
           currentExpression = ''
           continue
@@ -51,6 +52,7 @@ function getMatcherFromTokens(tokens: Token[]) {
           fragmentedCaptureExpressionsInfo.push({
             type: 'regex',
             text: token.text,
+            expressionInfo: captureExpressions.special.regex,
           })
           continue
         case states.sq_string:
@@ -59,6 +61,7 @@ function getMatcherFromTokens(tokens: Token[]) {
           fragmentedCaptureExpressionsInfo.push({
             type: 'string',
             text: token.text,
+            expressionInfo: captureExpressions.special.string,
           })
           continue
       }
@@ -67,21 +70,9 @@ function getMatcherFromTokens(tokens: Token[]) {
       fragmentedCaptureExpressionsInfo.push({
         type: 'expression',
         text: currentExpression,
+        expressionInfo: captureExpressions.named[currentExpression],
       })
     }
-
-    const expressionsInfoDetail = fragmentedCaptureExpressionsInfo.map((captureExpressionsInfo) => {
-      switch (captureExpressionsInfo.type) {
-        case 'string':
-          return captureExpressions.special.string
-        case 'expression':
-          return captureExpressions.named[captureExpressionsInfo.text] || null
-        case 'regex':
-          return captureExpressions.special.regex
-        default:
-          return null
-      }
-    })
 
     const predicates = fragmentedCaptureExpressionsInfo.map((captureExpressionsInfo) => {
       switch (captureExpressionsInfo.type) {
@@ -104,7 +95,7 @@ function getMatcherFromTokens(tokens: Token[]) {
         }
         return {
           isMatch: true,
-          expressionInfo: expressionsInfoDetail[index],
+          expressionInfo: fragmentedCaptureExpressionsInfo[index].expressionInfo,
         }
       },
     }
@@ -151,9 +142,10 @@ export function getMatcher(ast) {
   return getMatcherFromTokens(ast.tokens)
 }
 
-type CaptureExpressionsInfo = {
+type CaptureExpressionsInfoDetail = {
   type: 'expression' | 'regex' | 'string' | 'any'
   text: string
+  expressionInfo: CaptureExpressionInfo
 }
 
 type Formatter = (text: string) => string
