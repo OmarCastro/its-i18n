@@ -2,7 +2,7 @@ import { type AST, states, type Token } from './key-ast.util.ts'
 import { escape } from '../utils/algorithms/regex.utils.ts'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 
-const falsePredicate = (text: string) => false
+const falsePredicate = () => false
 const emptyArray = Object.freeze([])
 const asIsFormatter = (text: string) => text
 
@@ -16,7 +16,7 @@ const noMatchExpression = Object.freeze({
 })
 
 const anyMatchCaptureExpressionsInfo = {
-  matchPredicate: (text: string) => anyMatchExpression,
+  matchPredicate: () => anyMatchExpression,
 }
 
 const noMatch = Object.freeze({
@@ -45,6 +45,7 @@ function getMatcherFromTokens(tokens: Token[]) {
             type: 'expression',
             text: currentExpression,
             expressionInfo: captureExpressions.named[currentExpression],
+            matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
           })
           currentExpression = ''
           continue
@@ -53,6 +54,7 @@ function getMatcherFromTokens(tokens: Token[]) {
             type: 'regex',
             text: token.text,
             expressionInfo: captureExpressions.special.regex,
+            matches: captureExpressions.special.regex.matchPredicate(token.text),
           })
           continue
         case states.sq_string:
@@ -62,6 +64,7 @@ function getMatcherFromTokens(tokens: Token[]) {
             type: 'string',
             text: token.text,
             expressionInfo: captureExpressions.special.string,
+            matches: captureExpressions.special.string.matchPredicate(token.text),
           })
           continue
       }
@@ -71,31 +74,19 @@ function getMatcherFromTokens(tokens: Token[]) {
         type: 'expression',
         text: currentExpression,
         expressionInfo: captureExpressions.named[currentExpression],
+        matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
       })
     }
 
-    const predicates = fragmentedCaptureExpressionsInfo.map((captureExpressionsInfo) => {
-      switch (captureExpressionsInfo.type) {
-        case 'string':
-          return captureExpressions.special.string.matchPredicate(captureExpressionsInfo.text)
-        case 'expression':
-          return captureExpressions.named[captureExpressionsInfo.text]?.matchPredicate() ?? falsePredicate
-        case 'regex':
-          return captureExpressions.special.regex.matchPredicate(captureExpressionsInfo.text)
-        default:
-          return falsePredicate
-      }
-    }) as ((text: string) => boolean)[]
-
     return {
       matchPredicate: (text: string): ParameterMatchResult => {
-        const index = predicates.findIndex((predicate) => predicate(text))
-        if (index < 0) {
+        const expressionPart = fragmentedCaptureExpressionsInfo.find((expressionPart) => expressionPart.matches(text))
+        if (!expressionPart) {
           return noMatchExpression
         }
         return {
           isMatch: true,
-          expressionInfo: fragmentedCaptureExpressionsInfo[index].expressionInfo,
+          expressionInfo: expressionPart.expressionInfo,
         }
       },
     }
@@ -146,6 +137,7 @@ type CaptureExpressionsInfoDetail = {
   type: 'expression' | 'regex' | 'string' | 'any'
   text: string
   expressionInfo: CaptureExpressionInfo
+  matches(text: string): boolean
 }
 
 type Formatter = (text: string) => string
