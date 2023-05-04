@@ -3,13 +3,13 @@ import { parseISO8601 } from '../utils/algorithms/time.utils.ts'
 import { lazyRegexMatcher } from '../utils/algorithms/regex.utils.ts'
 
 const formatAsIs = (text: string) => text
-const defaultFormat = () => formatAsIs
+const defaultFormat = formatAsIs
 
 const baseCapureExpressions = {
   'number': {
     value: 400,
     matchPredicate: () => (text: string) => isNumeric(text),
-    defaultFormat: () => (text: string, locale: Intl.Locale) => Intl.NumberFormat(locale.baseName).format(Number(text)),
+    defaultFormat: (text: string, locale: Intl.Locale) => Intl.NumberFormat(locale.baseName).format(Number(text)),
   },
 
   'string': {
@@ -79,7 +79,7 @@ const baseTimeCaptureExpressions = {
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
     },
   },
-} as Record<string, { value: number }>
+}
 
 const relativeTimeCaptureExpresionPrefix = {
   past: {
@@ -159,7 +159,7 @@ type CaptureExpressionMap = {
 export type CaptureExpressionInfo = {
   value: number
   matchPredicate?(...match: unknown[]): (text: string) => boolean
-  defaultFormat?(...match: unknown[]): (text: string, locale: Intl.Locale) => string
+  defaultFormat: (text: string, locale: Intl.Locale) => string
 }
 
 export const captureExpressions = {
