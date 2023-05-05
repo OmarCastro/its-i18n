@@ -7,11 +7,15 @@ test('Given a simple translation, queryFromTranslations with a declared key shou
   }
 
   const targetKey = 'hello world'
-  expect(queryFromTranslations(targetKey, translations)).toEqual({
+
+  const result = queryFromTranslations(targetKey, translations)
+
+  expect(result).toEqual({
+    ...result,
     targetKey,
     translations,
     found: true,
-    value: 'hello world',
+    valueTemplate: 'hello world',
   })
 })
 
@@ -21,11 +25,15 @@ test('Given a simple translation, queryFromTranslations with a non declared shou
   }
 
   const targetKey = '404 not found'
-  expect(queryFromTranslations(targetKey, translations)).toEqual({
+
+  const result = queryFromTranslations(targetKey, translations)
+
+  expect(result).toEqual({
+    ...result,
     targetKey,
     translations,
     found: false,
-    value: targetKey,
+    valueTemplate: '',
   })
 })
 
@@ -35,17 +43,23 @@ test('Given a translation with number capure expression, queryFromTranslations w
     'I found { number } balls': 'I did found {0} balls',
   }
 
-  expect(queryFromTranslations('I found 0 balls', translations)).toEqual({
-    targetKey: 'I found 0 balls',
-    translations,
-    found: true,
-    value: 'I did not found any balls',
-  })
+  const result1 = queryFromTranslations('I found 0 balls', translations)
+  const result2 = queryFromTranslations('I found 5 balls', translations)
 
-  expect(queryFromTranslations('I found 5 balls', translations)).toEqual({
-    targetKey: 'I found 5 balls',
-    translations,
-    found: true,
-    value: 'I did found 5 balls',
+  expect({ result1, result2 }).toEqual({
+    result1: {
+      ...result1,
+      targetKey: 'I found 0 balls',
+      translations,
+      found: true,
+      valueTemplate: 'I did not found any balls',
+    },
+    result2: {
+      ...result2,
+      targetKey: 'I found 5 balls',
+      translations,
+      found: true,
+      valueTemplate: 'I did found {0} balls',
+    },
   })
 })

@@ -10,7 +10,8 @@ type QueryResult = {
   targetKey: string
   translations: Translations
   found: boolean
-  value: TranslationValue
+  valueTemplate: string
+  translate(locale: Intl.Locale): string
 }
 
 type QueryResultCache = {
@@ -82,11 +83,13 @@ export function queryFromTranslations(key: string, translations: Translations): 
   }
 
   if (optimizedMap.literalKeys[key] != null) {
+    const valueTemplate = optimizedMap.literalKeys[key]
     cache[key] = {
       targetKey: key,
       translations,
       found: true,
-      value: optimizedMap.literalKeys[key],
+      valueTemplate,
+      translate: () => valueTemplate,
     }
     return cache[key]
   }
@@ -94,11 +97,14 @@ export function queryFromTranslations(key: string, translations: Translations): 
   const { templateKeys } = optimizedMap
   for (const { key: templateKey } of optimizedMap.templateKeysPriorityOrder) {
     if (templateKeys[templateKey].parsedKey.matches(key)) {
+      const valueTemplate = templateKeys[templateKey].value
+
       cache[key] = {
         targetKey: key,
         translations,
         found: true,
-        value: templateKeys[templateKey].value,
+        valueTemplate,
+        translate: () => valueTemplate,
       }
 
       return cache[key]
@@ -109,6 +115,7 @@ export function queryFromTranslations(key: string, translations: Translations): 
     targetKey: key,
     translations,
     found: false,
-    value: key,
+    valueTemplate: '',
+    translate: () => key,
   }
 }
