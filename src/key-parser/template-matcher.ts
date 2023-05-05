@@ -111,20 +111,22 @@ function getMatcherFromTokens(tokens: Token[]) {
     }
 
     const parameters = matches.slice(1)
-    const paramMatch = [] as CaptureExpressionInfo[]
+    const paramMatchInfo = [] as CaptureExpressionInfo[]
 
-    for (const [index, text] of matches.slice(1).entries()) {
+    for (const [index, text] of parameters.entries()) {
       const matchResult = captureExpressionsInfo[index].matchPredicate(text)
       if (!matchResult.isMatch) {
         return noMatch
       }
-      paramMatch.push(matchResult.expressionInfo)
+      paramMatchInfo.push(matchResult.expressionInfo)
     }
+
+    const defaultFormatters = paramMatchInfo.map((info) => info.defaultFormat)
 
     return {
       isMatch: true,
       parameters,
-      defaultFormatters: parameters.map(() => asIsFormatter),
+      defaultFormatters,
     } as MatchResult
   }
 }
@@ -140,7 +142,7 @@ type CaptureExpressionsInfoDetail = {
   matches(text: string): boolean
 }
 
-type Formatter = (text: string) => string
+type Formatter = (text: string, locale: Intl.Locale) => string
 
 type ParameterMatchResult = Readonly<
   { isMatch: false } | {
