@@ -1,15 +1,15 @@
 import { isNumeric } from '../utils/algorithms/number.utils.ts'
 import { parseISO8601 } from '../utils/algorithms/time.utils.ts'
 import { lazyRegexMatcher } from '../utils/algorithms/regex.utils.ts'
+import { formatters } from './expression-formatters.ts'
 
-const formatAsIs = (text: string) => text
-const defaultFormat = formatAsIs
+const defaultFormat = formatters['as is'].format
 
 const baseCapureExpressions = {
   'number': {
     value: 400,
     matchPredicate: () => (text: string) => isNumeric(text),
-    defaultFormat: (text: string, locale: Intl.Locale) => Intl.NumberFormat(locale.baseName).format(Number(text)),
+    defaultFormat: formatters.number.format,
   },
 
   'string': {
