@@ -2,7 +2,10 @@ import { type AST, getAST, states, type Token } from './key-ast.util.ts'
 import { calculatePriority } from './priority-calculator.ts'
 import { getMatcher } from './template-matcher.ts'
 
-const tokenToString = (() => {
+/**
+ * Uses the target abstract syntax tree token to normalize the key
+ */
+const normalizeToken = (() => {
   const mapper = [] as ((token: Token) => string)[]
   const defaultMapper = (token) => token.text
   mapper[states.normal] = defaultMapper
@@ -27,10 +30,19 @@ const tokenToString = (() => {
   return tokenToString
 })()
 
+/**
+ * Uses the abstract syntax tree to normalize the key
+ */
 function getNormalizedKey(ast: AST): string {
-  return ast.tokens.map((token) => tokenToString(token)).join('')
+  return ast.tokens.map((token) => normalizeToken(token)).join('')
 }
 
+/**
+ * Parses i18n key
+ *
+ * @param key - target key to parse
+ * @returns {ParseResult} - parse result
+ */
 export function parseKey(key: string) {
   const ast = getAST(key)
   const { priority, priorityAsNumber } = calculatePriority(ast)
@@ -61,7 +73,6 @@ const matchesEquality = (key: string) => (text: string) => text === key
 
 /// types
 
-
 /**
  * Representes the result of parsing a defined key
  */
@@ -89,14 +100,17 @@ type ParseResult = {
    * @see ParseResult.priority
    */
   priorityAsNumber: number
+
   /**
    * target key used to parse
    */
   key: string
+
   /**
    * normalized target key used to parse
    */
   normalizedKey: string
+
   /**
    * Predicate to check if a defined text matches the key
    * @param text - target text to parse
