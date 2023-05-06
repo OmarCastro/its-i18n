@@ -12,7 +12,7 @@ test('Given a simple string, getMatcher result should match the same sting only'
   })
 })
 
-test('Given a parameterized key, getMatcher result should match the each group in a parameter', ({ expect }) => {
+test('Given a { number } parameterized key, getMatcher result should match each group in a parameter', ({ expect }) => {
   const ast = getAST('I sort { number } balls in { number } buckets')
   const matcher = getMatcher(ast)
 
@@ -21,5 +21,17 @@ test('Given a parameterized key, getMatcher result should match the each group i
   expect({ isMatch, parameters }).toEqual({
     isMatch: true,
     parameters: ['130', '5'],
+  })
+})
+
+test('Given a regex parameterized key, getMatcher result should match the regex in a parameter', ({ expect }) => {
+  const ast = getAST('The regex /a*b*/ should match { /a*b*/ }')
+  const matcher = getMatcher(ast)
+
+  const { isMatch, parameters } = matcher('The regex /a*b*/ should match aaabbbb')
+
+  expect({ isMatch, parameters }).toEqual({
+    isMatch: true,
+    parameters: ['aaabbbb'],
   })
 })

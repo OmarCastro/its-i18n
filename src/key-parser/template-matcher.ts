@@ -54,7 +54,7 @@ function getMatcherFromTokens(tokens: Token[]) {
             type: 'regex',
             text: token.text,
             expressionInfo: captureExpressions.special.regex,
-            matches: captureExpressions.special.regex.matchPredicate(token.text),
+            matches: captureExpressions.special.regex.matchPredicate(token.text.slice(1, -1)),
           })
           continue
         case states.sq_string:
