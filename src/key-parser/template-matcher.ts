@@ -4,7 +4,6 @@ import { type CaptureExpressionInfo, captureExpressions } from './capture-expres
 
 const falsePredicate = () => false
 const emptyArray = Object.freeze([])
-const asIsFormatter = (text: string) => text
 
 const anyMatchExpression = Object.freeze({
   isMatch: true,
@@ -25,8 +24,21 @@ const noMatch = Object.freeze({
   defaultFormatters: emptyArray,
 }) as MatchResult
 
+const emptyYesMatch = Object.freeze({
+  isMatch: true,
+  parameters: emptyArray,
+  defaultFormatters: emptyArray,
+})
+
+const exactStringMatcher = (textToMatch: string) => (text: string) => (textToMatch === text) ? emptyYesMatch : noMatch
+
 function getMatcherFromTokens(tokens: Token[]) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
+
+  if (captureTokens.length <= 0) {
+    const textToMatch = tokens.map((token) => token.text).join('')
+    return exactStringMatcher(textToMatch)
+  }
 
   const captureExpressionsInfo = captureTokens.map((captureToken) => {
     const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfoDetail[]

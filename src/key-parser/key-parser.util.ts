@@ -46,30 +46,19 @@ function getNormalizedKey(ast: AST): string {
 export function parseKey(key: string) {
   const ast = getAST(key)
   const { priority, priorityAsNumber } = calculatePriority(ast)
-  const captures = ast.tokens.filter((token) => token.type === states.capture)
+  const match = getMatcher(ast)
+  const normalizedKey = getNormalizedKey(ast)
 
-  const result = {
+  return {
     priority,
     priorityAsNumber,
     key,
     ast,
-  } as ParseResult
-
-  if (captures.length <= 0) {
-    result.matches = matchesEquality(key)
-    result.normalizedKey = key
-    return result
+    match,
+    normalizedKey,
+    matches: (text) => match(text).isMatch,
   }
-
-  const matcher = getMatcher(ast)
-
-  result.matches = (text) => matcher(text).isMatch
-  result.normalizedKey = getNormalizedKey(ast)
-  return result
 }
-
-/// matchers
-const matchesEquality = (key: string) => (text: string) => text === key
 
 /// types
 
@@ -116,6 +105,8 @@ type ParseResult = {
    * @param text - target text to parse
    */
   matches(text: string): boolean
+
+  match: ReturnType<typeof getMatcher>
 
   /**
    * Abstract syntax tree generated as result from parsing the key
