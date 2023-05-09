@@ -28,7 +28,7 @@ const emptyYesMatch = Object.freeze({
   isMatch: true,
   parameters: emptyArray,
   defaultFormatters: emptyArray,
-})
+}) as MatchResult
 
 const exactStringMatcher = (textToMatch: string) => (text: string) => (textToMatch === text) ? emptyYesMatch : noMatch
 
