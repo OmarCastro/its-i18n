@@ -2,22 +2,10 @@ import { type AST, states, type Token } from './key-ast.util.ts'
 import { escape } from '../utils/algorithms/regex.utils.ts'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 import { formatters } from './expression-formatters.ts'
+import { isInteger } from '../utils/algorithms/number.utils.ts'
 
 const falsePredicate = () => false
 const emptyArray = Object.freeze([])
-
-const anyMatchExpression = Object.freeze({
-  isMatch: true,
-  expressionInfo: captureExpressions.special.any,
-}) as ParameterMatchResult
-
-const noMatchExpression = Object.freeze({
-  isMatch: false,
-})
-
-const anyMatchCaptureExpressionsInfo = {
-  matchPredicate: () => anyMatchExpression,
-}
 
 const formatterWithFormat = (templateFormatter: Omit<TemplateFormatter, 'format'>) =>
   ({
@@ -39,6 +27,51 @@ const formatSimpleKey = (textToMatch: string) =>
     format: () => textToMatch,
   }) as TemplateFormatter
 
+
+function parseCaptureKey(captureToken: Token){
+  const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfoDetail[]
+
+  let currentExpression = ''
+  for (const token of captureToken.childTokens) {
+    switch (token.type) {
+      case states.capture_expr:
+        currentExpression = currentExpression ? `${currentExpression} ${token.text}` : token.text
+        continue
+
+      case states.capture_expr_sep:
+        fragmentedCaptureExpressionsInfo.push({
+          type: 'expression',
+          text: currentExpression,
+        })
+        currentExpression = ''
+        continue
+      case states.sq_string:
+      case states.dq_string:
+      case states.bt_string:
+        fragmentedCaptureExpressionsInfo.push({
+          type: 'string',
+          text: token.text,
+        })
+        continue
+      default:
+        console.error('error: invalid expression, ignoring...')
+    }
+  }
+  if (currentExpression) {
+    fragmentedCaptureExpressionsInfo.push({
+      type: 'expression',
+      text: currentExpression,
+    })
+  }
+
+  return fragmentedCaptureExpressionsInfo
+}
+
+const applyDefaultformatter: FormatterReducer = (acc) => acc.defaultFormatters && typeof acc.position === "number" ? ({
+  ...acc,
+  result: acc.defaultFormatters[acc.position](acc.result, acc.locale)
+}) : acc
+
 function getFormatterFromTokens(tokens: Token[]) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
 
@@ -47,67 +80,71 @@ function getFormatterFromTokens(tokens: Token[]) {
     return formatSimpleKey(textToMatch)
   }
 
-  const templateFormatter: TemplateFormatter = formatterWithFormat({
-    strings: [],
-    formatters: [],
-  })
+  const strings = [] as string[]
+  const formatters = [] as Formatter[]
 
-  const captureExpressionsInfo = captureTokens.map((captureToken) => {
-    const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfoDetail[]
-    if (captureToken.childTokens.length === 0) {
-      return anyMatchCaptureExpressionsInfo
+  for(const keyToken of tokens){
+    if(keyToken.type !== states.capture){
+      strings.push(keyToken.text)
     }
-    let currentExpression = ''
-    for (const token of captureToken.childTokens) {
-      switch (token.type) {
-        case states.capture_expr:
-          currentExpression = currentExpression ? `${currentExpression} ${token.text}` : token.text
-          continue
+    const fragmentedCaptureExpressionsInfo = parseCaptureKey(keyToken)
 
-        case states.capture_expr_sep:
-          fragmentedCaptureExpressionsInfo.push({
-            type: 'expression',
-            text: currentExpression,
-            expressionInfo: captureExpressions.named[currentExpression],
-            matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
-          })
-          currentExpression = ''
-          continue
-        case states.sq_string:
-        case states.dq_string:
-        case states.bt_string:
-          fragmentedCaptureExpressionsInfo.push({
-            type: 'string',
-            text: token.text,
-            expressionInfo: captureExpressions.special.string,
-            matches: captureExpressions.special.string.matchPredicate(token.text),
-          })
-          continue
-        default:
-          console.error('error: invalid expression, ignoring...')
-      }
-    }
-    if (currentExpression) {
-      fragmentedCaptureExpressionsInfo.push({
-        type: 'expression',
-        text: currentExpression,
-        expressionInfo: captureExpressions.named[currentExpression],
-        matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
-      })
+    if (fragmentedCaptureExpressionsInfo.length === 0) {
+      formatters.push(() => "")
+      continue
     }
 
-    return {
-      formatExpression: (parameters: string[], locale: Intl.Locale, defaultFormatters?: DefaultFormatter[]): string => {
-        const expressionPart = fragmentedCaptureExpressionsInfo.find((expressionPart) => expressionPart.matches('text'))
-        if (!expressionPart) {
-          return 'noMatchExpression'
+    const fragmentedFormatters = [] as FormatterReducer[]
+
+
+    const [firstInfo, ...restInfo] = fragmentedCaptureExpressionsInfo
+
+    if(firstInfo.type === "string"){
+      const {text} = firstInfo
+      fragmentedFormatters.push((acc) => ({...acc, result: text}))
+    } else if(isInteger(firstInfo.text)){
+      const position = +firstInfo.text
+      fragmentedFormatters.push((acc) => {
+        const {parameters} = acc
+        if(parameters.length <= position){
+          return {
+            ...acc,
+            result: "",
+            exit: true
+          }
         }
-        return ''
-      },
+        return {
+          ...acc,
+          position,
+          result: parameters[position]
+        }
+      })
+    } else {
+      formatters.push(() => "")
+      continue
     }
-  })
 
-  return templateFormatter
+    if(restInfo.length === 0){
+      fragmentedFormatters.push(applyDefaultformatter)
+    }
+
+    formatters.push((parameters: string[], locale: Intl.Locale, defaultFormatters?: DefaultFormatter[]) => {
+      let reducerAcc: FormatterReducerAcc = {
+        parameters,
+        defaultFormatters,
+        result: "",
+        locale
+      }
+      for(const fragmentedFormatter of fragmentedFormatters){
+        if(reducerAcc.exit){
+          return reducerAcc.result
+        }
+        reducerAcc = fragmentedFormatter(reducerAcc)
+      }
+      return reducerAcc.result
+    })
+  }
+  return formatterWithFormat({ strings,formatters })
 }
 
 export function getFormatter(ast) {
@@ -115,10 +152,8 @@ export function getFormatter(ast) {
 }
 
 type CaptureExpressionsInfoDetail = {
-  type: 'expression' | 'regex' | 'string' | 'any'
+  type: 'expression' | 'string'
   text: string
-  expressionInfo: CaptureExpressionInfo
-  matches(text: string): boolean
 }
 
 type ParameterMatchResult = Readonly<
@@ -127,6 +162,18 @@ type ParameterMatchResult = Readonly<
     expressionInfo: CaptureExpressionInfo
   }
 >
+
+
+type FormatterReducerAcc = {
+  parameters: string[]
+  defaultFormatters?: DefaultFormatter[]
+  result: string
+  locale: Intl.Locale
+  position?: number,
+  exit?: boolean
+}
+type FormatterReducer = (previous: FormatterReducerAcc) => FormatterReducerAcc
+
 
 type DefaultFormatter = (text: string, locale: Intl.Locale) => string
 
