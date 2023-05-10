@@ -1,10 +1,9 @@
 import { type AST, states, type Token } from './key-ast.util.ts'
 import { escape } from '../utils/algorithms/regex.utils.ts'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
-import { formatters } from './expression-formatters.ts'
+import { formatters as expressionFormatters } from './expression-formatters.ts'
 import { isInteger } from '../utils/algorithms/number.utils.ts'
 
-const falsePredicate = () => false
 const emptyArray = Object.freeze([])
 
 const formatterWithFormat = (templateFormatter: Omit<TemplateFormatter, 'format'>) =>
@@ -27,8 +26,7 @@ const formatSimpleKey = (textToMatch: string) =>
     format: () => textToMatch,
   }) as TemplateFormatter
 
-
-function parseCaptureKey(captureToken: Token){
+function parseCaptureKey(captureToken: Token) {
   const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfoDetail[]
 
   let currentExpression = ''
@@ -67,10 +65,13 @@ function parseCaptureKey(captureToken: Token){
   return fragmentedCaptureExpressionsInfo
 }
 
-const applyDefaultformatter: FormatterReducer = (acc) => acc.defaultFormatters && typeof acc.position === "number" ? ({
-  ...acc,
-  result: acc.defaultFormatters[acc.position](acc.result, acc.locale)
-}) : acc
+const applyDefaultformatter: FormatterReducer = (acc) =>
+  acc.defaultFormatters && typeof acc.position === 'number'
+    ? ({
+      ...acc,
+      result: acc.defaultFormatters[acc.position](acc.result, acc.locale),
+    })
+    : acc
 
 function getFormatterFromTokens(tokens: Token[]) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
@@ -83,48 +84,61 @@ function getFormatterFromTokens(tokens: Token[]) {
   const strings = [] as string[]
   const formatters = [] as Formatter[]
 
-  for(const keyToken of tokens){
-    if(keyToken.type !== states.capture){
+  for (const keyToken of tokens) {
+    if (keyToken.type !== states.capture) {
       strings.push(keyToken.text)
+      continue
     }
     const fragmentedCaptureExpressionsInfo = parseCaptureKey(keyToken)
 
     if (fragmentedCaptureExpressionsInfo.length === 0) {
-      formatters.push(() => "")
+      formatters.push(() => '')
       continue
     }
 
     const fragmentedFormatters = [] as FormatterReducer[]
 
-
     const [firstInfo, ...restInfo] = fragmentedCaptureExpressionsInfo
 
-    if(firstInfo.type === "string"){
-      const {text} = firstInfo
-      fragmentedFormatters.push((acc) => ({...acc, result: text}))
-    } else if(isInteger(firstInfo.text)){
+    console.log([firstInfo, ...restInfo])
+
+    if (firstInfo.type === 'string') {
+      const { text } = firstInfo
+      fragmentedFormatters.push((acc) => ({ ...acc, result: text }))
+    } else if (isInteger(firstInfo.text)) {
       const position = +firstInfo.text
       fragmentedFormatters.push((acc) => {
-        const {parameters} = acc
-        if(parameters.length <= position){
+        const { parameters } = acc
+        if (parameters.length <= position) {
           return {
             ...acc,
-            result: "",
-            exit: true
+            result: '',
+            exit: true,
           }
         }
         return {
           ...acc,
           position,
-          result: parameters[position]
+          result: parameters[position],
         }
       })
     } else {
-      formatters.push(() => "")
+      formatters.push(() => '')
       continue
     }
 
-    if(restInfo.length === 0){
+    for (const info of restInfo) {
+      const { text } = info
+      if (Object.hasOwn(expressionFormatters, text)) {
+        const formatter = expressionFormatters[text]
+        fragmentedFormatters.push((acc) => ({
+          ...acc,
+          result: formatter.format(acc.result, acc.locale),
+        }))
+      }
+    }
+
+    if (fragmentedFormatters.length <= 1) {
       fragmentedFormatters.push(applyDefaultformatter)
     }
 
@@ -132,11 +146,11 @@ function getFormatterFromTokens(tokens: Token[]) {
       let reducerAcc: FormatterReducerAcc = {
         parameters,
         defaultFormatters,
-        result: "",
-        locale
+        result: '',
+        locale,
       }
-      for(const fragmentedFormatter of fragmentedFormatters){
-        if(reducerAcc.exit){
+      for (const fragmentedFormatter of fragmentedFormatters) {
+        if (reducerAcc.exit) {
           return reducerAcc.result
         }
         reducerAcc = fragmentedFormatter(reducerAcc)
@@ -144,7 +158,7 @@ function getFormatterFromTokens(tokens: Token[]) {
       return reducerAcc.result
     })
   }
-  return formatterWithFormat({ strings,formatters })
+  return formatterWithFormat({ strings, formatters })
 }
 
 export function getFormatter(ast) {
@@ -163,17 +177,15 @@ type ParameterMatchResult = Readonly<
   }
 >
 
-
 type FormatterReducerAcc = {
   parameters: string[]
   defaultFormatters?: DefaultFormatter[]
   result: string
   locale: Intl.Locale
-  position?: number,
+  position?: number
   exit?: boolean
 }
 type FormatterReducer = (previous: FormatterReducerAcc) => FormatterReducerAcc
-
 
 type DefaultFormatter = (text: string, locale: Intl.Locale) => string
 
