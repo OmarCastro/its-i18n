@@ -12,7 +12,7 @@ const baseFormatter = {
   'long date': {
     format: (text: string, locale: Intl.Locale) => Intl.NumberFormat(locale.baseName).format(Number(text)),
   },
-} satisfies FormatternMap
+} as FormatternMap
 
 type FormatternMap = {
   [expression: string]: Formatter
