@@ -1,4 +1,5 @@
 import { type AST, getAST, states, type Token } from './key-ast.util.ts'
+import { getFormatter } from './value-formatter.ts'
 
 const tokenToString = (() => {
   const mapper = [] as ((token: Token) => string)[]
@@ -31,22 +32,16 @@ function getNormalizedValue(ast: AST): string {
 
 export function parseValue(value: string) {
   const ast = getAST(value)
-  const captures = ast.tokens.filter((token) => token.type === states.capture)
+  const formatter = getFormatter(ast)
+  const normalizedValue = getNormalizedValue(ast)
 
-  const result = {
+  return {
     value,
     ast,
+    formatter,
+    format: formatter.format,
+    normalizedValue,
   } as ParseResult
-
-  if (captures.length <= 0) {
-    result.format = formatSimpleKey(value)
-    result.normalizedValue = value
-    return result
-  }
-
-  result.format = formatSimpleKey(value)
-  result.normalizedValue = getNormalizedValue(ast)
-  return result
 }
 
 /// formatters
@@ -57,9 +52,10 @@ const formatSimpleKey = (key: string) => () => key
 type ParseResult = {
   value: string
   normalizedValue: string
+  formatter: ReturnType<typeof getFormatter>
   /**
    * @param parameters - parameters apply on format
    */
-  format(parameters: string[]): string
+  format: ReturnType<typeof getFormatter>['format']
   ast: AST
 }
