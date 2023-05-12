@@ -62,4 +62,7 @@ test('Given a translation with number capure expression, queryFromTranslations w
       valueTemplate: 'I did found {0} balls',
     },
   })
+
+  expect(result1.translate(new Intl.Locale('en-GB'))).toEqual('I did not found any balls')
+  expect(result2.translate(new Intl.Locale('en-GB'))).toEqual('I did found 5 balls')
 })
