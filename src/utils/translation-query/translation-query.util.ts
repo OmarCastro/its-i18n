@@ -1,4 +1,5 @@
 import { parseKey } from '../../key-parser/key-parser.util.ts'
+import { parseValue } from '../../key-parser/value-parser.util.ts'
 
 type TranslationValue = string
 
@@ -96,15 +97,24 @@ export function queryFromTranslations(key: string, translations: Translations): 
 
   const { templateKeys } = optimizedMap
   for (const { key: templateKey } of optimizedMap.templateKeysPriorityOrder) {
-    if (templateKeys[templateKey].parsedKey.matches(key)) {
+    const { parsedKey } = templateKeys[templateKey]
+    const match = parsedKey.match(key)
+
+    if (match.isMatch) {
       const valueTemplate = templateKeys[templateKey].value
+
+      let translate = (locale: Intl.Locale) => {
+        const value = parseValue(valueTemplate)
+        translate = (locale: Intl.Locale) => value.format(match.parameters, locale, match.defaultFormatters)
+        return translate(locale)
+      }
 
       cache[key] = {
         targetKey: key,
         translations,
         found: true,
         valueTemplate,
-        translate: () => valueTemplate,
+        translate,
       }
 
       return cache[key]
