@@ -194,5 +194,5 @@ type Formatter = (parameters: string[], locale: Intl.Locale, defaultFormatters?:
 type TemplateFormatter = {
   strings: readonly string[]
   formatters: readonly Formatter[]
-  format: (parameters: string[], locale: Intl.Locale, defaultFormatters?: DefaultFormatter[]) => string
+  format: (parameters: readonly string[], locale: Intl.Locale, defaultFormatters?: readonly DefaultFormatter[]) => string
 }
