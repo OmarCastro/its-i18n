@@ -10,6 +10,7 @@ const baseCapureExpressions = {
     value: 400,
     matchPredicate: () => (text: string) => isNumeric(text),
     defaultFormat: formatters.number.format,
+    isConstant: true,
   },
 
   'string': {
@@ -19,6 +20,7 @@ const baseCapureExpressions = {
       (text.startsWith('\'') && text.endsWith('\'')) ||
       (text.startsWith('`') && text.endsWith('`')),
     defaultFormat,
+    isConstant: true,
   },
 } satisfies CaptureExpressionMap
 
@@ -27,18 +29,21 @@ const specialCapureExpressions = {
     value: 1 << 20,
     matchPredicate: (match: string) => (text: string) => match === text,
     defaultFormat,
+    isConstant: true,
   },
 
   'regex': {
     value: 200,
     matchPredicate: (regexPattern: string) => lazyRegexMatcher(regexPattern),
     defaultFormat,
+    isConstant: true,
   },
 
   'any': {
     value: 100,
     matchPredicate: () => () => true,
     defaultFormat,
+    isConstant: true,
   },
 } satisfies CaptureExpressionMap
 
@@ -61,6 +66,7 @@ const baseTimeCaptureExpressions = {
     defaultFormat: (text: string, locale: Intl.Locale) => {
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date(+text))
     },
+    isConstant: false,
   },
 
   'iso 8601': {
@@ -69,6 +75,7 @@ const baseTimeCaptureExpressions = {
     defaultFormat: (text: string, locale: Intl.Locale) => {
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(parseISO8601(text))
     },
+    isConstant: false,
   },
 
   'date': {
@@ -78,6 +85,7 @@ const baseTimeCaptureExpressions = {
       const date = isNumeric(text) ? new Date(+text) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
     },
+    isConstant: false,
   },
 }
 
@@ -160,6 +168,7 @@ export type CaptureExpressionInfo = {
   value: number
   matchPredicate?(...match: unknown[]): (text: string) => boolean
   defaultFormat: (text: string, locale: Intl.Locale) => string
+  isConstant: boolean
 }
 
 export const captureExpressions = {
