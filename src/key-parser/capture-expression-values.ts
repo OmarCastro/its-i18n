@@ -164,10 +164,34 @@ type CaptureExpressionMap = {
   [expression: string]: CaptureExpressionInfo
 }
 
+/**
+ * Capture expression information used by key parser, as to get the correct matcher
+ * based on the ket priority.
+ */
 export type CaptureExpressionInfo = {
+  /**
+   * Prioriy value of the capture expression, the higher value the key is used when conflicting keys are found.
+   */
   value: number
-  matchPredicate?(...match: unknown[]): (text: string) => boolean
+  /**
+   * Match predicate creator. The resulting match predicate is based on the `parameters` used
+   * (e.g. creating a matcher from a regex pattern).
+   * 
+   * @param parameters - Match predicate creator parameters
+   */
+  matchPredicate?(...parameters: unknown[]): (text: string) => boolean
+  /**
+   * Default format to be used when no formatter is explicitly applied.
+   *  
+   * @param text - text to format
+   * @param locale - locale used by formatter
+   * @returns formatted text
+   */
   defaultFormat: (text: string, locale: Intl.Locale) => string
+  /**
+   * A flag to indicate whether the matcher will always match the same key in a translation map,
+   * It helps to decide when to query the translation map for the same key.
+   */
   isConstant: boolean
 }
 
