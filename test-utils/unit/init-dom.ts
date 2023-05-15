@@ -31,6 +31,7 @@ if("Deno" in globalThis){
   globalThis.ShadowRoot = windowObj.ShadowRoot
   globalThis.MutationObserver = windowObj.MutationObserver
   globalThis.CustomEvent = windowObj.CustomEvent
+  globalThis.HTMLElement = windowObj.HTMLElement
 } else {
   windowObj = globalThis.window 
 }

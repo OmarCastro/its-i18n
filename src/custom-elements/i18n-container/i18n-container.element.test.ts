@@ -1,20 +1,19 @@
 import { window } from '../../../test-utils/unit/init-dom.ts'
 import { test } from '../../../test-utils/unit/test.ts'
 import { provide } from '../../utils/i18n-importer/provider.ts'
-import Element from './i18n-container.element.ts'
 
 const html = String.raw
 
 const tag = 'x-i18n'
-let define = () => {
-  window.customElements.define(tag, Element)
-  define = () => {}
+let defineWebComponent = async () => {
+  const module = await import('./i18n-container.element.ts')
+  window.customElements.define(tag, module.default)
+  defineWebComponent = () => Promise.resolve()
 }
 
-test('an HTML page with i18n-translation-map links, loadI18n should return a store', async ({ step, expect, readFrom }) => {
-  //define()
+test('an HTML page with i18n-translation-map links, x-i18n should return a loaded correctly', async ({ step, expect, readFrom }) => {
+  await defineWebComponent()
   const { document } = window
-  //const location = import.meta.url
   provide(i18nImporterImplWith({ readFrom }))
 
   document.documentElement.innerHTML = html`
