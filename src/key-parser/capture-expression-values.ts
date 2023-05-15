@@ -176,13 +176,13 @@ export type CaptureExpressionInfo = {
   /**
    * Match predicate creator. The resulting match predicate is based on the `parameters` used
    * (e.g. creating a matcher from a regex pattern).
-   * 
+   *
    * @param parameters - Match predicate creator parameters
    */
   matchPredicate?(...parameters: unknown[]): (text: string) => boolean
   /**
    * Default format to be used when no formatter is explicitly applied.
-   *  
+   *
    * @param text - text to format
    * @param locale - locale used by formatter
    * @returns formatted text
