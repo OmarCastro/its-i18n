@@ -100,8 +100,6 @@ function getFormatterFromTokens(tokens: Token[]) {
 
     const [firstInfo, ...restInfo] = fragmentedCaptureExpressionsInfo
 
-    console.log([firstInfo, ...restInfo])
-
     if (firstInfo.type === 'string') {
       const { text } = firstInfo
       fragmentedFormatters.push((acc) => ({ ...acc, result: text }))
