@@ -1,4 +1,5 @@
 import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.ts'
+import { loadI18n } from '../../html-loader/html-loader.ts'
 
 class I18nContainerElement extends HTMLElement {
   constructor() {
@@ -55,3 +56,5 @@ function getAttributesToUpdate(element: Element): { [k: string]: string } {
   }
   return Object.fromEntries(Object.entries(attributesToUpdate).map(([key, val]) => [key, val.value]))
 }
+
+export default I18nContainerElement

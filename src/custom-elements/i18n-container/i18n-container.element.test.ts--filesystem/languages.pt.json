@@ -1,0 +1,7 @@
+{
+  "hello world": "olá mundo",
+  "I like red color": "Gosto da cor vermelha",
+  "I counted 0 sheeps": "nenhuma ovelha encontrada",
+  "I counted 1 sheeps": "contei 1 ovelha",
+  "I counted {number} sheeps": "contei {0} ovelhas"
+}
