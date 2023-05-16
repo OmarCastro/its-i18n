@@ -12,7 +12,7 @@ export const setStoreFromElement = (element: HTMLElement, store: TranslationStor
   map.set(element, store)
 }
 
-export const getStoresInfoFromElement = function* (target: HTMLElement) {
+export const getStoresInfoFromElement = function* (target: Element) {
   for (const element of traverseUpDom(target)) {
     const elementStore = map.get(element)
     if (elementStore) {

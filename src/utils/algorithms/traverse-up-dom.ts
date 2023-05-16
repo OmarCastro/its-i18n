@@ -1,7 +1,7 @@
 /**
  *   traverse up in the document DOM closest element by passing shadow DOM
  */
-export function* traverseUpDom(targetElement: HTMLElement = this) {
+export function* traverseUpDom(targetElement: Element = this) {
   let el: Element | null = targetElement
   while (el != null) {
     yield el
