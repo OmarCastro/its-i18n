@@ -32,6 +32,7 @@ if("Deno" in globalThis){
   globalThis.MutationObserver = windowObj.MutationObserver
   globalThis.CustomEvent = windowObj.CustomEvent
   globalThis.HTMLElement = windowObj.HTMLElement
+  globalThis.Document = windowObj.Document
 } else {
   windowObj = globalThis.window 
 }
