@@ -47,8 +47,10 @@ function normalizeTranslationData(data: StoreData) {
   return result
 }
 
-const getTranslationsFromData = async (store: StoreInfo, locale: string): Promise<Translations> => {
-  const computed = store.computedTranslationsFromLanguage
+const memoizedTranslationsMap: WeakMap<TranslationStore, Record<string, Translations>> = new WeakMap()
+
+const getTranslationsFromData = async (store: TranslationStore, locale: string): Promise<Translations> => {
+  const computed = memoizedTranslationsMap.get(store)!
   if (computed[locale]) {
     return computed[locale]
   }
@@ -76,15 +78,20 @@ const getTranslationsFromData = async (store: StoreInfo, locale: string): Promis
 const StorePrototype = {
   loadTranslations(data) {
     this.data = normalizeTranslationData(data)
-    this.computedTranslationsFromLanguage = {}
+    memoizedTranslationsMap.delete(this)
   },
 
   async translationsFromLanguage(locale): Promise<Translations> {
     if (typeof locale == 'string') {
       return await this.translationsFromLanguage(new Intl.Locale(locale))
     }
-    if (this.computedTranslationsFromLanguage[locale.baseName]) {
-      return this.computedTranslationsFromLanguage[locale.baseName]
+    if (!memoizedTranslationsMap.has(this)) {
+      memoizedTranslationsMap.set(this, {})
+    }
+    const memoizedTranslations = memoizedTranslationsMap.get(this)!
+
+    if (memoizedTranslations[locale.baseName]) {
+      return memoizedTranslations[locale.baseName]
     }
     const languages = [locale.baseName]
     const intlLang = locale.language
@@ -102,19 +109,17 @@ const StorePrototype = {
       const translations = await getTranslationsFromData(this, language)
       Object.assign(result, translations)
     }
-    this.computedTranslationsFromLanguage[locale.baseName] = result
+    memoizedTranslations[locale.baseName] = result
     return result
   },
-} as StorePrototype
+  data: intialDataStore,
+} as TranslationStore
 
 /**
  * Creates a translation store
  */
 export function i18nTanslationStore(): TranslationStore {
-  const result = Object.create(StorePrototype) as TranslationStore
-  result.data = intialDataStore
-  result.computedTranslationsFromLanguage = {}
-  return result
+  return Object.create(StorePrototype)
 }
 
 //=== Type declarations
@@ -145,20 +150,7 @@ export type StoreData = {
   location: string
 }
 
-type StoreInfo = {
-  /**
-   * Store data where all infomation is saved with loadTranslations()
-   */
-  data: StoreData
-
-  /**
-   * Map of calculated languages with translationsFromLanguage(), used for
-   * memoization
-   */
-  computedTranslationsFromLanguage: Record<string, Translations>
-}
-
-type StorePrototype = {
+export type TranslationStore = {
   /**
    * loads translations in data
    */
@@ -170,6 +162,9 @@ type StorePrototype = {
    * @returns all translations from language
    */
   translationsFromLanguage(this: TranslationStore, locale: string | Intl.Locale): Promise<Translations>
-}
 
-export type TranslationStore = StorePrototype & StoreInfo
+  /**
+   * Store data where all infomation is saved with loadTranslations()
+   */
+  data: StoreData
+}
