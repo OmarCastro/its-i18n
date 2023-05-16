@@ -1,37 +1,46 @@
 import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.ts'
-import { loadI18n } from '../../html-loader/html-loader.ts'
+import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.ts'
+import { getStoresInfoFromElement } from '../../utils/store-map/store-map.ts'
+import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.ts'
 
 class I18nContainerElement extends HTMLElement {
   constructor() {
     super()
     observeLangFromElement(this)
-    this.addEventListener(eventName, () => {
-    })
+    this.addEventListener(eventName, () => this.updateNodes())
   }
 
   connectedCallback() {
+    this.updateNodes()
   }
 
-  updateNodes() {
+  async updateNodes() {
     for (const element of this.querySelectorAll('*')) {
-      const lang = null
       if (!element.hasAttributes()) {
         continue
       }
       const attributesToUpdate = getAttributesToUpdate(element)
+      const attributeEntries = Object.entries(attributesToUpdate)
+      if (attributeEntries.length <= 0) {
+        continue
+      }
 
-      for (const [attribute, i18nKey] of Object.entries(attributesToUpdate)) {
-        element.setAttribute(attribute, translate(i18nKey))
+      const locale = new Intl.Locale(getLanguageFromElement(element))
+
+      for (const [attribute, i18nKey] of attributeEntries) {
+        element.setAttribute(attribute, await translate(i18nKey, locale, element))
       }
     }
-    this.querySelectorAll('*').forEach((node) => {
-      node.attributes.getNamedItem
-    })
   }
 }
 
-function translate(text: string) {
-  console.warn('TODO: text translation')
+async function translate(text: string, locale: Intl.Locale, context: Element) {
+  for (const storeInfo of getStoresInfoFromElement(context)) {
+    const result = queryFromTranslations(text, await storeInfo.store.translationsFromLanguage(locale))
+    if (result.found) {
+      return result.translate(locale)
+    }
+  }
   return text
 }
 
