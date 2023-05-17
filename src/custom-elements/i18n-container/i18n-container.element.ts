@@ -14,7 +14,8 @@ class I18nContainerElement extends HTMLElement {
     this.updateNodes()
   }
 
-  async updateNodes() {
+  updateNodes() {
+    const promises = [] as Promise<Element | null>[]
     for (const element of this.querySelectorAll('*')) {
       if (!element.hasAttributes()) {
         continue
@@ -28,9 +29,27 @@ class I18nContainerElement extends HTMLElement {
       const locale = new Intl.Locale(getLanguageFromElement(element))
 
       for (const [attribute, i18nKey] of attributeEntries) {
-        element.setAttribute(attribute, await translate(i18nKey, locale, element))
+        const promise = translate(i18nKey, locale, element).then((result) => {
+          if (element.getAttribute(attribute) === result) {
+            return null
+          } else {
+            element.setAttribute(attribute, result)
+            return element
+          }
+        })
+        promises.push(promise)
       }
     }
+    Promise.allSettled(promises).then((promises) => {
+      const elementsUpdated = promises.map((promise) => promise.status === 'fulfilled' ? promise.value : null).filter((result) =>
+        result != null
+      ) as Element[]
+      if (elementsUpdated.length <= 0) {
+        return
+      }
+      const event = new CustomEvent('i18n-apply', { bubbles: true, detail: { elementsUpdated } })
+      this.dispatchEvent(event)
+    })
   }
 }
 
@@ -49,6 +68,7 @@ const prefixPriority = {
   'data-i18n-attr-': 2,
   'data-i18n-attribute-': 3,
 }
+
 function getAttributesToUpdate(element: Element): { [k: string]: string } {
   const attributesToUpdate = {} as { [k: string]: { prefix: string; value: string } }
   for (const attribute of element.attributes) {
