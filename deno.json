@@ -5,27 +5,21 @@
     "strict": false
   },
   "fmt": {
-    "files": {
-      "include": ["src/"],
-      "exclude": ["src/utils/store/translation-store.test.ts--filesystem"]
-    },
-    "options": {
-      "useTabs": false,
-      "lineWidth": 140,
-      "indentWidth": 2,
-      "singleQuote": true,
-      "semiColons": false,
-      "proseWrap": "preserve"
-    }
+    "include": ["src/"],
+    "exclude": ["src/utils/store/translation-store.test.ts--filesystem"],
+    "useTabs": false,
+    "lineWidth": 140,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "semiColons": false,
+    "proseWrap": "preserve"
   },
   "lint": {
-    "files": {
-      "include": ["src/"],
-      "exclude": [
-        "src/utils/store/translation-store.test.ts--filesystem",
-        "src/utils/store/translation-store.test.ts"
-      ]
-    },
+    "include": ["src/"],
+    "exclude": [
+      "src/utils/store/translation-store.test.ts--filesystem",
+      "src/utils/store/translation-store.test.ts"
+    ],
     "rules": {
       "tags": ["recommended"],
       "include": ["ban-untagged-todo"],
