@@ -26,7 +26,7 @@ function getPromiseFromEvent(item, event) {
 
 const getPromiseFrom18nApplyEvent = (item) => getPromiseFromEvent(item, 'i18n-apply')
 
-test('an HTML page with i18n-translation-map links, x-i18n should apply i18n to its chidren correctly', async ({ step, expect, readFrom }) => {
+test('an HTML page with i18n-translation-map links and es lang on body, x-i18n should apply spanish i18n to its chidren correctly', async ({ step, expect, readFrom }) => {
   await defineWebComponent()
 
   const { document } = window
@@ -58,6 +58,43 @@ test('an HTML page with i18n-translation-map links, x-i18n should apply i18n to 
   await expect(target.getAttribute('data-i18n--data-html')).toEqual('I counted 4 sheeps')
   await expect(target.getAttribute('data-html')).toEqual('conté 4 ovejas')
 })
+
+test('an HTML page with i18n-translation-map links and pt lang on body and en on an elment, x-i18n should apply portuguese i18n to its chidren except the one with english lang', async ({ step, expect, readFrom }) => {
+  await defineWebComponent()
+
+  const { document } = window
+  const location = import.meta.url
+
+  provide(i18nImporterImplWith({ readFrom }))
+
+  document.documentElement.innerHTML = html`
+    <head>
+      <link rel="i18n-locale-map" href="i18n-container.element.test.ts--filesystem/i18n-definition-map.json">
+    </head>
+    <body lang="pt"></body>
+  `
+
+  const store = await loadI18n({ document, location })
+  setStoreFromElement(document.documentElement, store)
+
+  document.body.innerHTML = html`
+<${tag} class="component">
+  <span class="target-1" data-i18n--data-html="I counted 20 sheeps"></span>
+  <span class="target-1-en" lang="en" data-i18n--data-html="I counted 30 sheeps"></span>
+
+</${tag}> 
+`
+
+  const component = document.body.querySelector('.component')!
+  await getPromiseFrom18nApplyEvent(component)
+
+  const target = document.querySelector('.target-1')!
+  const targetEn = document.querySelector('.target-1-en')!
+
+  await expect(target.getAttribute('data-html')).toEqual('contei 20 ovelhas')
+  await expect(targetEn.getAttribute('data-html')).toEqual('I counted 30 sheeps')
+})
+
 
 function i18nImporterImplWith({ readFrom }: { readFrom: Parameters<Parameters<typeof test>[1]>[0]['readFrom'] }) {
   return {
