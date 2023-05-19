@@ -4,10 +4,6 @@ import { traverseUpDom } from '../algorithms/traverse-up-dom.ts'
 const fallbackStore = i18nTanslationStore()
 const map: WeakMap<Element, TranslationStore> = new WeakMap()
 
-export const mapElementWithStore = (element: HTMLElement, store: TranslationStore) => {
-  map.set(element, store)
-}
-
 export const setStoreFromElement = (element: HTMLElement, store: TranslationStore) => {
   map.set(element, store)
 }
