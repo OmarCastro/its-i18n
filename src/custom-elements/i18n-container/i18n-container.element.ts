@@ -63,7 +63,7 @@ async function translate(text: string, locale: Intl.Locale, context: Element) {
   return text
 }
 
-const prefixPriority = {
+const attributePrefixPriority = {
   'data-i18n--': 1,
   'data-i18n-attr-': 2,
   'data-i18n-attribute-': 3,
@@ -79,11 +79,43 @@ function getAttributesToUpdate(element: Element): { [k: string]: string } {
     }
     const [, prefix, attrName] = match
     const previous = attributesToUpdate[attrName]
-    if (!previous || prefixPriority[previous.prefix] < prefixPriority[prefix]) {
+    if (!previous || attributePrefixPriority[previous.prefix] < attributePrefixPriority[prefix]) {
       attributesToUpdate[attrName] = { prefix, value }
     }
   }
   return Object.fromEntries(Object.entries(attributesToUpdate).map(([key, val]) => [key, val.value]))
 }
+
+const contentAttributeDetails = (() => {
+  const setTextContent = (element: Element, text: string) => element.textContent = text
+  const setInnerHtml = (element: Element, text: string) => element.innerHTML = text
+  return {
+    'data-i18n-unsafe-html': {
+      priority: 1,
+      contentSetter: setInnerHtml
+    },
+    'data-i18n-html': {
+      priority: 2,
+      // TODO: sanitize html
+      contentSetter: setInnerHtml
+    },
+    'data-i18n': {
+      priority: 2,
+      // TODO: sanitize html
+      contentSetter: setTextContent
+    },
+    'data-i18n-text': {
+      priority: 3,
+      // TODO: sanitize html
+      contentSetter: setTextContent
+    }
+  } as {
+    [text: string]: {
+      priority: number,
+      contentSetter:  (element: Element, text: string) => void
+    }
+  }
+
+})()
 
 export default I18nContainerElement
