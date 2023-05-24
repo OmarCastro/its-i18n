@@ -257,6 +257,7 @@ export function sanitizeI18nHtml(html) {
     for (const attribute of attributes) {
       const name = attribute.name.toLowerCase()
       if (
+        name === 'data-i18n' ||
         name.startsWith('data-i18n-') ||
         (!name.startsWith('data-') && !ALLOWED_STANDARD_ATTRS.has(name))
       ) {
