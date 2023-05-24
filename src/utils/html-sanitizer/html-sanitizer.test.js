@@ -5,5 +5,9 @@ import { sanitizeI18nHtml } from './html-sanitizer.js'
 
 test('Given a clean, sanitized html, sanitizeI18nHtml should return the same content', ({ expect }) => {
   const input = '<p>aaa</p>'
-  expect(sanitizeI18nHtml(input)).toEqual(input)
+  expect(sanitizeI18nHtml(input)).toEqual({
+    html: input,
+    removedElements: [],
+    removedAttributes: [],
+  })
 })

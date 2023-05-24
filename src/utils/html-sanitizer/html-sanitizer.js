@@ -215,31 +215,60 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
 ])
 
 /**
+ * @typedef SanitizeResult
+ * @property {string}         html               - sanitized html result
+ * @property {Element[]}  removedElements    - list of removed elements
+ * @property {Object[]}       removedAttributes  - list of removed attributes
+ * @property {string}         removedAttributes[].name - removed attribte
+ * @property {Element}    removedAttributes[].from - target Element where the attribute was removed
+ */
+
+/**
+ * Initializes a Document and shows its body
+ *
+ * @param   {string} html HTML input string to sanitize
+ * @returns {HTMLElement}           Sanitized Html string
+ */
+const _initDocument = (html) => {
+  const doc = new DOMParser().parseFromString('<remove></remove>' + html, 'text/html')
+  doc.body.firstChild?.remove()
+  return doc.body
+}
+
+/**
  * Sanitizes The HTML input
  *
  * @param   {string} html HTML input string to sanitize
- * @returns {string}           Sanitized Html string
+ * @returns {SanitizeResult}           Sanitized Html string
  */
 export function sanitizeI18nHtml(html) {
-  const div = document.createElement('div')
-  div.innerHTML = html
-  div.querySelectorAll('*').forEach((element) => {
+  /** @type SanitizeResult["removedElements"] */
+  const removedElements = []
+  /** @type SanitizeResult["removedAttributes"] */
+  const removedAttributes = []
+  const doc = _initDocument(html)
+  doc.querySelectorAll('*').forEach((element) => {
     if (!ALLOWED_TAGS.has(element.tagName.toLowerCase())) {
+      removedElements.push(element)
       element.remove()
       return
     }
-    for (const attribute of element.attributes) {
+    const { attributes } = element
+    for (const attribute of attributes) {
       const name = attribute.name.toLowerCase()
-      if (name.startsWith('data-i18n-')) {
-        element.removeAttribute(name)
-        return
-      }
-      if (!name.startsWith('data-') && !ALLOWED_STANDARD_ATTRS.has(name)) {
-        element.removeAttribute(name)
-        return
+      if (
+        name.startsWith('data-i18n-') ||
+        (!name.startsWith('data-') && !ALLOWED_STANDARD_ATTRS.has(name))
+      ) {
+        removedAttributes.push({ name, from: element })
+        attributes.removeNamedItem(name)
       }
     }
   })
 
-  return div.innerHTML
+  return {
+    html: doc.innerHTML,
+    removedElements,
+    removedAttributes,
+  }
 }
