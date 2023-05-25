@@ -100,8 +100,11 @@ export const ALLOWED_TAGS = new Set([
 ])
 
 /**
- * A set of allowed attribute for the sanitizer decide whether to remove an attribute from an element or not
- * Any attribute where its name is absent on the set is to be removed except data-* attribute not related to i18n
+ *   A set of allowed attribute for the sanitizer decide whether to remove an
+ * attribute from an element or not.
+ *   Any attribute where its name is absent on the set is to be removed except
+ * data-* attribute not related to i18n, and aria-* attributes
+ * 
  */
 export const ALLOWED_STANDARD_ATTRS = new Set([
   'accept',
@@ -263,7 +266,7 @@ export function sanitizeI18nHtml(html) {
       if (
         name === 'data-i18n' ||
         name.startsWith('data-i18n-') ||
-        (!name.startsWith('data-') && !ALLOWED_STANDARD_ATTRS.has(name))
+        (!name.startsWith('data-') && !name.startsWith('aria-') && !ALLOWED_STANDARD_ATTRS.has(name))
       ) {
         removedAttributes.push({ name, from: element })
         attributes.removeNamedItem(name)
