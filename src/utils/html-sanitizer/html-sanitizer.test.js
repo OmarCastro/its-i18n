@@ -36,3 +36,17 @@ test('Given an html with data-i18n attribute, sanitizeI18nHtml should remove the
     ],
   })
 })
+
+test('Given an html with aria-* attributes, sanitizeI18nHtml should maintain them even if they are unknown', ({ expect }) => {
+  const input = '<div aria-label="banana">this element must have <i class="italic">aria-*</i> attributes</div>'
+  const result = sanitizeI18nHtml(input)
+  expect({
+    sanitizedHtml: result.html,
+    removedElements: result.removedElements,
+    removedAttributes: result.removedAttributes,
+  }).toEqual({
+    sanitizedHtml: input,
+    removedElements: [],
+    removedAttributes: [],
+  })
+})
