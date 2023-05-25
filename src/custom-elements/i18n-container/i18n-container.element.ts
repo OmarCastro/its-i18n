@@ -2,6 +2,7 @@ import { eventName, observeLangFromElement } from '../../utils/algorithms/observ
 import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.ts'
 import { getStoresInfoFromElement } from '../../utils/store-map/store-map.ts'
 import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.ts'
+import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 
 class I18nContainerElement extends HTMLElement {
   constructor() {
@@ -89,33 +90,30 @@ function getAttributesToUpdate(element: Element): { [k: string]: string } {
 const contentAttributeDetails = (() => {
   const setTextContent = (element: Element, text: string) => element.textContent = text
   const setInnerHtml = (element: Element, text: string) => element.innerHTML = text
+  const setSanitizedHtml = (element: Element, text: string) => element.innerHTML = sanitizeI18nHtml(text).html
   return {
     'data-i18n-unsafe-html': {
       priority: 1,
-      contentSetter: setInnerHtml
+      contentSetter: setInnerHtml,
     },
     'data-i18n-html': {
       priority: 2,
-      // TODO: sanitize html
-      contentSetter: setInnerHtml
+      contentSetter: setSanitizedHtml,
     },
     'data-i18n': {
       priority: 2,
-      // TODO: sanitize html
-      contentSetter: setTextContent
+      contentSetter: setTextContent,
     },
     'data-i18n-text': {
       priority: 3,
-      // TODO: sanitize html
-      contentSetter: setTextContent
-    }
+      contentSetter: setTextContent,
+    },
   } as {
     [text: string]: {
-      priority: number,
-      contentSetter:  (element: Element, text: string) => void
+      priority: number
+      contentSetter: (element: Element, text: string) => void
     }
   }
-
 })()
 
 export default I18nContainerElement
