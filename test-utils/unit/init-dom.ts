@@ -33,6 +33,9 @@ if("Deno" in globalThis){
   globalThis.CustomEvent = windowObj.CustomEvent
   globalThis.HTMLElement = windowObj.HTMLElement
   globalThis.Document = windowObj.Document
+  globalThis.document = windowObj.document
+  globalThis.DOMParser = windowObj.DOMParser
+  globalThis.XMLSerializer = windowObj.XMLSerializer
 } else {
   windowObj = globalThis.window 
 }
