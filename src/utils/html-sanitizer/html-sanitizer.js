@@ -2,6 +2,12 @@
 /*
  A strictier sanitizer that allows only text related tags and attributes as to allow any sort of formatting content
 */
+
+
+/**
+ * A set of allowed tags for the sanitizer decide whether to remove an element or not
+ * Any element where its tag name is absent on the set is to be removed
+ */
 export const ALLOWED_TAGS = new Set([
   'a',
   'abbr',
@@ -102,6 +108,10 @@ export const ALLOWED_TAGS = new Set([
   'wbr',
 ])
 
+/**
+ * A set of allowed attribute for the sanitizer decide whether to remove an attribute from an element or not
+ * Any attribute where its name is absent on the set is to be removed except data-* attribute not related to i18n
+ */
 export const ALLOWED_STANDARD_ATTRS = new Set([
   'accept',
   'action',
@@ -215,19 +225,22 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
 ])
 
 /**
- * @typedef SanitizeResult
- * @property {string}         html               - sanitized html result
- * @property {Element[]}  removedElements    - list of removed elements
- * @property {Object[]}       removedAttributes  - list of removed attributes
- * @property {string}         removedAttributes[].name - removed attribte
+ * @typedef SanitizeHtmlResult
+ * 
+ * The result of `sanitizeI18nHtml`, show the sanitized html as well as the actions performed during sanitization
+ * 
+ * @property {string}     html                     - sanitized html result
+ * @property {Element[]}  removedElements          - list of removed elements
+ * @property {Object[]}   removedAttributes        - list of removed attributes
+ * @property {string}     removedAttributes[].name - removed attribte
  * @property {Element}    removedAttributes[].from - target Element where the attribute was removed
  */
 
 /**
  * Initializes a Document and shows its body
  *
- * @param   {string} html HTML input string to sanitize
- * @returns {HTMLElement}           Sanitized Html string
+ * @param   {string}      html - HTML input string to sanitize
+ * @returns {HTMLElement}        Sanitized Html string
  */
 const _initDocument = (html) => {
   const doc = new DOMParser().parseFromString('<remove></remove>' + html, 'text/html')
@@ -238,13 +251,13 @@ const _initDocument = (html) => {
 /**
  * Sanitizes The HTML input
  *
- * @param   {string} html HTML input string to sanitize
- * @returns {SanitizeResult}           Sanitized Html string
+ * @param   {string}         html - HTML input string to sanitize
+ * @returns {SanitizeHtmlResult}        Sanitization result
  */
 export function sanitizeI18nHtml(html) {
-  /** @type SanitizeResult["removedElements"] */
+  /** @type SanitizeHtmlResult["removedElements"] */
   const removedElements = []
-  /** @type SanitizeResult["removedAttributes"] */
+  /** @type SanitizeHtmlResult["removedAttributes"] */
   const removedAttributes = []
   const doc = _initDocument(html)
   doc.querySelectorAll('*').forEach((element) => {
@@ -254,7 +267,7 @@ export function sanitizeI18nHtml(html) {
       return
     }
     const { attributes } = element
-    for (const attribute of attributes) {
+    for (const attribute of Array.from(attributes)) {
       const name = attribute.name.toLowerCase()
       if (
         name === 'data-i18n' ||
