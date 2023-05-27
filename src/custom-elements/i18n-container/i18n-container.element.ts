@@ -40,7 +40,7 @@ class I18nContainerElement extends HTMLElement {
         })
         promises.push(promise)
       }
-      if(contentDetails !== notFoundContentDetails){
+      if (contentDetails !== notFoundContentDetails) {
         const promise = translate(contentDetails.key, locale, element).then((result) => {
           const previousHtml = element.innerHTML
           contentDetails.contentSetter(element, result)
@@ -127,21 +127,24 @@ const contentAttributeDetails = (() => {
   }
 })()
 
-const orderedContentAttributeDetails = Object.entries(contentAttributeDetails).map(([attribute, info]) => ({...info, attribute})).sort((a, b) => b.priority - a.priority)
+const orderedContentAttributeDetails = Object.entries(contentAttributeDetails)
+  .map(([attribute, info]) => ({ ...info, attribute }))
+  .sort((a, b) => b.priority - a.priority)
+
 const notFoundContentDetails = Object.freeze({
-  attribute: "",
-  key: "",
+  attribute: '',
+  key: '',
   priority: 0,
-  contentSetter: () => {}
+  contentSetter: () => {},
 })
 
-function getContentDetailsToUpdate(element: Element): typeof orderedContentAttributeDetails[number] & {key: string} {
-  for(const detail of orderedContentAttributeDetails){
-    const {attribute} = detail
-    if(element.hasAttribute(attribute)){
+function getContentDetailsToUpdate(element: Element): typeof orderedContentAttributeDetails[number] & { key: string } {
+  for (const detail of orderedContentAttributeDetails) {
+    const { attribute } = detail
+    if (element.hasAttribute(attribute)) {
       return {
         ...detail,
-        key: element.getAttribute(attribute)!
+        key: element.getAttribute(attribute)!,
       }
     }
   }
