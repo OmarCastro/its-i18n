@@ -35,6 +35,7 @@ test('Given a simple translation, queryFromTranslations with a non declared shou
     found: false,
     valueTemplate: '',
   })
+  expect(result.translate(new Intl.Locale('en-GB'))).toEqual(targetKey)
 })
 
 test('Given a translation with number capure expression, queryFromTranslations with a non declared should search it and return a translated key with found flag enabled', ({ expect }) => {
@@ -65,4 +66,23 @@ test('Given a translation with number capure expression, queryFromTranslations w
 
   expect(result1.translate(new Intl.Locale('en-GB'))).toEqual('I did not found any balls')
   expect(result2.translate(new Intl.Locale('en-GB'))).toEqual('I did found 5 balls')
+})
+
+test('Given a translation, queryFromTranslations called twice a should return the same result, a.k.a the function is memoized', ({ expect }) => {
+  const translations = {
+    'I found 0 balls': 'I did not found any balls',
+    'I found { number } balls': 'I did found {0} balls',
+  }
+
+  const result1 = queryFromTranslations('I found 10 balls', translations)
+  const result2 = queryFromTranslations('I found 10 balls', translations)
+
+  expect(result1 === result2).toEqual(true)
+  expect(result1).toEqual({
+    ...result1,
+    targetKey: 'I found 10 balls',
+    translations,
+    found: true,
+    valueTemplate: 'I did found {0} balls',
+  })
 })
