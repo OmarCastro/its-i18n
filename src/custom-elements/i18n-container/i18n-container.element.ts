@@ -23,10 +23,10 @@ class I18nContainerElement extends HTMLElement {
       }
       const attributesToUpdate = getAttributesToUpdate(element)
       const attributeEntries = Object.entries(attributesToUpdate)
-      if (attributeEntries.length <= 0) {
+      const contentDetails = getContentDetailsToUpdate(element)
+      if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
         continue
       }
-
       const locale = new Intl.Locale(getLanguageFromElement(element))
 
       for (const [attribute, i18nKey] of attributeEntries) {
@@ -40,7 +40,16 @@ class I18nContainerElement extends HTMLElement {
         })
         promises.push(promise)
       }
+      if(contentDetails !== notFoundContentDetails){
+        const promise = translate(contentDetails.key, locale, element).then((result) => {
+          const previousHtml = element.innerHTML
+          contentDetails.contentSetter(element, result)
+          return previousHtml === element.innerHTML ? null : element
+        })
+        promises.push(promise)
+      }
     }
+
     Promise.allSettled(promises).then((promises) => {
       const elementsUpdated = promises.map((promise) => promise.status === 'fulfilled' ? promise.value : null).filter((result) =>
         result != null
@@ -87,6 +96,8 @@ function getAttributesToUpdate(element: Element): { [k: string]: string } {
   return Object.fromEntries(Object.entries(attributesToUpdate).map(([key, val]) => [key, val.value]))
 }
 
+type ElementContentSetter = (element: Element, text: string) => void
+
 const contentAttributeDetails = (() => {
   const setTextContent = (element: Element, text: string) => element.textContent = text
   const setInnerHtml = (element: Element, text: string) => element.innerHTML = text
@@ -111,9 +122,30 @@ const contentAttributeDetails = (() => {
   } as {
     [text: string]: {
       priority: number
-      contentSetter: (element: Element, text: string) => void
+      contentSetter: ElementContentSetter
     }
   }
 })()
+
+const orderedContentAttributeDetails = Object.entries(contentAttributeDetails).map(([attribute, info]) => ({...info, attribute})).sort((a, b) => b.priority - a.priority)
+const notFoundContentDetails = Object.freeze({
+  attribute: "",
+  key: "",
+  priority: 0,
+  contentSetter: () => {}
+})
+
+function getContentDetailsToUpdate(element: Element): typeof orderedContentAttributeDetails[number] & {key: string} {
+  for(const detail of orderedContentAttributeDetails){
+    const {attribute} = detail
+    if(element.hasAttribute(attribute)){
+      return {
+        ...detail,
+        key: element.getAttribute(attribute)!
+      }
+    }
+  }
+  return notFoundContentDetails
+}
 
 export default I18nContainerElement
