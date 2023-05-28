@@ -2,7 +2,7 @@
 
 export interface TestAPI {
     expect: any
-    step(description: string, step: () => Promise<any>): any
+    step(description: string, step: () => any): any
     readFrom(path: URL): Promise<string>
 }
 
