@@ -14,7 +14,7 @@ export const noStoresFound = Object.freeze({
 
 const map: WeakMap<Element, TranslationStore> = new WeakMap()
 
-export const setStoreFromElement = (element: HTMLElement, store: TranslationStore) => {
+export const setStoreFromElement = (element: Element, store: TranslationStore) => {
   map.set(element, store)
 }
 
