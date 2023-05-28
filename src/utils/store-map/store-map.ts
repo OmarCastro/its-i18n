@@ -2,6 +2,16 @@ import { i18nTanslationStore, type TranslationStore } from '../store/translation
 import { traverseUpDom } from '../algorithms/traverse-up-dom.ts'
 
 const fallbackStore = i18nTanslationStore()
+
+type StoreSearchResult = {
+  store: typeof fallbackStore
+  element?: Element
+}
+
+export const noStoresFound = Object.freeze({
+  store: fallbackStore,
+}) as StoreSearchResult
+
 const map: WeakMap<Element, TranslationStore> = new WeakMap()
 
 export const setStoreFromElement = (element: HTMLElement, store: TranslationStore) => {
@@ -10,16 +20,8 @@ export const setStoreFromElement = (element: HTMLElement, store: TranslationStor
 
 export const getStoresInfoFromElement = function* (target: Element) {
   for (const element of traverseUpDom(target)) {
-    const elementStore = map.get(element)
-    if (elementStore) {
-      yield {
-        store: elementStore,
-        element,
-      }
-    }
+    const store = map.get(element)
+    if (store) yield { store, element }
   }
-  yield {
-    store: fallbackStore,
-    element: null,
-  }
+  yield noStoresFound
 }
