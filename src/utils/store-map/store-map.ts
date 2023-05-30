@@ -1,5 +1,5 @@
 import { i18nTanslationStore, type TranslationStore } from '../store/translation-store.ts'
-import { traverseUpDom } from '../algorithms/traverse-up-dom.ts'
+import { traverseUpDom } from '../algorithms/traverse-up-dom.js'
 
 const fallbackStore = i18nTanslationStore()
 
