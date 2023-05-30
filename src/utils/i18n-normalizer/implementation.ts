@@ -1,31 +1,3 @@
-export type Translations = Record<string, string>
-
-export type NormalizedI18nDefinition = {
-  extends: string[]
-  translations: Translations
-}
-
-export type NormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
-
-export type I18nDefinition =
-  | string
-  | string[]
-  | {
-    extends?: string[] | string
-    translations: Translations
-  }
-  | {
-    extends: string[] | string
-    translations?: Translations
-  }
-
-export type I18nDefinitionMap = Record<string, I18nDefinition>
-
-type ErrorList = {
-  path: string
-  message: string
-}[]
-
 const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
 const isPlainObject = (value): value is Record<string, unknown> => value?.constructor === Object
 const properyPath = (propName: string) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
@@ -164,9 +136,7 @@ export function normalizeI18nDefinition(data: I18nDefinition): { result: Normali
  *
  * @returns normalized i18n definition map
  */
-export function normalizeI18nDefinitionMap(
-  data: I18nDefinitionMap,
-): { result: NormalizedI18nDefinitionMap; warnings: ErrorList; errors: ErrorList } {
+export function normalizeI18nDefinitionMap(data: I18nDefinitionMap) {
   const result = {} as NormalizedI18nDefinitionMap
   const errors = [] as ErrorList
   const warnings = [] as ErrorList
@@ -207,5 +177,41 @@ export function normalizeI18nDefinitionMap(
     result[baseName] = normalizedResult.result
   }
 
-  return { result, warnings, errors }
+  return { result, warnings, errors } as NormalizationResult
+}
+
+/// Type definitions
+
+export type Translations = Record<string, string>
+
+export type NormalizedI18nDefinition = {
+  extends: string[]
+  translations: Translations
+}
+
+export type NormalizedI18nDefinitionMap = Record<string, NormalizedI18nDefinition>
+
+export type I18nDefinition =
+  | string
+  | string[]
+  | {
+    extends?: string[] | string
+    translations: Translations
+  }
+  | {
+    extends: string[] | string
+    translations?: Translations
+  }
+
+export type I18nDefinitionMap = Record<string, I18nDefinition>
+
+type ErrorList = {
+  path: string
+  message: string
+}[]
+
+type NormalizationResult = {
+  result: NormalizedI18nDefinitionMap
+  warnings: ErrorList
+  errors: ErrorList
 }
