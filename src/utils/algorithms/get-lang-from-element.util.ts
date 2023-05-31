@@ -1,4 +1,4 @@
-import { closestElementNavigatingSlots } from './closest-bypassing-shadow-dom.ts'
+import { traverseUpDomWithSlots } from './traverse-up-dom.js'
 
 function handleInvalidLanguage(elementWithLangAttr: Element, invalidLanguage: string): string {
   if (elementWithLangAttr === elementWithLangAttr.ownerDocument.documentElement) {
@@ -10,19 +10,23 @@ function handleInvalidLanguage(elementWithLangAttr: Element, invalidLanguage: st
 }
 
 export function getLanguageFromElement(element: Element | null): string {
-  const elementWithLangAttr = closestElementNavigatingSlots('[lang]', element)
-  if (elementWithLangAttr == null) {
+  if (element == null) {
     return navigator.language
   }
-  const langValue = elementWithLangAttr.getAttribute('lang')!
-  try {
-    const locale = new Intl.Locale(langValue)
-    const { language, region } = locale
-    if (region == null) {
-      return language
+  for (const node of traverseUpDomWithSlots(element)) {
+    const langValue = node.getAttribute('lang')
+    if (!langValue) continue
+    try {
+      const locale = new Intl.Locale(langValue)
+      const { language, region } = locale
+      if (region == null) {
+        return language
+      }
+      return `${language}-${region}`
+    } catch (e) {
+      return handleInvalidLanguage(node, langValue)
     }
-    return `${language}-${region}`
-  } catch (e) {
-    return handleInvalidLanguage(elementWithLangAttr, langValue)
   }
+
+  return navigator.language
 }
