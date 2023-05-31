@@ -4,7 +4,7 @@
  * getting environment information about the component
  */
 export function closestElement(selector: string, base: Element | null = this) {
-  if (base == null) {
+  if (!(base instanceof Element)) {
     return null
   }
   const { ownerDocument } = base
@@ -26,7 +26,7 @@ export function closestElement(selector: string, base: Element | null = this) {
  * allows to get information inside shadow DOM of components with slot in shadow DOM
  */
 export function closestElementNavigatingSlots(selector: string, base: Element | null = this) {
-  if (base == null) {
+  if (!(base instanceof Element)) {
     return null
   }
   const { ownerDocument } = base
