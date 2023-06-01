@@ -1,0 +1,5 @@
+#!/bin/sh
+
+DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+deno run --allow-read --allow-env --allow-net --allow-run --allow-write="$DIR/build" "https://deno.land/x/esbuild/mod.js" "$@"
