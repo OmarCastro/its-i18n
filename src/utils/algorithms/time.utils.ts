@@ -1,3 +1,10 @@
+/**
+ * Parses ISO-8601 text
+ *
+ * @param text - ISO8601 input as string
+ * @returns the representing ISO date as milliseconds from UNIX time on valid input
+ * @returns NaN on invalid input
+ */
 export function parseISO8601(text: string) {
   if (typeof text !== 'string') {
     return NaN
