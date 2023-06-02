@@ -1,0 +1,108 @@
+@import url(./code-example.css);
+
+
+html {
+    --bg-color: #dddcdf;
+    --fg-color: #303540;
+    --resizable-border-color: #303540;
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        --bg-color: #303540;
+        --fg-color: #dddcdf;
+        --resizable-border-color: #dddcdf;
+    }
+}
+
+.badges-section img {
+    object-fit: contain;
+}
+
+.badges-section a {
+    display: inline-block;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+}
+
+h1 {
+    text-align: center;
+}
+
+
+section.preview {
+    text-align: center;
+}
+
+label:has(.checkbox--ui-mode:checked) + .resizable {
+    --ui-mode: "mobile"
+}
+
+.resizable {
+    display: block;
+    position: relative;
+    border: solid var(--resizable-border-color) 2px;
+    resize: both;
+    overflow:hidden;
+    min-width: fit-content;
+    width: fit-content;
+    min-height: fit-content;
+    height: fit-content;
+}
+
+.resizable color-wheel {
+    width: 100%;
+    height: 100%;
+}
+
+.ui-mode--mobile {
+    --ui-mode: "mobile"
+}
+
+.ui-mode--desktop {
+    --ui-mode: "desktop"
+}
+
+.inner-radius--custom {
+    --color-wheel--inner-radius: 30%;
+}
+
+.example {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:space-between;
+    align-items: stretch;
+}
+
+span[contenteditable="true"] {
+    border: 1px solid transparent;
+    position: relative;
+    transition: all linear 300ms;
+}
+
+pre:hover code span[contenteditable="true"] { 
+    border: 1px solid #000;
+}
+
+span[contenteditable="true"]::before {
+    content: "Editable";
+    position: absolute;
+    bottom: 100%;
+    font-size: 0.7em;
+    opacity: 0;
+    pointer-events: none;
+    transition: all linear 300ms;
+}
+
+pre:hover code span[contenteditable="true"]::before {
+    opacity: 1;
+}
+
+color-wheel:not(:defined) {
+    display: inline-block;
+    width: calc(11.2cm + 12px);
+    height: calc(11.2cm + 12px);
+}
