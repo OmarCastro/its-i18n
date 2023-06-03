@@ -1,5 +1,5 @@
 import { isNumeric } from '../utils/algorithms/number.utils.ts'
-import { parseISO8601 } from '../utils/algorithms/time.utils.ts'
+import { parseISO8601 } from '../utils/algorithms/time.utils.js'
 import { lazyRegexMatcher } from '../utils/algorithms/regex.utils.ts'
 import { formatters } from './expression-formatters.ts'
 
