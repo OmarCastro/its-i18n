@@ -10,5 +10,5 @@ while :; do
 	buildfiles/lint-code.sh && \
 	buildfiles/build.sh
 
-	inotifywait -q -r -e modify src
+	inotifywait -q -r -e modify src docs
 done
