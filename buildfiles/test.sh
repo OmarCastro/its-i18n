@@ -8,4 +8,6 @@ deno coverage --include='src/' --exclude="test" --exclude="provider.ts" --exclud
 deno coverage --include='src/' --exclude="test" --exclude="provider.ts" --exclude="mod.ts" coverage/profile --lcov > coverage/coverage.lcov
 if type "genhtml" > /dev/null; then
   genhtml -o coverage/html coverage/coverage.lcov > /dev/null
+  # build coverage badge
+  deno run --allow-read --allow-write buildfiles/build-badges.ts
 fi
