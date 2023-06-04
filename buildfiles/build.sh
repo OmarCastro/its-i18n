@@ -12,5 +12,9 @@ buildfiles/esbuild "src/entrypoint/browser.ts" --bundle --minify --sourcemap --o
 mkdir build/docs
 cp -r docs/* build/docs
 cp -r build/dist build/docs/dist
+
+
+# run tests
+buildfiles/test.sh
 cp -r coverage/html build/docs/coverage
 cp -r coverage/coverage-badge.svg build/docs/coverage/coverage-badge.svg

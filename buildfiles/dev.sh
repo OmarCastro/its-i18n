@@ -5,10 +5,9 @@ cd "$DIR"/..
 
 
 while :; do 
-	buildfiles/test.sh && \
+	buildfiles/build.sh && \
 	buildfiles/format-code.sh && \
-	buildfiles/lint-code.sh && \
-	buildfiles/build.sh
+	buildfiles/lint-code.sh
 
 	inotifywait -q -r -e modify src docs
 done
