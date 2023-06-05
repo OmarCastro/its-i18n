@@ -1,6 +1,6 @@
 {
     "imports": {
-      "jsdom": "https://esm.sh/jsdom@22.1.0"
+      "jsdom": "https://esm.sh/v124/jsdom@22.1.0"
     },
     "scopes": {
       "https://esm.sh/v124/jsdom@22.1.0/deno/jsdom.mjs": {
