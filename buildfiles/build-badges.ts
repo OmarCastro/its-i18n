@@ -1,5 +1,5 @@
-import { makeBadge } from 'https://esm.sh/badge-maker@3.3.1'
-import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { makeBadge } from 'https://esm.sh/v124/badge-maker@3.3.1'
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 
 const projectPath = new URL('../',import.meta.url).pathname;
 
@@ -10,8 +10,6 @@ function badgeColor(pct){
   if(pct > 20){ return '#aa0000' }
   return 'red'
 }
-
-
 
 const text = await globalThis.Deno.readTextFile(`${projectPath}/coverage/html/index.html`)
 const document = new DOMParser().parseFromString(text ,"text/html") as Document;
