@@ -4,8 +4,10 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$DIR/.."
 rm -rf coverage
 deno test --parallel --allow-read --allow-env --allow-net --coverage=coverage/deno --import-map=test-utils/unit/import_map.json src
-deno coverage --include='src/' --exclude="test" --exclude="provider.ts" --exclude="mod.ts" coverage/deno
-deno coverage --include='src/' --exclude="test" --exclude="provider.ts" --exclude="mod.ts" coverage/deno --lcov > coverage/coverage.lcov
-genhtml -c buildfiles/gcov.css -o coverage/html coverage/coverage.lcov > /dev/null
+
+mkdir coverage/c8-v8
+node buildfiles/deno-to-c8.js > coverage/c8-v8/m.json
+npx c8 report --all -r text -r json-summary -r html --include "src/**/*.{js,ts}" --exclude "src/**/*.test.{js,ts}" --temp-directory coverage/c8-v8 --report-dir coverage/c8
+
 # build coverage badge
-deno run --allow-read --allow-write buildfiles/build-badges.ts
+deno run --allow-read --allow-write buildfiles/build-badges.js

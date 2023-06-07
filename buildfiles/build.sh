@@ -16,5 +16,4 @@ cp -r build/dist build/docs/dist
 
 # run tests
 buildfiles/test.sh
-cp -r coverage/html build/docs/coverage
-cp -r coverage/coverage-badge.svg build/docs/coverage/coverage-badge.svg
+cp -r coverage/c8 build/docs/coverage
