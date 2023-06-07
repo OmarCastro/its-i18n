@@ -11,3 +11,7 @@ npx c8 report --all -r text -r json-summary -r html --include "src/**/*.{js,ts}"
 
 # build coverage badge
 deno run --allow-read --allow-write buildfiles/build-badges.js
+
+#replace base.css on coverage reports
+find coverage/c8 -name "base.css" | xargs -I {} cp -f buildfiles/coverage-report-base.css {}
+find coverage/c8 -name "prettify.css" | xargs -I {} cp -f buildfiles/coverage-report-prettify.css {}
