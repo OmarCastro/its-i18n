@@ -1,0 +1,26 @@
+{
+  "name": "its-i18n",
+  "version": "1.0.0",
+  "description": "An i18n web component",
+  "main": "src/entrypoint/node.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OmarCastro/its-i18n.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OmarCastro/its-i18n/issues"
+  },
+  "homepage": "https://github.com/OmarCastro/its-i18n#readme",
+  "dependencies": {
+    "c8": "^7.14.0",
+    "jsdom": "^22.1.0"
+  }
+}
