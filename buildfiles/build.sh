@@ -16,4 +16,4 @@ cp -r build/dist build/docs/dist
 
 # run tests
 buildfiles/test.sh
-mkdir -p build/docs/coverage/final && cp -r coverage/final build/docs/coverage/final
+mkdir -p build/docs/coverage && cp -r coverage/unit build/docs/coverage
