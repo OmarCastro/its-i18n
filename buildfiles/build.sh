@@ -17,7 +17,7 @@ cp -r build/dist build/docs/dist
 # run tests
 buildfiles/test.sh
 
-# publish tests in docs
-cp -R coverage build/docs/coverage
-cp -R playwright-report build/docs/playwright-report
-cp -R test-results build/docs/test-results
+node buildfiles/build-html.mjs index.html
+
+# publish reports in docs
+cp -R reports build/docs/reports

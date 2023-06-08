@@ -21,6 +21,8 @@ html {
 
 .badges-section a {
     display: inline-block;
+    margin-right: 0.25em;
+    margin-left: 0.25em;
 }
 
 body {

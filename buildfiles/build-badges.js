@@ -41,9 +41,24 @@ async function makeBadgeForCoverages(path){
 	
 	await writeFile(`${path}/test-results-badge.svg`, svg);
   }
+
+  async function makeBadgeForLicense(){
+	const pkg = await readFile(`${projectPath}/package.json`).then(str => JSON.parse(str))
+
+	const svg = makeBadge({
+	  label: 'license',
+	  message: pkg.license,
+	  color: '#007700',
+	  style: 'for-the-badge',
+	})
+	
+	await writeFile(`${projectPath}/reports/license-badge.svg`, svg);
+  }
+  
   
   await Promise.allSettled([
-	makeBadgeForCoverages(`${projectPath}/coverage/unit`),
-	makeBadgeForTestResult(`${projectPath}/test-results`)
+	makeBadgeForCoverages(`${projectPath}/reports/coverage/unit`),
+	makeBadgeForTestResult(`${projectPath}/reports/test-results`),
+	makeBadgeForLicense()
   ])
   
