@@ -253,7 +253,7 @@ test('Given a completed storeData, when getting translationsFromLanguage ', asyn
   })
 })
 
-test('Given a completed storeData, when getting translationsFromLanguage ', async ({ step, expect }) => {
+test('Given a completed storeData with specific locales, when getting translationsFromLanguage ', async ({ step, expect }) => {
   const store = i18nTanslationStore()
   const storeData = {
     location: '',
