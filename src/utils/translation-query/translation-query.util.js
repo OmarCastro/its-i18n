@@ -1,40 +1,14 @@
+//@ts-check
 import { parseKey } from '../../key-parser/key-parser.util.ts'
 import { parseValue } from '../../key-parser/value-parser.util.ts'
 
-type TranslationValue = string
-
-type Translations = {
-  [k: string]: TranslationValue
-}
-
-type QueryResult = {
-  targetKey: string
-  translations: Translations
-  found: boolean
-  valueTemplate: string
-  translate(locale: Intl.Locale): string
-}
-
-type QueryResultCache = {
-  [key: string]: QueryResult
-}
-
-type OptimizedTranslations = {
-  literalKeys: Translations
-  templateKeys: {
-    [prefix: string]: {
-      parsedKey: ReturnType<typeof parseKey>
-      value: string
-    }
-  }
-  templateKeysPriorityOrder: { key: string; priority: number }[]
-  prefixTemplateSearchByWords: {
-    [prefix: string]: Translations
-  }
-}
-
-function optimizeTranslationForQueries(translations: Translations) {
-  const result: OptimizedTranslations = {
+/**
+ * @param {Translations} translations
+ * @returns {OptimizedTranslations}
+ */
+function optimizeTranslationForQueries(translations) {
+  /** @type OptimizedTranslations */
+  const result = {
     literalKeys: {},
     templateKeys: {},
     templateKeysPriorityOrder: [],
@@ -65,9 +39,15 @@ function optimizeTranslationForQueries(translations: Translations) {
   return result
 }
 
-const translationOptimizations: WeakMap<Translations, { cache: QueryResultCache; optimizedMap: OptimizedTranslations }> = new WeakMap()
+/** @type TranslationOptimizations */
+const translationOptimizations = new WeakMap()
 
-export function queryFromTranslations(key: string, translations: Translations): QueryResult {
+/**
+ * @param {string} key
+ * @param {Translations} translations
+ * @returns {QueryResult}
+ */
+export function queryFromTranslations(key, translations) {
   let optmization = translationOptimizations.get(translations)
   if (!optmization) {
     optmization = {
@@ -103,9 +83,9 @@ export function queryFromTranslations(key: string, translations: Translations): 
     if (match.isMatch) {
       const valueTemplate = templateKeys[templateKey].value
 
-      let translate = (locale: Intl.Locale) => {
+      let translate = (locale) => {
         const value = parseValue(valueTemplate)
-        translate = (locale: Intl.Locale) => value.format(match.parameters, locale, match.defaultFormatters)
+        translate = (locale) => value.format(match.parameters, locale, match.defaultFormatters)
         return translate(locale)
       }
 
@@ -129,3 +109,51 @@ export function queryFromTranslations(key: string, translations: Translations): 
     translate: () => key,
   }
 }
+
+/**
+ * @typedef {string} TranslationValue
+ */
+
+/**
+ * @typedef {{[k: string]: TranslationValue}} Translations
+ */
+
+/**
+ * @typedef {WeakMap<Translations, { cache: QueryResultCache; optimizedMap: OptimizedTranslations }>} TranslationOptimizations
+ */
+
+/**
+ * @typedef {object} QueryResult
+ *
+ * Result of queryFromTranslations
+ *
+ * @property {string}             targetKey      - key used to search translation
+ * @property {Translations}       translations   - translation map used for search
+ * @property {boolean}            found          - boolean that tells whether the key was found
+ * @property {string}             valueTemplate  - template of found value from query, emptry string if not found
+ * @property {TranslateFunction}  translate      - translate function based on locale, returns target key if not found
+ */
+
+/**
+ * @callback TranslateFunction
+ * @param {Intl.Locale} locale - locale used to translate
+ * @returns {string} translated content
+ */
+
+/**
+ * @typedef {{[k: string]: QueryResult}} QueryResultCache
+ */
+
+/**
+ * @typedef {object} OptimizedTranslations
+ * @property {Translations}                 literalKeys
+ * @property {{[prefix: string]: {parsedKey: ReturnType<typeof parseKey>, value: string}}}                 templateKeys
+ * @property {TemplateKeysPriorityOrder[]}  templateKeysPriorityOrder
+ * @property {{[prefix: string]: Translations}}  prefixTemplateSearchByWords
+ */
+
+/**
+ * @typedef {object} TemplateKeysPriorityOrder
+ * @property {string} key
+ * @property {number} priority
+ */

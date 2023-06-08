@@ -1,7 +1,7 @@
 import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.ts'
 import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.ts'
 import { getStoresInfoFromElement } from '../../utils/store-map/store-map.ts'
-import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.ts'
+import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.js'
 import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 
 class I18nContainerElement extends HTMLElement {

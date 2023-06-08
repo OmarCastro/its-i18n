@@ -1,5 +1,5 @@
 import { test } from '../../../test-utils/unit/test.ts'
-import { queryFromTranslations } from './translation-query.util.ts'
+import { queryFromTranslations } from './translation-query.util.js'
 
 test('Given a simple translation, queryFromTranslations with a declared key should return a key with found flag enable', ({ expect }) => {
   const translations = {
