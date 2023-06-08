@@ -26,4 +26,4 @@ async function makeBadgeForCoverages(path){
   }
 
 
-await makeBadgeForCoverages(`${projectPath}/coverage/c8`)
+await makeBadgeForCoverages(`${projectPath}/coverage/final`)
