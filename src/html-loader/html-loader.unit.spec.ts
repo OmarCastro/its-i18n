@@ -5,7 +5,7 @@ import { provide } from '../utils/i18n-importer/provider.ts'
 
 const html = String.raw
 
-test('an HTML page with i18n-translation-map links, loadI18n should return a store', async ({ step, expect, readFrom }) => {
+test('an HTML page with i18n-locale-map links, loadI18n should return a store', async ({ step, expect, readFrom }) => {
   const { document } = window
   const location = import.meta.url
 
