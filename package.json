@@ -21,6 +21,9 @@
   "homepage": "https://github.com/OmarCastro/its-i18n#readme",
   "dependencies": {
     "c8": "^7.14.0",
-    "jsdom": "^22.1.0"
+    "jsdom": "^22.1.0",
+    "html-minifier": "^4.0.0",
+    "image-size": "^1.0.2",
+    "prismjs": "^1.29.0"
   }
 }
