@@ -9,16 +9,16 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
     'untranslated text': 'untranslated text',
   }
 
-  const storeDataWithLangs = (languages: any) => ({ location: '', languages })
+  const storeDataWithLangs = (languages) => ({ location: '', languages })
 
-  const consoleCalls = { error: [] as any[], warn: [] as any[] }
+  const consoleCalls = { error: [] as unknown[], warn: [] as unknown[] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
   console.warn = (...args) => {
     consoleCalls.warn.push(args)
   }
 
-  console.error = (...args: any[]) => {
+  console.error = (...args) => {
     consoleCalls.error.push(args)
   }
 
@@ -35,8 +35,8 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
       pt: { translations },
       es: { translations },
     }))
-    expect(consoleCalls).toEqual({ error: [], warn: [] })
-    expect(Object.keys(store.data.languages)).toEqual(['en', 'pt', 'es'])
+    await expect(consoleCalls).toEqual({ error: [], warn: [] })
+    await expect(Object.keys(store.data.languages)).toEqual(['en', 'pt', 'es'])
   })
   await step('with "en" & "en-US", should load wihout problems', async () => {
     const store = i18nTanslationStore()
@@ -44,8 +44,8 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
       en: { translations },
       'en-US': { translations },
     }))
-    expect(consoleCalls).toEqual({ error: [], warn: [] })
-    expect(Object.keys(store.data.languages)).toEqual(['en', 'en-US'])
+    await expect(consoleCalls).toEqual({ error: [], warn: [] })
+    await expect(Object.keys(store.data.languages)).toEqual(['en', 'en-US'])
   })
   await step('with "en" & "en-UK", should warn about invalid locale "en-UK" and fixes it to "en-GB"', async () => {
     const store = i18nTanslationStore()
@@ -59,7 +59,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
         ['Warn: Invalid locale "en-UK", fixed to locale "en-GB"'],
       ],
     })
-    expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
+    await expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
   })
 
   await step('with "en", "en-UK" & "en-GB", should log error of invalid & conflicting locale and should be discarded', async () => {
@@ -69,18 +69,18 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
       'en-UK': { translations },
       'en-GB': { translations },
     }))
-    expect(consoleCalls).toEqual({
+    await expect(consoleCalls).toEqual({
       error: [
         ['Error: Invalid locale "en-UK", it also conflicts with correct locale "en-GB", it will not be added to the I18n store'],
       ],
       warn: [],
     })
-    expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
+    await expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
   })
 
   await step(
     'with "en", "en-GB" & "en-ABC", should log error of invalid locale "en-ABC" and should discard only the invalid one',
-    async () => {
+    () => {
       const store = i18nTanslationStore()
       store.loadTranslations(storeDataWithLangs({
         en: { translations },
@@ -102,14 +102,14 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
 })
 
 test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect, readFrom }) => {
-  const consoleCalls = { error: [] as any[], warn: [] as any[] }
+  const consoleCalls = { error: [] as unknown[], warn: [] as unknown[] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
   console.warn = (...args) => {
     consoleCalls.warn.push(args)
   }
 
-  console.error = (...args: any[]) => {
+  console.error = (...args) => {
     consoleCalls.error.push(args)
   }
 
@@ -167,7 +167,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
 })
 
 test('Given a storeData loaded from "import-extends/i18n.json", when getting translationsFromLanguage ', async ({ step, expect, readFrom }) => {
-  let importLanguageCalls = [] as { url: string; base: string }[]
+  const importLanguageCalls = [] as { url: string; base: string }[]
   const impl = {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
     importTranslations: async (url, base) => (importLanguageCalls.push({ url, base }), JSON.parse(await readFrom(new URL(url, base)))),
