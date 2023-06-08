@@ -16,4 +16,8 @@ cp -r build/dist build/docs/dist
 
 # run tests
 buildfiles/test.sh
-mkdir -p build/docs/coverage && cp -r coverage/unit build/docs/coverage
+
+# publish tests in docs
+cp -R coverage build/docs/coverage
+cp -R playwright-report build/docs/playwright-report
+cp -R test-results build/docs/test-results
