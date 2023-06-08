@@ -3,7 +3,7 @@
 // for this file
 let windowObj: Window;
 
-if("Deno" in globalThis){
+if("Deno" in globalThis || globalThis.window == undefined ){
   // running in Deno
   const { JSDOM } = await import("jsdom")
   const jsdom = new JSDOM(
@@ -41,4 +41,4 @@ if("Deno" in globalThis){
 }
 
 export const window = windowObj 
-export const document = window.document
+export const document = windowObj.document
