@@ -159,16 +159,7 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
   })
 })
 
-test('Given an invalid object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
-  const input = { lorem: ['lang.en.json', 'customization.en.json'], ipsum: {} } as never
-  const result = normalizeI18nDefinition(input)
-  expect(result).toEqual({
-    result: { extends: [], translations: {} },
-    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translations" keys' }],
-  })
-})
-
-test('Given an object only with an invalid translation object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
+test('Given an object only with an invalid translation object, normalizeI18nDefinition must return an empty definition with error', ({ expect }) => {
   const input = { translations: '' } as never
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
@@ -177,7 +168,7 @@ test('Given an object only with an invalid translation object, normalizeI18nDefi
   })
 })
 
-test('Given an object only with an invalid translation object, normalizeI18nDefinition empty definition with error', ({ expect }) => {
+test('Given an object with an invalid translation value, normalizeI18nDefinition will remove the invalid property from the result', ({ expect }) => {
   const input = {
     translations: {
       'hello world': 'olá mundo',
