@@ -6,6 +6,7 @@ import {imageSize} from 'image-size'
 
 const projectPath = new URL('../',import.meta.url).pathname;
 const docsPath = new URL('../docs',import.meta.url).pathname;
+const docsOutputPath = new URL('../build/docs',import.meta.url).pathname;
 
 const fs = await import('fs')
 
@@ -22,6 +23,7 @@ const document = dom.window.document;
 if(document == null){
     throw "error parsing document"
 }
+//@ts-ignore
 await import('prismjs/plugins/keep-markup/prism-keep-markup.js');
 
 const exampleCode =  (strings, ...expr) => {
@@ -30,7 +32,7 @@ const exampleCode =  (strings, ...expr) => {
 
   for(let i = 0; i < expr.length; i++){
     statement += String(expr[i]).replace(/</g, "&lt")
-    .replaceAll("{{elementName}}", '<span class="component-name-ref keep-markup">color-wheel</span>')
+    .replaceAll("{{elementName}}", '<span class="component-name-ref keep-markup">i18n-container</span>')
     .replace(/{{([^:]+):ui-mode}}/, '<span contenteditable="true" class="ui-mode-edit">$1</span>')
     .replace(/{{([^:]+):inner-radius}}/, '<span contenteditable="true" class="inner-radius-edit">$1</span>')
     .replace(/{{([^:]+):lightness}}/, '<span contenteditable="true" class="lightness-edit">$1</span>')
@@ -62,14 +64,14 @@ queryAll("code").forEach(element => {
 
 queryAll("svg[ss:include]").forEach(element => {
   const ssInclude = element.getAttribute("ss:include")
-  const svgText = fs.readFileSync(`${docsPath}/${ssInclude}`, 'utf8');
+  const svgText = fs.readFileSync(`${docsOutputPath}/${ssInclude}`, 'utf8');
   element.outerHTML = svgText
 })
 
 
 queryAll("img[ss:size]").forEach(element => {
   const imageSrc = element.getAttribute("src")
-  const size = imageSize(`${projectPath}/${imageSrc}`);
+  const size = imageSize(`${docsOutputPath}/${imageSrc}`);
   element.removeAttribute("ss:size")
   element.setAttribute("width", `${size.width}`)
   element.setAttribute("height", `${size.height}`)
@@ -77,7 +79,7 @@ queryAll("img[ss:size]").forEach(element => {
 
 queryAll("img[ss:badge-attrs]").forEach(element => {
   const imageSrc = element.getAttribute("src")
-  const svgText = fs.readFileSync(`${projectPath}/${imageSrc}`, 'utf8');
+  const svgText = fs.readFileSync(`${docsOutputPath}/${imageSrc}`, 'utf8');
   const div = document.createElement("div")
   div.innerHTML = svgText
   element.removeAttribute("ss:badge-attrs")
@@ -88,7 +90,7 @@ queryAll("img[ss:badge-attrs]").forEach(element => {
 
 queryAll('link[href][rel="stylesheet"][ss:inline]').forEach(element => {
   const ssInclude = element.getAttribute("href")
-  const cssText = fs.readFileSync(`${docsPath}/${ssInclude}`, 'utf8');
+  const cssText = fs.readFileSync(`${docsOutputPath}/${ssInclude}`, 'utf8');
   element.outerHTML = `<style>${cssText}</style>`
 })
 
