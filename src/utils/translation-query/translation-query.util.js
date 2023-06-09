@@ -3,49 +3,54 @@ import { parseKey } from '../../key-parser/key-parser.util.ts'
 import { parseValue } from '../../key-parser/value-parser.util.ts'
 
 /**
- * @param {Translations} translations
- * @returns {OptimizedTranslations}
+ * Creates an {@link OptimizedTranslations} based on target {@link Translations}
+ *
+ * @param {Translations} translations - target translations
+ *
+ * @returns {OptimizedTranslations} resulting optimized translation
  */
 function optimizeTranslationForQueries(translations) {
-  /** @type OptimizedTranslations */
+  /** @type {OptimizedTranslations} */
   const result = {
     literalKeys: {},
     templateKeys: {},
-    templateKeysPriorityOrder: [],
+    sortedTemplateKeys: [],
     prefixTemplateSearchByWords: {},
   }
-  const { literalKeys, templateKeys, templateKeysPriorityOrder, prefixTemplateSearchByWords } = result
+  const { literalKeys, templateKeys, sortedTemplateKeys, prefixTemplateSearchByWords } = result
 
-  for (const [key, val] of Object.entries(translations)) {
-    const parseResult = parseKey(key)
-    if (parseResult.priority[0] <= 0) {
-      literalKeys[key] = val
+  for (const [key, value] of Object.entries(translations)) {
+    const parsedKey = parseKey(key)
+    if (parsedKey.priority[0] <= 0) {
+      literalKeys[key] = value
       continue
     }
 
-    templateKeys[key] = {
-      parsedKey: parseResult,
-      value: val,
-    }
-    templateKeysPriorityOrder.push({ key, priority: parseResult.priorityAsNumber })
-    const prefix = parseResult.ast.tokens[0].text
+    const optimizedTemplateKey = { key, parsedKey, value }
+
+    templateKeys[key] = optimizedTemplateKey
+    sortedTemplateKeys.push(optimizedTemplateKey)
+    const prefix = parsedKey.ast.tokens[0].text
 
     prefixTemplateSearchByWords[prefix] ||= {}
-    prefixTemplateSearchByWords[prefix][key] = val
+    prefixTemplateSearchByWords[prefix][key] = value
   }
 
-  templateKeysPriorityOrder.sort((a, b) => b.priority - a.priority)
+  sortedTemplateKeys.sort((a, b) => b.parsedKey.priorityAsNumber - a.parsedKey.priorityAsNumber)
 
   return result
 }
 
-/** @type TranslationOptimizations */
+/** @type {WeakMap<Translations, TranslationQueryOptimization>} */
 const translationOptimizations = new WeakMap()
 
 /**
- * @param {string} key
- * @param {Translations} translations
- * @returns {QueryResult}
+ * Queries information from a {@link Translations} object
+ *
+ * @param {string}       key          - target key
+ * @param {Translations} translations - target {@link Translations} object to search
+ *
+ * @returns {QueryResult} result of the query
  */
 export function queryFromTranslations(key, translations) {
   let optmization = translationOptimizations.get(translations)
@@ -76,7 +81,7 @@ export function queryFromTranslations(key, translations) {
   }
 
   const { templateKeys } = optimizedMap
-  for (const { key: templateKey } of optimizedMap.templateKeysPriorityOrder) {
+  for (const { key: templateKey } of optimizedMap.sortedTemplateKeys) {
     const { parsedKey } = templateKeys[templateKey]
     const match = parsedKey.match(key)
 
@@ -119,7 +124,13 @@ export function queryFromTranslations(key, translations) {
  */
 
 /**
- * @typedef {WeakMap<Translations, { cache: QueryResultCache; optimizedMap: OptimizedTranslations }>} TranslationOptimizations
+ * @typedef {object} TranslationQueryOptimization
+ *
+ * An object used to optimize queries from a {@link Translations} object, it is generated the fist time it is called
+ * {@link queryFromTranslations} for each new {@link Translations} object
+ *
+ * @property {Object<string, QueryResult>}  cache        - query result cache map used for memoization
+ * @property {OptimizedTranslations}        optimizedMap - optimized translation map @see OptimizedTranslations
  */
 
 /**
@@ -141,23 +152,18 @@ export function queryFromTranslations(key, translations) {
  */
 
 /**
- * @typedef {{[k: string]: QueryResult}} QueryResultCache
- */
-
-/**
  * @typedef {object} OptimizedTranslations
  *
- *   A `Translations` object adapted to improve query speed, it is generated the fist time it is called
- * `queryFromTranslations` for every new `Translation`
+ *   A {@link Translations} object adapted to improve query speed
  *
  * @property {Translations}                          literalKeys
  *    It contains only non template keys, since they have the highest priority it will be use for a quick search before
  *  searching the remaining keys, which all are template keys
  *
- * @property {Object<string, OptimizedTemplateKeys>} templateKeys
+ * @property {Object<string, OptimizedTemplateKey>} templateKeys
  *  A map of "template key" to "optimized template info" with already computed information
  *
- * @property {TemplateKeysPriorityOrder[]}           templateKeysPriorityOrder
+ * @property {OptimizedTemplateKey[]}           sortedTemplateKeys
  *  A list of of template keys sorted by priority
  *
  * @property {Object<string, Translations>}          prefixTemplateSearchByWords
@@ -165,13 +171,8 @@ export function queryFromTranslations(key, translations) {
  */
 
 /**
- * @typedef {object} OptimizedTemplateKeys
- * @property {ReturnType<typeof parseKey>} parsedKey - parsed key information for faster matches
+ * @typedef {object} OptimizedTemplateKey
+ * @property {string}                      key       - target translation key
+ * @property {ReturnType<typeof parseKey>} parsedKey - parsed target translation key information for faster matches
  * @property {string}                      value     - respective value of Tranlation key
- */
-
-/**
- * @typedef {object} TemplateKeysPriorityOrder
- * @property {string} key      - translation key
- * @property {number} priority - translation priority
  */
