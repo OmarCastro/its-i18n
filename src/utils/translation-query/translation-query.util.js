@@ -146,14 +146,32 @@ export function queryFromTranslations(key, translations) {
 
 /**
  * @typedef {object} OptimizedTranslations
- * @property {Translations}                 literalKeys
- * @property {{[prefix: string]: {parsedKey: ReturnType<typeof parseKey>, value: string}}}                 templateKeys
- * @property {TemplateKeysPriorityOrder[]}  templateKeysPriorityOrder
- * @property {{[prefix: string]: Translations}}  prefixTemplateSearchByWords
+ *
+ *   A `Translations` object adapted to improve query speed, it is generated the fist time it is called
+ * `queryFromTranslations` for every new `Translation`
+ *
+ * @property {Translations}                          literalKeys
+ *    It contains only non template keys, since they have the highest priority it will be use for a quick search before
+ *  searching the remaining keys, which all are template keys
+ *
+ * @property {Object<string, OptimizedTemplateKeys>} templateKeys
+ *  A map of "template key" to "optimized template info" with already computed information
+ *
+ * @property {TemplateKeysPriorityOrder[]}           templateKeysPriorityOrder
+ *  A list of of template keys sorted by priority
+ *
+ * @property {Object<string, Translations>}          prefixTemplateSearchByWords
+ *   A map of translations by prefix, unused, @todo use it
+ */
+
+/**
+ * @typedef {object} OptimizedTemplateKeys
+ * @property {ReturnType<typeof parseKey>} parsedKey - parsed key information for faster matches
+ * @property {string}                      value     - respective value of Tranlation key
  */
 
 /**
  * @typedef {object} TemplateKeysPriorityOrder
- * @property {string} key
- * @property {number} priority
+ * @property {string} key      - translation key
+ * @property {number} priority - translation priority
  */
