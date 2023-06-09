@@ -45,7 +45,7 @@ function optimizeTranslationForQueries(translations) {
 const translationOptimizations = new WeakMap()
 
 /**
- * Queries information from a {@link Translations} object
+ * Queries translation value from a {@link Translations} object
  *
  * @param {string}       key          - target key
  * @param {Translations} translations - target {@link Translations} object to search
