@@ -4,8 +4,9 @@
         <title>It's i18n</title>
         <meta name="description" content="documentation of 'it's i18n' component">
         <meta name="keywords" content="i18n webcomponents">
-        <link rel="stylesheet" href="./doc.css" ss:inline>
-
+        <link rel="stylesheet" href="doc.css" ss:inline>
+        <script src="doc.js" async></script>
+        <script type="module" src="dist/i18n.element.min.js?named=i18n-container" async></script>
         <meta name="viewport" content="width=device-width">
     </head>
     <body>
@@ -44,7 +45,7 @@
         <section>
             <h2> Getting started </h2>
 
-            <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://omarcastro.github.io/its-i18n/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">color-wheel</span>">&lt;/script></code></pre>
+            <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://omarcastro.github.io/its-i18n/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
         </section>
 
         <section>
@@ -71,5 +72,21 @@
 
 
         </section>
+
+        <div class="example example--mobile-mode">
+            <div class="example__view">
+                <i18n-container lang="es">
+                    <div data-i18n-title="hello world">hover me</div>
+                </i18n-container>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                    <{{elementName}} lang="es">
+                       <div data-i18n-title="hello world">hover me</div>
+                    </{{elementName}}>
+                </script>
+    
+                </div>
+        </div>
     </body>
 </html>
