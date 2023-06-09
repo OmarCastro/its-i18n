@@ -116,10 +116,19 @@ export function queryFromTranslations(key, translations) {
 
 /**
  * @typedef {string} TranslationValue
+ * 
+ * Translation value, it is a separate type since it is expected to change.
+ * 
+ * The current plan is in the future to chang to {
+ *    value: string, 
+ *    kind: "raw" | "template" | "import" | "import template" 
+ * }
  */
 
 /**
  * @typedef {Object<string, TranslationValue>} Translations
+ * 
+ * Translation map
  */
 
 /**
@@ -155,22 +164,18 @@ export function queryFromTranslations(key, translations) {
  *
  *   A {@link Translations} object adapted to improve query speed
  *
- * @property {Translations}                          literalKeys
- *    It contains only non template keys, since they have the highest priority it will be use for a quick search before
- *  searching the remaining keys, which all are template keys
- *
- * @property {Object<string, OptimizedTemplateKey>} templateKeys
- *  A map of "template key" to "optimized template info" with already computed information
- *
- * @property {OptimizedTemplateKey[]}           sortedTemplateKeys
- *  A list of of template keys sorted by priority
- *
- * @property {Object<string, Translations>}          prefixTemplateSearchByWords
- *   A map of translations by prefix, unused, @todo use it
+ * @property {Translations}                          literalKeys                 -   It contains only non-template keys, since they have the highest
+ *  priority it will be use for a quick search before searching the remaining keys, which all are template keys
+ * @property {Object<string, OptimizedTemplateKey>} templateKeys   - A map of "template key" to "optimized template info" with already computed information
+ * @property {OptimizedTemplateKey[]}           sortedTemplateKeys -  A list of of template keys sorted by priority
+ * @property {Object<string, Translations>}    prefixTemplateSearchByWords - A map of translations by prefix, unused, @todo use it
  */
 
 /**
  * @typedef {object} OptimizedTemplateKey
+ * 
+ * An optimized template key entry with already parsed key as to avoid parsing it again every query
+ * 
  * @property {string}                      key       - target translation key
  * @property {ReturnType<typeof parseKey>} parsedKey - parsed target translation key information for faster matches
  * @property {string}                      value     - respective value of Tranlation key
