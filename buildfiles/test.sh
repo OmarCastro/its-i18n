@@ -7,7 +7,7 @@ rm -rf coverage
 npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --report-dir reports/coverage/unit --reporter json-summary --reporter text --reporter lcov --reporter html playwright test
 
 # build coverage badge
-deno run --allow-read --allow-write buildfiles/build-badges.js
+node buildfiles/build-badges.js
 
 #replace base.css on coverage reports
 find reports/coverage/unit -name "base.css" | xargs -I {} cp -f buildfiles/coverage-report-base.css {}

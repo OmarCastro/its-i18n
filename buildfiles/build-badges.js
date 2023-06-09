@@ -1,9 +1,9 @@
-import { makeBadge } from 'https://esm.sh/v124/badge-maker@3.3.1'
+import { makeBadge } from 'badge-maker'
+import { readFile as fsReadFile, writeFile } from 'node:fs/promises'
 
 const projectPath = new URL('../',import.meta.url).pathname;
 
-const readFile = (path) => globalThis.Deno.readTextFile(path)
-const writeFile = (path, content) => globalThis.Deno.writeTextFile(path, content)
+const readFile = (path) => fsReadFile(path, {encoding: "utf8" })
 
 function badgeColor(pct){
   if(pct > 80){ return '#007700' }
