@@ -116,18 +116,18 @@ export function queryFromTranslations(key, translations) {
 
 /**
  * @typedef {string} TranslationValue
- * 
+ *
  * Translation value, it is a separate type since it is expected to change.
- * 
+ *
  * The current plan is in the future to chang to {
- *    value: string, 
- *    kind: "raw" | "template" | "import" | "import template" 
+ *    value: string,
+ *    kind: "raw" | "template" | "import" | "import template"
  * }
  */
 
 /**
  * @typedef {Object<string, TranslationValue>} Translations
- * 
+ *
  * Translation map
  */
 
@@ -173,9 +173,9 @@ export function queryFromTranslations(key, translations) {
 
 /**
  * @typedef {object} OptimizedTemplateKey
- * 
+ *
  * An optimized template key entry with already parsed key as to avoid parsing it again every query
- * 
+ *
  * @property {string}                      key       - target translation key
  * @property {ReturnType<typeof parseKey>} parsedKey - parsed target translation key information for faster matches
  * @property {string}                      value     - respective value of Tranlation key
