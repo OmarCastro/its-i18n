@@ -4,6 +4,7 @@
         "moduleResolution": "bundler",
         "target": "ES2022",
         "jsx": "react",
+        "checkJs": true,
         "strictNullChecks": true,
         "strictFunctionTypes": true,
         "allowImportingTsExtensions": true

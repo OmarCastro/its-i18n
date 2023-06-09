@@ -1,4 +1,3 @@
-//@ts-check
 import { parseKey } from '../../key-parser/key-parser.util.ts'
 import { parseValue } from '../../key-parser/value-parser.util.ts'
 
@@ -120,7 +119,7 @@ export function queryFromTranslations(key, translations) {
  */
 
 /**
- * @typedef {{[k: string]: TranslationValue}} Translations
+ * @typedef {Object<string, TranslationValue>} Translations
  */
 
 /**
