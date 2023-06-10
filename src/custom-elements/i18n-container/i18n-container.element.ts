@@ -50,15 +50,20 @@ class I18nContainerElement extends HTMLElement {
       }
     }
 
-    Promise.allSettled(promises).then((promises) => {
+    return Promise.allSettled(promises).then((promises) => {
       const elementsUpdated = promises.map((promise) => promise.status === 'fulfilled' ? promise.value : null).filter((result) =>
         result != null
       ) as Element[]
+
+      const result = { elementsUpdated }
+
       if (elementsUpdated.length <= 0) {
-        return
+        return result
       }
-      const event = new CustomEvent('i18n-apply', { bubbles: true, detail: { elementsUpdated } })
+
+      const event = new CustomEvent('i18n-apply', { bubbles: true, detail: result })
       this.dispatchEvent(event)
+      return result
     })
   }
 }
