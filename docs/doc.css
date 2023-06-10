@@ -79,6 +79,10 @@ label:has(.checkbox--ui-mode:checked) + .resizable {
     align-items: stretch;
 }
 
+.example__json, .example__html, .example__view {
+    flex-grow: 1;
+}
+
 span[contenteditable="true"] {
     border: 1px solid transparent;
     position: relative;
@@ -107,4 +111,26 @@ color-wheel:not(:defined) {
     display: inline-block;
     width: calc(11.2cm + 12px);
     height: calc(11.2cm + 12px);
+}
+
+.example .cm-editor .cm-scroller{
+    font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+}
+
+.example__tabs input {
+    display: none;
+}
+
+.example__tabs input ~ span {
+    color: #aaa;
+    padding: 0.2em 1em;
+    border: transparent 2px solid;
+}
+
+.example__tabs input:checked ~ span {
+    color: #fff;
+    background: #292d30;
+    border: #aaa 2px solid;
+    border-top-color: chocolate;
+
 }
