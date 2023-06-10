@@ -72,6 +72,12 @@
 
         </section>
 
+
+        <h2> Example </h2>
+
+        <h3> Basic </h3>
+
+
         <div class="example example--basic">
             <div class="example__view">
                 <i18n-container lang="es">
@@ -89,6 +95,50 @@
             <div class="example__html">
                 <script type="text/plain" class="html-example">
                     <{{elementName}} lang="{{es:lang}}">
+                       <button data-i18n--title="hello mouse" data-i18n="hello world">hover me</button>
+                    </{{elementName}}>
+                </script>
+    
+                </div>
+        </div>
+
+
+        <h3> Multiple languages </h3>
+
+        <div class="example example--multi-lang">
+            <div class="example__view">
+                <i18n-container>
+                    <div class="portuguese" lang="pt">
+                        <span data-i18n--title="hello mouse" data-i18n="I am portuguese"></span>
+                    </div>
+                    <div class="spanish" lang="es">
+                        <span data-i18n--title="hello mouse" data-i18n="I am spanish"></span>
+                    </div>
+                    <div class="english" lang="en">
+                        <span data-i18n--title="hello mouse" data-i18n="I am english"></span>
+                    </div>
+                </i18n-container>
+            </div>
+            <div class="example__json">
+                <div class="example__tabs">
+                    <label><input type="radio" name="example--basic" checked><span data-lang="es">es.json</span></label>
+                    <label><input type="radio" name="example--basic"><span data-lang="en">en.json</span></label>
+                    <label><input type="radio" name="example--basic"><span data-lang="pt">pt.json</span></label>
+                  </div>
+                <div class="editor"></div>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                    <{{elementName}}>
+                        <div class="portuguese" lang="{{pt:lang:pt}}">
+                            <span data-i18n--title="hello mouse" data-i18n="I am portuguese"></span>
+                        </div>
+                        <div class="spanish" lang="{{es:lang:es}}">
+                            <span data-i18n--title="hello mouse" data-i18n="I am spanish"></span>
+                        </div>
+                        <div class="english" lang="{{en:lang:en}}">
+                            <span data-i18n--title="hello mouse" data-i18n="I am english"></span>
+                        </div>
                        <button data-i18n--title="hello mouse" data-i18n="hello world">hover me</button>
                     </{{elementName}}>
                 </script>
