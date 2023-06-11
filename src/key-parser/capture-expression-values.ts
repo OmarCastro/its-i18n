@@ -1,6 +1,5 @@
 import { isNumeric } from '../utils/algorithms/number.utils.ts'
 import { parseISO8601 } from '../utils/algorithms/time.utils.js'
-import { regexMatcher } from '../utils/algorithms/regex.utils.ts'
 import { formatters } from './expression-formatters.ts'
 
 const defaultFormat = formatters['as is'].format
@@ -34,7 +33,10 @@ const specialCapureExpressions = {
 
   'regex': {
     value: 200,
-    matchPredicate: (regexPattern: string) => regexMatcher(regexPattern),
+    matchPredicate: (regexPattern: string) => {
+      const regex = new RegExp(regexPattern)
+      return (text: string) => regex.test(text)
+    },
     defaultFormat,
     isConstant: true,
   },
