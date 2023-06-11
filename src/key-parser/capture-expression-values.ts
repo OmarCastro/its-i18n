@@ -1,6 +1,6 @@
 import { isNumeric } from '../utils/algorithms/number.utils.ts'
 import { parseISO8601 } from '../utils/algorithms/time.utils.js'
-import { lazyRegexMatcher } from '../utils/algorithms/regex.utils.ts'
+import { regexMatcher } from '../utils/algorithms/regex.utils.ts'
 import { formatters } from './expression-formatters.ts'
 
 const defaultFormat = formatters['as is'].format
@@ -34,7 +34,7 @@ const specialCapureExpressions = {
 
   'regex': {
     value: 200,
-    matchPredicate: (regexPattern: string) => lazyRegexMatcher(regexPattern),
+    matchPredicate: (regexPattern: string) => regexMatcher(regexPattern),
     defaultFormat,
     isConstant: true,
   },

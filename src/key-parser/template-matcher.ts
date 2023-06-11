@@ -112,11 +112,10 @@ function getMatcherFromTokens(tokens: Token[]) {
     }
   }).join('')
 
-  let regex: RegExp
+  const regex = new RegExp('^' + regexStr + '$')
 
   return (text: string) => {
     if (typeof text !== 'string') return noMatch
-    regex ??= new RegExp('^' + regexStr + '$')
     const matches = text.match(regex)
     if (matches == null) {
       return noMatch
