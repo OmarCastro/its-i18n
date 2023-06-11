@@ -1,5 +1,5 @@
 import { type AST, states, type Token } from './key-ast.util.ts'
-import { escape } from '../utils/algorithms/regex.utils.ts'
+import { escape } from '../utils/algorithms/regex.utils.js'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 
 const falsePredicate = () => false

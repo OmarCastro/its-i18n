@@ -1,5 +1,4 @@
 import { type AST, states, type Token } from './key-ast.util.ts'
-import { escape } from '../utils/algorithms/regex.utils.ts'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 import { formatters as expressionFormatters } from './expression-formatters.ts'
 import { isInteger } from '../utils/algorithms/number.utils.ts'
