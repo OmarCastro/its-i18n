@@ -7,9 +7,12 @@
 /*
  Light Theme
  */
- pre {
+ pre, .cm-editor, .cm-view{
     --code-color: #545454;
     --code-bg: #fefefe;
+    --code-bg-highlight: #00000020;
+    --code-bg-selection: #ddfedd;
+
     --comment-color: #696969;
     --punct-color: #545454;
     --prop-color:#007299;
@@ -25,9 +28,12 @@
  Dark Theme
  */
  @media (prefers-color-scheme: dark) {
-    pre {
+    pre, .cm-editor, .cm-view{
         --code-color: #f8f8f2;
+        --code-bg-highlight: #ffffff20;
         --code-bg: #2b2b2b;
+        --code-bg-selection: #202325;
+
         --comment-color: #d4d0ab;
         --punct-color: #fefefe;
         --prop-color:#ffa07a;
@@ -164,4 +170,25 @@
  .line-numbers-rows > span:before {
    color: #D4D0AB;
  }
+ 
+
+ /**
+ * Code mirror
+ */
+
+ .cm-editor, .cm-view{
+  color: var(--code-color);
+  background: var(--code-bg);
+ }
+
+ :is(.cm-editor, .cm-view) .cmt-atom      {color: #221199;}
+ :is(.cm-editor, .cm-view) .cmt-comment   {color: var(--comment-color); }
+ :is(.cm-editor, .cm-view) .cmt-keyword   {color: var(--kword-color);}
+ :is(.cm-editor, .cm-view) .cmt-literal   {color: #4271AE;}
+ :is(.cm-editor, .cm-view) .cmt-number    {color: #F5871F;}
+ :is(.cm-editor, .cm-view) .cmt-operator  {color: #008803;}
+ :is(.cm-editor, .cm-view) .cmt-separator {color: #990033;}
+ :is(.cm-editor, .cm-view) .cmt-string    {color: var(--str-color);}
+ :is(.cm-editor, .cm-view) .cmt-name      {color: var(--prop-color);}
+
  

@@ -1,8 +1,8 @@
 import {basicSetup, EditorView} from "codemirror"
 import {json} from "@codemirror/lang-json"
-import { basicDark } from 'cm6-theme-basic-dark'
 import I18nElement from "../src/custom-elements/i18n-container/i18n-container.element"
 import {setStoreFromElement} from "../src/utils/store-map/store-map"
+import { extension } from "./code-editor.element.js"
 
 import { i18nTanslationStore  } from '../src/utils/store/translation-store.ts'
 import '../src/utils/i18n-importer/implementation.ts'
@@ -33,7 +33,7 @@ function applyExample(exampleObject, editorElement){
     extensions: [
       basicSetup,
       json(),
-      basicDark,
+      extension,
       EditorView.updateListener.of(function(e) {
 
         const name = exampleContainer.querySelector('.example__tabs input[type="radio"]:checked ~ span[data-lang]')?.getAttribute("data-lang")
