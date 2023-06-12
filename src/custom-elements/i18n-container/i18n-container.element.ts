@@ -203,6 +203,7 @@ const observer = new MutationObserver((records) => {
     if(!frameRequestNumber){
       frameRequestNumber = requestAnimationFrame(triggerUpdate)
     }
+  }
 })
 
 const mutationProperties = Object.freeze({ attributes: true, subtree: true } as MutationObserverInit)
