@@ -24,14 +24,15 @@ if("Deno" in globalThis || globalThis.window == undefined ){
   );
   
   windowObj = jsdom.window as Window 
-  globalThis.requestAnimationFrame = windowObj.requestAnimationFrame
-  globalThis.cancelAnimationFrame = windowObj.cancelAnimationFrame
+  globalThis.requestAnimationFrame = (callback) => setTimeout(callback, 10)
+  globalThis.cancelAnimationFrame = (frameNumber) => clearTimeout(frameNumber)
   globalThis.requestIdleCallback = windowObj.requestIdleCallback
   globalThis.cancelIdleCallback = windowObj.cancelIdleCallback
   globalThis.ShadowRoot = windowObj.ShadowRoot
   globalThis.MutationObserver = windowObj.MutationObserver
   globalThis.CustomEvent = windowObj.CustomEvent
   globalThis.HTMLElement = windowObj.HTMLElement
+  globalThis.Element = windowObj.Element
   globalThis.Document = windowObj.Document
   globalThis.document = windowObj.document
   globalThis.navigator = windowObj.navigator
