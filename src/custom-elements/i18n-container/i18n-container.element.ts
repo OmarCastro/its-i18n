@@ -9,6 +9,7 @@ class I18nContainerElement extends HTMLElement {
     super()
     observeLangFromElement(this)
     this.addEventListener(eventName, () => this.updateNodes())
+    observer.observe(this, mutationProperties)
   }
 
   connectedCallback() {
@@ -16,45 +17,7 @@ class I18nContainerElement extends HTMLElement {
   }
 
   updateNodes() {
-    const promises = [] as Promise<Element | null>[]
-    for (const element of this.querySelectorAll('*')) {
-      if (!element.hasAttributes()) {
-        continue
-      }
-      const attributesToUpdate = getAttributesToUpdate(element)
-      const attributeEntries = Object.entries(attributesToUpdate)
-      const contentDetails = getContentDetailsToUpdate(element)
-      if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
-        continue
-      }
-      const locale = new Intl.Locale(getLanguageFromElement(element))
-
-      for (const [attribute, i18nKey] of attributeEntries) {
-        const promise = translate(i18nKey, locale, element).then((result) => {
-          if (element.getAttribute(attribute) === result) {
-            return null
-          } else {
-            element.setAttribute(attribute, result)
-            return element
-          }
-        })
-        promises.push(promise)
-      }
-      if (contentDetails !== notFoundContentDetails) {
-        const promise = translate(contentDetails.key, locale, element).then((result) => {
-          const previousHtml = element.innerHTML
-          contentDetails.contentSetter(element, result)
-          return previousHtml === element.innerHTML ? null : element
-        })
-        promises.push(promise)
-      }
-    }
-
-    return Promise.allSettled(promises).then((promises) => {
-      const elementsUpdated = promises.map((promise) => promise.status === 'fulfilled' ? promise.value : null).filter((result) =>
-        result != null
-      ) as Element[]
-
+    return updateI18nOnElements(this.querySelectorAll('*')).then((elementsUpdated) => {
       const result = { elementsUpdated }
 
       if (elementsUpdated.length <= 0) {
@@ -66,6 +29,48 @@ class I18nContainerElement extends HTMLElement {
       return result
     })
   }
+}
+
+function updateI18nOnElements(iterable: Iterable<Element>) {
+  const promises = [] as Promise<Element | null>[]
+  for (const element of iterable) {
+    if (!element.hasAttributes()) {
+      continue
+    }
+    const attributesToUpdate = getAttributesToUpdate(element)
+    const attributeEntries = Object.entries(attributesToUpdate)
+    const contentDetails = getContentDetailsToUpdate(element)
+    if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
+      continue
+    }
+    const locale = new Intl.Locale(getLanguageFromElement(element))
+
+    for (const [attribute, i18nKey] of attributeEntries) {
+      const promise = translate(i18nKey, locale, element).then((result) => {
+        if (element.getAttribute(attribute) === result) {
+          return null
+        } else {
+          element.setAttribute(attribute, result)
+          return element
+        }
+      })
+      promises.push(promise)
+    }
+    if (contentDetails !== notFoundContentDetails) {
+      const promise = translate(contentDetails.key, locale, element).then((result) => {
+        const previousHtml = element.innerHTML
+        contentDetails.contentSetter(element, result)
+        return previousHtml === element.innerHTML ? null : element
+      })
+      promises.push(promise)
+    }
+  }
+
+  return Promise.allSettled(promises).then((promises) => {
+    return promises
+      .map((promise) => promise.status === 'fulfilled' ? promise.value : null)
+      .filter((result) => result != null) as Element[]
+  })
 }
 
 async function translate(text: string, locale: Intl.Locale, context: Element) {
@@ -84,11 +89,13 @@ const attributePrefixPriority = {
   'data-i18n-attribute-': 3,
 }
 
+const dataI18nAttributeMatchRegex = /^(data\-i18n\-(?:attr)?(?:ibute)?-)(.*)$/
+
 function getAttributesToUpdate(element: Element): { [k: string]: string } {
   const attributesToUpdate = {} as { [k: string]: { prefix: string; value: string } }
   for (const attribute of element.attributes) {
     const { name, value } = attribute
-    const match = name.match(/^(data\-i18n\-(?:attr)?(?:ibute)?-)(.*)$/)
+    const match = name.match(dataI18nAttributeMatchRegex)
     if (!match) {
       continue
     }
@@ -155,5 +162,49 @@ function getContentDetailsToUpdate(element: Element): typeof orderedContentAttri
   }
   return notFoundContentDetails
 }
+
+const targetsToUpdateI18n = {
+  elements: new Set() as Set<Element>,
+  subtrees: new Set() as Set<Element>,
+}
+
+let frameRequestNumber: number | undefined = undefined
+const triggerUpdate = () => {
+  const { elements, subtrees } = targetsToUpdateI18n
+  if (elements.size === 0 && subtrees.size === 0) {
+    return
+  }
+
+  const subTreeTargets = [...subtrees].flatMap((root) => [...root.querySelectorAll('*')])
+  const targets = [...elements, ...subTreeTargets]
+  elements.clear()
+  subtrees.clear()
+  frameRequestNumber = undefined
+  updateI18nOnElements(new Set(targets))
+}
+
+const observer = new MutationObserver((records) => {
+  for (const record of records) {
+    const { target, type } = record
+
+    if (!(target instanceof Element) || type !== 'attributes') {
+      continue
+    }
+
+    const { attributeName } = record
+    if (!attributeName) continue
+    if (record.oldValue === target.getAttribute(attributeName)) continue
+    if (attributeName === 'lang') {
+      targetsToUpdateI18n.elements.add(target)
+      targetsToUpdateI18n.subtrees.add(target)
+    } else if (Object.hasOwn(contentAttributeDetails, attributeName) || attributeName.match(dataI18nAttributeMatchRegex)) {
+      targetsToUpdateI18n.elements.add(target)
+    }
+    if(!frameRequestNumber){
+      frameRequestNumber = requestAnimationFrame(triggerUpdate)
+    }
+})
+
+const mutationProperties = Object.freeze({ attributes: true, subtree: true } as MutationObserverInit)
 
 export default I18nContainerElement
