@@ -2,7 +2,6 @@ import {HighlightStyle, syntaxHighlighting} from '@codemirror/language';
 import {tags}                               from '@lezer/highlight';
 import { EditorView} from "codemirror"
 import {json} from "@codemirror/lang-json"
-import { basicDark } from 'cm6-theme-basic-dark'
 
 
 const fg = "var(--code-color)"
@@ -26,7 +25,7 @@ export const theme = EditorView.theme({
         caretColor: cursor
     },
     '.cm-cursor, .cm-dropCursor': { borderLeftColor: cursor },
-    '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': { backgroundColor: selection },
+    '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-content ::selection': { backgroundColor: selection },
     '.cm-panels': { backgroundColor: darkBackground, color: base03 },
     '.cm-panels.cm-panels-top': { borderBottom: '2px solid black' },
     '.cm-panels.cm-panels-bottom': { borderTop: '2px solid black' },
@@ -94,7 +93,6 @@ export const highlightStyle = HighlightStyle.define([
   { tag: tags.operator,  class: 'cmt-operator'  },
   { tag: tags.separator, class: 'cmt-separator' },
   { tag: tags.string,    class: 'cmt-string'    },
-  { tag: tags.name,      class: 'cmt-name'      },
   { tag: tags.name,      class: 'cmt-name'      },
 ]);
 
