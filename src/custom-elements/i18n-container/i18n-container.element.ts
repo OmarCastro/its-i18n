@@ -200,7 +200,7 @@ const observer = new MutationObserver((records) => {
     } else if (Object.hasOwn(contentAttributeDetails, attributeName) || attributeName.match(dataI18nAttributeMatchRegex)) {
       targetsToUpdateI18n.elements.add(target)
     }
-    if(!frameRequestNumber){
+    if (!frameRequestNumber) {
       frameRequestNumber = requestAnimationFrame(triggerUpdate)
     }
   }
