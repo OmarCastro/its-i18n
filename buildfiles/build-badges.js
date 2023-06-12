@@ -1,16 +1,68 @@
 import { makeBadge } from 'badge-maker'
 import { readFile as fsReadFile, writeFile } from 'node:fs/promises'
+import { JSDOM } from 'jsdom'
+const jsdom = new JSDOM('<body></body>', { url: import.meta.url });
+/** @type {Document} */
+const document = jsdom.window.document
+const body = document.body
 
 const projectPath = new URL('../',import.meta.url).pathname;
 
 const readFile = (path) => fsReadFile(path, {encoding: "utf8" })
 
+const colors = {
+	green: '#007700',
+	yellow: '#777700',
+	orange: '#aa0000',
+	red: '#aa0000',
+}
+
+const lightVersion = {
+	[colors.green]: '#44cc44',
+	[colors.yellow]: '#dddd44',
+	[colors.orange]: '#ffaa77',
+	[colors.red]: '#ff7777',
+}
+
 function badgeColor(pct){
-  if(pct > 80){ return '#007700' }
-  if(pct > 60){ return '#777700' }
-  if(pct > 40){ return '#883300' }
-  if(pct > 20){ return '#aa0000' }
+  if(pct > 80){ return colors.green }
+  if(pct > 60){ return colors.yellow }
+  if(pct > 40){ return colors.orange }
+  if(pct > 20){ return colors.red }
   return 'red'
+}
+
+
+
+const applyA11yTheme = (svgContent) => {
+	body.innerHTML = svgContent
+	const svg = body.querySelector("svg")
+	if(!svg){ return svgContent }
+	const style = document.createElement("style");
+	svg.prepend(style)
+	svg.querySelectorAll("text").forEach(el => el.removeAttribute("fill"))
+	let color = colors.red
+	svg.querySelectorAll("rect").forEach((el, index) => {
+		if(index <= 0){
+			el.classList.add("label");
+		} else {
+			color = el.getAttribute("fill") || colors.red
+		}
+		el.removeAttribute("fill")
+	})
+	style.innerHTML = `
+	text { fill: #000; }
+	rect.label { fill: #aaa; }
+	rect { fill: ${lightVersion[color] || color} }
+
+	@media (prefers-color-scheme: dark) {
+		text { fill: #fff; }
+		rect.label { fill: #555; }
+		rect { fill: ${color} }
+	}	
+	`.replaceAll(/\n+\s*/g, "")
+
+	return svg.outerHTML
 }
 
 async function makeBadgeForCoverages(path){
@@ -23,6 +75,7 @@ async function makeBadgeForCoverages(path){
 	})
 	
 	await writeFile(`${path}/coverage-badge.svg`, svg);
+	await writeFile(`${path}/coverage-badge-a11y.svg`, applyA11yTheme(svg));
   }
 
   async function makeBadgeForTestResult(path){
@@ -40,6 +93,8 @@ async function makeBadgeForCoverages(path){
 	})
 	
 	await writeFile(`${path}/test-results-badge.svg`, svg);
+	await writeFile(`${path}/test-results-badge-a11y.svg`, applyA11yTheme(svg));
+
   }
 
   async function makeBadgeForLicense(){
@@ -53,6 +108,7 @@ async function makeBadgeForCoverages(path){
 	})
 	
 	await writeFile(`${projectPath}/reports/license-badge.svg`, svg);
+	await writeFile(`${projectPath}/reports/license-badge-a11y.svg`, applyA11yTheme(svg));
   }
   
   
