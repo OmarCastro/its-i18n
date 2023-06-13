@@ -22,7 +22,8 @@ const tooltipBackground =bg
 export const theme = EditorView.theme({
 
     '.cm-content': {
-        caretColor: cursor
+        caretColor: cursor,
+        padding: "1em"
     },
     '.cm-cursor, .cm-dropCursor': { borderLeftColor: cursor },
     '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-content ::selection': { backgroundColor: selection },
@@ -33,6 +34,9 @@ export const theme = EditorView.theme({
         backgroundColor: base02,
         outline: `1px solid ${base03}`,
         color: base07
+    },
+    '.cm-line': {
+        padding: 0,
     },
     '.cm-searchMatch.cm-searchMatch-selected': {
         backgroundColor: base05,

@@ -3,15 +3,22 @@
 
 html {
     --bg-color: #dddcdf;
+    --bg-color-active: #edecef;
     --fg-color: #303540;
+    --fg-color-disabled: #404550;
     --resizable-border-color: #303540;
+    --tab-active-color: #007299;
 }
 
 @media (prefers-color-scheme: dark) {
     html {
         --bg-color: #303540;
+        --bg-color-active: #292d30;
         --fg-color: #dddcdf;
+        --fg-color-disabled: #ccc;
         --resizable-border-color: #dddcdf;
+        --tab-active-color: chocolate;
+
     }
 }
 
@@ -80,13 +87,14 @@ label:has(.checkbox--ui-mode:checked) + .resizable {
 }
 
 .example__json, .example__html, .example__view {
-    flex-grow: 1;
+    flex: 0 0 30%;
     margin-left: 0.2em;
     margin-right: 0.2em;
 }
 
 .example__json .editor {
     border: #aaa 1px solid;
+    z-index: 2;
 }
 
 span[contenteditable="true"] {
@@ -126,24 +134,27 @@ color-wheel:not(:defined) {
 
 .example__tabs {
     line-height: 2;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    white-space: nowrap;
 }
 
 .example__tabs input {
     display: none;
-    cursor: pointer;
 }
 
 .example__tabs input ~ span {
-    color: #aaa;
+    color: var(--fg-color-disabled);
     padding: 0.2em 1em;
     border: transparent 2px solid;
     padding-bottom: 1em;
+    cursor: pointer;
 }
 
 .example__tabs input:checked ~ span {
-    color: #fff;
-    background: #292d30;
+    color: var(--fg-color);
+    background: var(--bg-color-active);
     border: #aaa 1px solid;
-    border-top-color: chocolate;
+    border-top-color: var(--tab-active-color);
     border-top-width: 2px;
+    cursor: initial;
 }

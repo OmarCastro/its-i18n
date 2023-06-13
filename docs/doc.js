@@ -1,5 +1,3 @@
-import {basicSetup, EditorView} from "codemirror"
-import {json} from "@codemirror/lang-json"
 import I18nElement from "../src/custom-elements/i18n-container/i18n-container.element"
 import {setStoreFromElement} from "../src/utils/store-map/store-map"
 import { extension } from "./code-editor.element.js"
@@ -11,7 +9,10 @@ customElements.define("i18n-container", I18nElement)
 
 
 
-function applyExample(exampleObject, editorElement){
+async function applyExample(exampleObject, editorElement){
+  const {minimalSetup, EditorView} = await import("codemirror")
+  const {json} = await import("@codemirror/lang-json") 
+
   const exampleContainer = editorElement.closest('.example')
   if(!exampleContainer){ return }
 
@@ -31,7 +32,7 @@ function applyExample(exampleObject, editorElement){
   const editorView = new EditorView({
     doc: JSON.stringify(exampleObject.es, null, 2),
     extensions: [
-      basicSetup,
+      minimalSetup,
       json(),
       extension,
       EditorView.updateListener.of(function(e) {
@@ -53,6 +54,8 @@ function applyExample(exampleObject, editorElement){
     ],
     parent: editorElement
   })
+
+  editorElement.querySelectorAll(":scope > :not(.cm-editor)").forEach(el => el.remove())
 
 
 
@@ -113,7 +116,7 @@ const multiLangExamples = {
   },
   pt: {
     "hello mouse": "olá rato",
-    "I am portuguese": "sou portugês",
+    "I am portuguese": "sou português",
     "I am spanish": "sou espanhol",
     "I am english": "sou inglês",
   }

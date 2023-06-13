@@ -46,6 +46,8 @@
         }
 }
 
+
+
  code[class*="language-"],
  pre[class*="language-"] {
    color: var(--code-color);
@@ -56,7 +58,7 @@
    word-spacing: normal;
    word-break: normal;
    word-wrap: normal;
-   line-height: normal;
+   line-height: 1.4;
    tab-size: 4;
    hyphens: none;
  }
@@ -68,6 +70,12 @@
    overflow: auto;
    border-radius: 0.3em;
  }
+
+ .editor pre[class*="language-"] {
+  margin: 0;
+  z-index: 2;
+  isolation: isolate;
+}
 
 :is(pre,code)[class*="language-"]::selection,
 :is(pre,code)[class*="language-"]::-moz-selection,
