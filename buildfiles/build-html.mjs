@@ -24,7 +24,9 @@ if(document == null){
     throw "error parsing document"
 }
 //@ts-ignore
-await import('prismjs/plugins/keep-markup/prism-keep-markup.js');
+await import('prismjs/plugins/keep-markup/prism-keep-markup.js')
+//@ts-ignore
+await import('prismjs/components/prism-json.js')
 
 const exampleCode =  (strings, ...expr) => {
 
@@ -58,6 +60,12 @@ queryAll("script.css-example").forEach(element => {
   pre.innerHTML = exampleCode`<code class="language-css keep-markup">${dedent(element.innerHTML)}</code>`
   element.replaceWith(pre)
 })
+
+queryAll("script.json-example").forEach(element => {
+	const pre = document.createElement("pre")
+	pre.innerHTML = exampleCode`<code class="language-json keep-markup">${dedent(element.innerHTML)}</code>`
+	element.replaceWith(pre)
+  })
 
 queryAll("code").forEach(element => {
   Prism.highlightElement(element, false)
