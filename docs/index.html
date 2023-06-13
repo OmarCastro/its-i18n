@@ -86,17 +86,33 @@
             </div>
             <div class="example__json">
                 <div class="example__tabs">
-                    <label><input type="radio" name="example--basic" checked><span data-lang="es">es.json</span></label>
-                    <label><input type="radio" name="example--basic"><span data-lang="en">en.json</span></label>
-                    <label><input type="radio" name="example--basic"><span data-lang="pt">pt.json</span></label>
-                  </div>
-                <div class="editor">
-                    <script type="text/plain" class="json-example">
-                        {
-                          "hello world": "hola mundo",
-                          "hello mouse": "hola ratón"
-                        }
-                    </script>
+                    <input type="radio" class="tab" name="example--basic" data-tab-label="es.json" checked>
+                    <input type="radio" class="tab" name="example--basic" data-tab-label="en.json">
+                    <input type="radio" class="tab" name="example--basic" data-tab-label="pt.json">
+                    <div class="editor tab-content" data-lang="es">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hola mundo",
+                              "hello mouse": "hola ratón"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hello world",
+                              "hello mouse": "hello mouse" 
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "olá mundo",
+                              "hello mouse": "olá rato" 
+                            }
+                        </script>
+                    </div>
                 </div>
             </div>
             <div class="example__html">
@@ -128,20 +144,40 @@
             </div>
             <div class="example__json">
                 <div class="example__tabs">
-                    <label><input type="radio" name="example--multi-lang" checked><span data-lang="es">es.json</span></label>
-                    <label><input type="radio" name="example--multi-lang"><span data-lang="en">en.json</span></label>
-                    <label><input type="radio" name="example--multi-lang"><span data-lang="pt">pt.json</span></label>
+                    <input type="radio" class="tab" name="example--multi-lang" data-tab-label="es.json" checked>
+                    <input type="radio" class="tab" name="example--multi-lang" data-tab-label="en.json">
+                    <input type="radio" class="tab" name="example--multi-lang" data-tab-label="pt.json">
+                    <div class="editor tab-content" data-lang="es">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello mouse": "hola ratón",
+                              "I am portuguese": "soy portugués",
+                              "I am spanish": "soy español",
+                              "I am english": "soy inglés"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello mouse": "hello mouse",
+                              "I am portuguese": "I am portuguese",
+                              "I am spanish": "I am spanish",
+                              "I am english": "I am english"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello mouse": "olá rato",
+                              "I am portuguese": "sou português",
+                              "I am spanish": "sou espanhol",
+                              "I am english": "sou inglês"
+                            }
+                        </script>
+                    </div>
                   </div>
-                <div class="editor">
-                    <script type="text/plain" class="json-example">
-                        {
-                          "hello mouse": "hola ratón",
-                          "I am portuguese": "soy portugués",
-                          "I am spanish": "soy español",
-                          "I am english": "soy inglés"
-                        }
-                    </script>
-                </div>
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">

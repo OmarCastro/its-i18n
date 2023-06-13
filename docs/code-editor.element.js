@@ -1,6 +1,7 @@
 import {HighlightStyle, syntaxHighlighting} from '@codemirror/language';
 import {tags}                               from '@lezer/highlight';
-import { EditorView} from "codemirror"
+import {highlightSpecialChars, drawSelection, EditorView, keymap} from '@codemirror/view';
+import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
 import {json} from "@codemirror/lang-json"
 
 
@@ -100,5 +101,39 @@ export const highlightStyle = HighlightStyle.define([
   { tag: tags.name,      class: 'cmt-name'      },
 ]);
 
-export const extension = [syntaxHighlighting(highlightStyle), theme]
+
+const baseExtensions = [
+    highlightSpecialChars(),
+    history(),
+    drawSelection(),
+    keymap.of([
+        ...defaultKeymap,
+        ...historyKeymap,
+    ]),
+    json(),
+    syntaxHighlighting(highlightStyle), 
+    theme,
+
+]
+
+
+
+
+/**
+ * 
+ * @param {object} param0
+ * @param {string} param0.doc
+ * @param {Element} param0.parent
+ * @param {Parameters<typeof EditorView.updateListener.of>[0]} [param0.onChange]
+ * 
+ *  
+ * @returns 
+ */
+export function createEditorView({doc, parent, onChange}){
+    return new EditorView({
+        doc: doc,
+        extensions: onChange ? baseExtensions.concat(EditorView.updateListener.of(onChange)) : baseExtensions,
+        parent,
+      })
+}
 

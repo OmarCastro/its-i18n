@@ -75,6 +75,7 @@
   margin: 0;
   z-index: 2;
   isolation: isolate;
+  position: relative;
 }
 
 :is(pre,code)[class*="language-"]::selection,
@@ -192,8 +193,10 @@
  */
 
  .cm-editor, .cm-view{
+  z-index: 2;
   color: var(--code-color);
   background: var(--code-bg);
+  border-radius: 0.3em;
  }
 
  :is(.cm-editor, .cm-view) .cmt-atom      {color: #221199;}

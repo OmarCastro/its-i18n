@@ -94,7 +94,7 @@ label:has(.checkbox--ui-mode:checked) + .resizable {
 
 .example__json .editor {
     border: #aaa 1px solid;
-    z-index: 2;
+    border-radius: 0.3em;
 }
 
 span[contenteditable="true"] {
@@ -122,12 +122,6 @@ pre:hover code span[contenteditable="true"]::before {
     opacity: 1;
 }
 
-color-wheel:not(:defined) {
-    display: inline-block;
-    width: calc(11.2cm + 12px);
-    height: calc(11.2cm + 12px);
-}
-
 .example .cm-editor .cm-scroller{
     font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
 }
@@ -136,21 +130,53 @@ color-wheel:not(:defined) {
     line-height: 2;
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     white-space: nowrap;
+    display: grid;
+    grid-template-columns: repeat(5, fit-content(30%)) auto;
+    grid-template-rows: auto;
+    grid-template-areas: 
+        "tab1 tab2 tab3 tab4 tab5 ."
+        "cont cont cont cont cont cont";
 }
 
-.example__tabs input {
+.example__tabs > .tab:nth-of-type(1){ grid-area: tab1 }
+.example__tabs > .tab:nth-of-type(2){ grid-area: tab2 }
+.example__tabs > .tab:nth-of-type(3){ grid-area: tab3 }
+.example__tabs > .tab:nth-of-type(4){ grid-area: tab4 }
+.example__tabs > .tab:nth-of-type(5){ grid-area: tab5 }
+
+.example__tabs > .tab:nth-of-type(1):checked ~ .tab-content:nth-of-type(1),
+.example__tabs > .tab:nth-of-type(2):checked ~ .tab-content:nth-of-type(2),
+.example__tabs > .tab:nth-of-type(3):checked ~ .tab-content:nth-of-type(3),
+.example__tabs > .tab:nth-of-type(4):checked ~ .tab-content:nth-of-type(4),
+.example__tabs > .tab:nth-of-type(5):checked ~ .tab-content:nth-of-type(5){
+    display: initial;
+}
+
+
+.example__tabs > .tab-content {
+    grid-area: cont;
     display: none;
 }
 
-.example__tabs input ~ span {
-    color: var(--fg-color-disabled);
-    padding: 0.2em 1em;
-    border: transparent 2px solid;
-    padding-bottom: 1em;
-    cursor: pointer;
+.example__tabs .tab {
+    display: inline-block;
+    appearance: none;
+    z-index: 1;
 }
 
-.example__tabs input:checked ~ span {
+.example__tabs > .tab::after {
+    content: attr(data-tab-label);
+    color: var(--fg-color-disabled);
+    font-size: 1.4em;
+    padding: 0.2em 1em;
+    border: transparent 1px solid;
+    border-top-width: 0;
+    padding-bottom: 1em;
+    cursor: pointer;
+    font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+}
+
+.example__tabs input:checked::after {
     color: var(--fg-color);
     background: var(--bg-color-active);
     border: #aaa 1px solid;
