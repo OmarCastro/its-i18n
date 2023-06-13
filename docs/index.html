@@ -5,7 +5,7 @@
         <meta name="description" content="documentation of 'it's i18n' component">
         <meta name="keywords" content="i18n webcomponents">
         <link rel="stylesheet" href="doc.css" ss:inline>
-        <script src="doc.js" async></script>
+        <script type="module" src="doc.js" async></script>
         <meta name="viewport" content="width=device-width">
     </head>
     <body>
@@ -17,13 +17,13 @@
 
         <section style="text-align:center" class="badges-section">
             <a href="reports/coverage/unit" aria-label="Show test code coverage information">
-                <img src="reports/coverage/unit/coverage-badge-a11y.svg" ss:size ss:badge-attrs></img>
+                <svg ss:include="reports/coverage/unit/coverage-badge-a11y.svg"></svg>
             </a>
             <a href="reports/playwright-report" aria-label="Show test results">
-                <img src="reports/test-results/test-results-badge-a11y.svg" ss:size ss:badge-attrs></img>
+                <svg ss:include="reports/test-results/test-results-badge-a11y.svg"></svg>
             </a>
             <a href="https://github.com/OmarCastro/its-i18n" aria-label="go to Github repository" title="go to Github repository">
-                <img src="reports/license-badge-a11y.svg" ss:size ss:badge-attrs></img>
+                <svg ss:include="reports/license-badge-a11y.svg"></svg>
             </a>
             <!--a href="https://github.com/OmarCastro/its-a-color-wheel" aria-label="go to Github repository" title="go to Github repository">
                 <img src="https://img.shields.io/github/v/release/OmarCastro/its-i18n?style=for-the-badge" alt="project version" height="30" width="150" ></img>
@@ -90,7 +90,14 @@
                     <label><input type="radio" name="example--basic"><span data-lang="en">en.json</span></label>
                     <label><input type="radio" name="example--basic"><span data-lang="pt">pt.json</span></label>
                   </div>
-                <div class="editor"></div>
+                <div class="editor">
+                    <script type="text/plain" class="json-example">
+                        {
+                          "hello world": "hola mundo",
+                          "hello mouse": "hola ratón"
+                        }
+                    </script>
+                </div>
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">
@@ -125,7 +132,16 @@
                     <label><input type="radio" name="example--multi-lang"><span data-lang="en">en.json</span></label>
                     <label><input type="radio" name="example--multi-lang"><span data-lang="pt">pt.json</span></label>
                   </div>
-                <div class="editor"></div>
+                <div class="editor">
+                    <script type="text/plain" class="json-example">
+                        {
+                          "hello mouse": "hola ratón",
+                          "I am portuguese": "soy portugués",
+                          "I am spanish": "soy español",
+                          "I am english": "soy inglés"
+                        }
+                    </script>
+                </div>
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">
