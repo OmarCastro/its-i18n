@@ -18,7 +18,7 @@ const colors = {
 }
 
 const lightVersion = {
-	[colors.green]: '#44cc44',
+	[colors.green]: '#90e59a',
 	[colors.yellow]: '#dddd44',
 	[colors.orange]: '#ffaa77',
 	[colors.red]: '#ff7777',
@@ -51,13 +51,12 @@ const applyA11yTheme = (svgContent) => {
 		el.removeAttribute("fill")
 	})
 	style.innerHTML = `
-	text { fill: #000; }
-	rect.label { fill: #aaa; }
+	text { fill: #333; }
+	rect.label { fill: #ccc; }
 	rect { fill: ${lightVersion[color] || color} }
-
 	@media (prefers-color-scheme: dark) {
 		text { fill: #fff; }
-		rect.label { fill: #555; }
+		rect.label { fill: #555; stroke: none; }
 		rect { fill: ${color} }
 	}	
 	`.replaceAll(/\n+\s*/g, "")
