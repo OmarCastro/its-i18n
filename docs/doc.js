@@ -25,7 +25,6 @@ function updateStore(exampleObject, exampleContainer) {
  * @returns 
  */
 async function applyExample(exampleObject, editorElement){
-  const {createEditorView} = await import("./code-editor.element.js")
 
   const exampleContainer = editorElement.closest('.example')
   if(!exampleContainer){ return }
@@ -33,24 +32,41 @@ async function applyExample(exampleObject, editorElement){
   const lang = editorElement.getAttribute("data-lang")
   if(!lang){ return }
 
-  const editorView = createEditorView({
-    doc: editorElement.textContent || "",
-    onChange: (e) => {
-      try {
-        const value = e.state.doc.toString();
-        const newTranslations = JSON.parse(value)
-        if(JSON.stringify(newTranslations) !== JSON.stringify(exampleObject[lang])){
-          exampleObject[lang] = newTranslations
-          updateStore(exampleObject, exampleContainer)
+  editorElement.addEventListener("click", async function eventListener(event) {
+    const selection = getSelection()
+    if(selection && selection.toString()){
+      return
+    }
+    editorElement.removeEventListener("click", eventListener)
+    const {createEditorView} = await import("./code-editor.element.js")
+    const editorView = createEditorView({
+      doc: editorElement.textContent || "",
+      onChange: (e) => {
+        try {
+          const value = e.state.doc.toString();
+          const newTranslations = JSON.parse(value)
+          if(JSON.stringify(newTranslations) !== JSON.stringify(exampleObject[lang])){
+            exampleObject[lang] = newTranslations
+            updateStore(exampleObject, exampleContainer)
+          }
+        } catch {
+          //ignore
         }
-      } catch {
-        //ignore
-      }
-    },
-    parent: editorElement
+      },
+      parent: editorElement
+    })
+    editorElement.querySelectorAll(":scope > :not(.cm-editor)").forEach(el => el.remove())
+    
+    const {clientX, clientY} = event 
+    requestAnimationFrame(() => {
+      editorView.focus()
+      const anchor = editorView.posAtCoords({x: clientX, y: clientY})
+      anchor != null && editorView.dispatch({selection: {anchor}})  
+    })
+
   })
 
-  editorElement.querySelectorAll(":scope > :not(.cm-editor)").forEach(el => el.remove())
+
 }
 
 

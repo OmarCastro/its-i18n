@@ -9,7 +9,7 @@ mkdir -p build/dist build/docs
 
 # build dist
 npx esbuild "src/entrypoint/browser.ts" --bundle --minify --sourcemap --outfile=build/dist/i18n.element.min.js --format=esm --target=es2022 --loader:.element.html=text --loader:.element.css=text &
-npx esbuild docs/doc.js --bundle --minify --sourcemap --splitting --outdir=build/docs --format=esm --target=es2022 &
+npx esbuild docs/doc.js --bundle --minify --sourcemap --splitting --chunk-names="chunk/[name]-[hash]" --outdir=build/docs --format=esm --target=es2022 &
 npx esbuild docs/doc.css --bundle --minify --sourcemap --outfile=build/docs/doc.css --target=es2022 &
 wait
 

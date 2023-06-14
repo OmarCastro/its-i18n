@@ -113,7 +113,9 @@ const baseExtensions = [
     json(),
     syntaxHighlighting(highlightStyle), 
     theme,
-
+    EditorView.contentAttributes.of((e) => ({
+        "aria-label": "code example"
+    }))
 ]
 
 

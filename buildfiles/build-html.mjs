@@ -1,4 +1,5 @@
 import Prism from 'prismjs'
+import { globSync } from 'glob'
 import {minify} from 'html-minifier'
 import {imageSize} from 'image-size'
 
@@ -15,10 +16,13 @@ const jsdom = await import("jsdom");
 const dom = new jsdom.JSDOM(data, {
 	url: import.meta.url
 });
-globalThis.window = dom.window
-globalThis.document = dom.window.document
+/** @type {Window} */
+const window = dom.window;
+const document = window.document;
 
-const document = dom.window.document;
+globalThis.window = dom.window
+globalThis.document = document
+
 
 if(document == null){
     throw "error parsing document"
@@ -46,7 +50,10 @@ const exampleCode =  (strings, ...expr) => {
   return statement
 }
 
-
+/**
+ * @param {string} selector 
+ * @returns 
+ */
 const queryAll = (selector) => [...document.documentElement.querySelectorAll(selector)]
 
 queryAll("script.html-example").forEach(element => {
@@ -93,15 +100,36 @@ queryAll("img[ss:badge-attrs]").forEach(element => {
   div.innerHTML = svgText
   element.removeAttribute("ss:badge-attrs")
   const svg = div.querySelector("svg")
-  element.setAttribute("alt", svg.getAttribute("aria-label"))
-  element.setAttribute("title", svg.querySelector("title").textContent)
+  if(!svg){ throw Error(`${docsOutputPath}/${imageSrc} is not a valid svg`) }
+
+  const alt = svg.getAttribute("aria-label")
+  if(alt){ element.setAttribute("alt", alt) }
+
+  const title = svg.querySelector("title")?.textContent
+  if(title){ element.setAttribute("title", title) }  
 })
 
 queryAll('link[href][rel="stylesheet"][ss:inline]').forEach(element => {
-  const ssInclude = element.getAttribute("href")
-  const cssText = fs.readFileSync(`${docsOutputPath}/${ssInclude}`, 'utf8');
+  const href = element.getAttribute("href")
+  const cssText = fs.readFileSync(`${docsOutputPath}/${href}`, 'utf8');
   element.outerHTML = `<style>${cssText}</style>`
 })
+
+
+queryAll('link[href][ss:repeat-glob]').forEach(element => {
+	const href = element.getAttribute("href")
+	if(!href){ return }
+	globSync(href, {cwd: docsOutputPath}).forEach(value => {
+		const link = document.createElement("link")
+		for (const {name, value} of element.attributes) {
+			link.setAttribute(name, value)
+		}
+		link.removeAttribute("ss:repeat-glob")
+		link.setAttribute("href", value)
+		element.insertAdjacentElement("afterend", link)
+	})
+	element.remove()
+  })
 
 const minifiedHtml = minify("<!DOCTYPE html>" + document.documentElement?.outerHTML || "", {
   removeAttributeQuotes: true,

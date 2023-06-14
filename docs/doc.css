@@ -165,7 +165,7 @@ pre:hover code span[contenteditable="true"]::before {
 }
 
 .example__tabs > .tab::after {
-    content: attr(data-tab-label);
+    content: attr(aria-label);
     color: var(--fg-color-disabled);
     font-size: 1.4em;
     padding: 0.2em 1em;

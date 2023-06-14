@@ -6,6 +6,7 @@
         <meta name="keywords" content="i18n webcomponents">
         <link rel="stylesheet" href="doc.css" ss:inline>
         <script type="module" src="doc.js" async></script>
+        <link rel="modulepreload" href="chunk/*.js" as="script" ss:repeat-glob>
         <meta name="viewport" content="width=device-width">
     </head>
     <body>
@@ -86,9 +87,9 @@
             </div>
             <div class="example__json">
                 <div class="example__tabs">
-                    <input type="radio" class="tab" name="example--basic" data-tab-label="es.json" checked>
-                    <input type="radio" class="tab" name="example--basic" data-tab-label="en.json">
-                    <input type="radio" class="tab" name="example--basic" data-tab-label="pt.json">
+                    <input type="radio" class="tab" name="example--basic" aria-label="es.json" checked>
+                    <input type="radio" class="tab" name="example--basic" aria-label="en.json">
+                    <input type="radio" class="tab" name="example--basic" aria-label="pt.json">
                     <div class="editor tab-content" data-lang="es">
                         <script type="text/plain" class="json-example">
                             {
@@ -144,9 +145,9 @@
             </div>
             <div class="example__json">
                 <div class="example__tabs">
-                    <input type="radio" class="tab" name="example--multi-lang" data-tab-label="es.json" checked>
-                    <input type="radio" class="tab" name="example--multi-lang" data-tab-label="en.json">
-                    <input type="radio" class="tab" name="example--multi-lang" data-tab-label="pt.json">
+                    <input type="radio" class="tab" name="example--multi-lang" aria-label="es.json" checked>
+                    <input type="radio" class="tab" name="example--multi-lang" aria-label="en.json">
+                    <input type="radio" class="tab" name="example--multi-lang" aria-label="pt.json">
                     <div class="editor tab-content" data-lang="es">
                         <script type="text/plain" class="json-example">
                             {
