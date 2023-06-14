@@ -119,7 +119,7 @@
             <div class="example__html">
                 <script type="text/plain" class="html-example">
                     <{{elementName}} lang="{{es:lang}}">
-                       <button data-i18n--title="hello mouse" data-i18n="hello world">hover me</button>
+                       <button data-i18n--title="hello mouse" data-i18n="{{hello world:data-i18n}}">hover me</button>
                     </{{elementName}}>
                 </script>
     
@@ -194,6 +194,50 @@
                         </div>
                        <button data-i18n--title="hello mouse" data-i18n="hello world">hover me</button>
                     </{{elementName}}>
+                </script>
+    
+                </div>
+        </div>
+
+
+        <h3> Pluralization </h3>
+
+        <div class="example example--pluralization">
+            <div class="example__view">
+                <i18n-container lang="pt">
+                    <span title="lorem ipsum" data-i18n="I bought 2 carrots"></span>
+                </i18n-container>
+            </div>
+            <div class="example__json">
+                <div class="example__tabs">
+                    <input type="radio" class="tab" name="example--pluralization" aria-label="pt.json" checked>
+                    <input type="radio" class="tab" name="example--pluralization" aria-label="en.json">
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "I bought 0 carrots": "Não comprei cenouras",
+                              "I bought 1 carrots": "Comprei 1 cenoura",
+                              "I bought {number} carrots": "Comprei {0} cenouras"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "I bought 0 carrots": "I did not buy carrots",
+                              "I bought 1 carrots": "I bought 1 carrot",
+                              "I bought {number} carrots": "I bought {0} carrots"
+                            }
+  
+                        </script>
+                    </div>
+                  </div>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                   <{{elementName}} lang="{{pt:lang}}">
+                       <span title="lorem ipsum" data-i18n="{{I bought 2 carrots:data-i18n}}"></span>
+                   </{{elementName}}>
                 </script>
     
                 </div>

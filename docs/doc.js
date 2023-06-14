@@ -70,7 +70,7 @@ async function applyExample(exampleObject, editorElement){
 }
 
 
-document.querySelectorAll('.example--basic').forEach(element => {
+document.querySelectorAll('.example--basic, .example--pluralization').forEach(element => {
   const exampleObj = {}
 
   element.querySelectorAll('.example__json .editor').forEach(element => {
@@ -83,10 +83,14 @@ document.querySelectorAll('.example--basic').forEach(element => {
 
   element.addEventListener("input", (event) => {
     if(event.target.matches(".lang-edit")){
-      const node = element.querySelector("i18n-container")
+      const node = element.querySelector("[lang]")
       node && node.setAttribute("lang", event.target.textContent)
     }
-  })
+    if(event.target.matches(".data-i18n-edit")){
+      const node = element.querySelector("[data-i18n]")
+      node && node.setAttribute("data-i18n", event.target.textContent)
+    }
+})
   
 })
 
