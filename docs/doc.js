@@ -89,7 +89,8 @@ document.querySelectorAll('.example').forEach(element => {
       node && node.setAttribute("lang", event.target.textContent)
     }
     if(event.target.matches(".data-i18n-edit")){
-      const node = element.querySelector("[data-i18n]")
+      const selector = event.target.getAttribute("data-bind-selector") || "[data-i18n]"
+      const node = element.querySelector(selector)
       node && node.setAttribute("data-i18n", event.target.textContent)
     }
   })
