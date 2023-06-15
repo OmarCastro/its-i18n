@@ -155,6 +155,15 @@ function getFormatterFromTokens(tokens: Token[]) {
       return reducerAcc.result
     })
   }
+
+  /*
+    template strings format works the same way, starts with a string and ends with a string, even
+    if it ends with a parameter
+  */
+  if (strings.length === formatters.length) {
+    strings.push('')
+  }
+
   return formatterWithFormat({ strings, formatters })
 }
 

@@ -66,7 +66,7 @@ const baseTimeCaptureExpressions = {
     value: 550,
     matchPredicate: () => (text: string) => isNumeric(text),
     defaultFormat: (text: string, locale: Intl.Locale) => {
-      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date(+text))
+      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date((+text) * 1000))
     },
     isConstant: false,
   },
@@ -84,8 +84,17 @@ const baseTimeCaptureExpressions = {
     value: 500,
     matchPredicate: () => (text: string) => isNumeric(text) || !isNaN(parseISO8601(text)),
     defaultFormat: (text: string, locale: Intl.Locale) => {
-      const date = isNumeric(text) ? new Date(+text) : parseISO8601(text)
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
+    },
+    isConstant: false,
+  },
+
+  'unix millis': {
+    value: 550,
+    matchPredicate: () => (text: string) => isNumeric(text),
+    defaultFormat: (text: string, locale: Intl.Locale) => {
+      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date(+text))
     },
     isConstant: false,
   },
