@@ -168,22 +168,22 @@ const targetsToUpdateI18n = {
   subtrees: new Set() as Set<Element>,
 }
 
-let frameRequestNumber: number | undefined = undefined
-const triggerUpdate = () => {
+function triggerUpdate() {
   const { elements, subtrees } = targetsToUpdateI18n
   if (elements.size === 0 && subtrees.size === 0) {
     return
   }
 
   const subTreeTargets = [...subtrees].flatMap((root) => [...root.querySelectorAll('*')])
-  const targets = [...elements, ...subTreeTargets]
+  const targets = new Set([...elements, ...subTreeTargets])
   elements.clear()
   subtrees.clear()
-  frameRequestNumber = undefined
-  updateI18nOnElements(new Set(targets))
+  updateI18nOnElements(targets)
 }
 
-const observer = new MutationObserver((records) => {
+let frameRequestNumber: number | undefined
+function observerCallback(records) {
+  const { elements, subtrees } = targetsToUpdateI18n
   for (const record of records) {
     const { target, type } = record
 
@@ -195,16 +195,22 @@ const observer = new MutationObserver((records) => {
     if (!attributeName) continue
     if (record.oldValue === target.getAttribute(attributeName)) continue
     if (attributeName === 'lang') {
-      targetsToUpdateI18n.elements.add(target)
-      targetsToUpdateI18n.subtrees.add(target)
+      elements.add(target)
+      subtrees.add(target)
     } else if (Object.hasOwn(contentAttributeDetails, attributeName) || attributeName.match(dataI18nAttributeMatchRegex)) {
-      targetsToUpdateI18n.elements.add(target)
-    }
-    if (frameRequestNumber === undefined) {
-      frameRequestNumber = requestAnimationFrame(triggerUpdate)
+      elements.add(target)
     }
   }
-})
+
+  if (frameRequestNumber === undefined && (elements.size > 0 || subtrees.size > 0)) {
+    frameRequestNumber = requestAnimationFrame(() => {
+      frameRequestNumber = undefined
+      triggerUpdate()
+    })
+  }
+}
+
+const observer = new MutationObserver(observerCallback)
 
 const mutationProperties = Object.freeze({ attributes: true, subtree: true } as MutationObserverInit)
 
