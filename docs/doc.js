@@ -38,7 +38,7 @@ async function applyExample(exampleObject, editorElement){
       return
     }
     editorElement.removeEventListener("click", eventListener)
-    const {createEditorView} = await import("./code-editor.element.js")
+    const {createEditorView} = await import("./code-editor.lazy.js")
     const editorView = createEditorView({
       doc: editorElement.textContent || "",
       onChange: (e) => {

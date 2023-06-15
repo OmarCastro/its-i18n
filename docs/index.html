@@ -6,7 +6,8 @@
         <meta name="keywords" content="i18n webcomponents">
         <link rel="stylesheet" href="doc.css" ss:inline>
         <script type="module" src="doc.js" async></script>
-        <link rel="modulepreload" href="chunk/*.js" as="script" ss:repeat-glob>
+        <link rel="modulepreload" href="chunk/!(*.lazy.)*.js" as="script" ss:repeat-glob>
+        <link rel="modulepreload" href="chunk/*.lazy.*.js" as="script" fetchpriority="low" ss:repeat-glob>
         <meta name="viewport" content="width=device-width">
     </head>
     <body>
