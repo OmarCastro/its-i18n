@@ -247,7 +247,7 @@
 
         <div class="example example--date">
             <div class="example__view">
-                <i18n-container lang="pt">
+                <i18n-container lang="en-GB">
                     <p class="unix-timestamp" data-i18n="date using timestamp - 1686862473"></p>
                     <p class="iso-8601" data-i18n="date using ISO 8601 - 2023-06-15T20:55:37.313Z"></p>
                     <p class="date" data-i18n="or both ways - 0"></p>
@@ -255,17 +255,8 @@
             </div>
             <div class="example__json">
                 <div class="example__tabs">
-                    <input type="radio" class="tab" name="example--date" aria-label="pt.json" checked>
-                    <input type="radio" class="tab" name="example--date" aria-label="en.json">
-                    <div class="editor tab-content" data-lang="pt">
-                        <script type="text/plain" class="json-example">
-                            {
-                                "date using timestamp - {unix timestamp}": "data usando timestamp: {0}",
-                                "date using ISO 8601 - {iso 8601}": "data usando ISO 8601: {0}",
-                                "or both ways - {date}": "ou das duas formas: {0}"
-                            }
-                        </script>
-                    </div>
+                    <input type="radio" class="tab" name="example--date" aria-label="en.json" checked>
+                    <input type="radio" class="tab" name="example--date" aria-label="pt.json">
                     <div class="editor tab-content" data-lang="en">
                         <script type="text/plain" class="json-example">
                             {
@@ -275,17 +266,26 @@
                             }
                         </script>
                     </div>
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                                "date using timestamp - {unix timestamp}": "data usando timestamp: {0}",
+                                "date using ISO 8601 - {iso 8601}": "data usando ISO 8601: {0}",
+                                "or both ways - {date}": "ou das duas formas: {0}"
+                            }
+                        </script>
+                    </div>
                   </div>
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">
-                   <{{elementName}} lang="{{pt¦lang}}">
+                   <{{elementName}} lang="{{en-GB¦lang}}">
                    
                    <p class="unix-timestamp" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.unix-timestamp}}"></p>
                    
-                   <p class="iso-8601" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.iso-8601}}""></p>
+                   <p class="iso-8601" data-i18n="{{date using timestamp - date using ISO 8601 - 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}""></p>
                    
-                   <p class="date" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.date}}""></p>
+                   <p class="date" data-i18n="{{or both ways - 0¦data-i18n¦.date}}""></p>
                   </{{elementName}}>
                 </script>
             </div>
