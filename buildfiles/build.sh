@@ -1,6 +1,10 @@
 #!/bin/sh
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$DIR"/..
+
+# run tests
+buildfiles/test.sh
+
 rm -rf build
 
 # build dist & doumentation
@@ -14,10 +18,6 @@ npx esbuild docs/doc.css --bundle --minify --sourcemap --outfile=build/docs/doc.
 wait
 
 cp -r build/dist build/docs/dist
-
-
-# run tests
-buildfiles/test.sh
 
 # publish reports in docs
 cp -R reports build/docs/reports

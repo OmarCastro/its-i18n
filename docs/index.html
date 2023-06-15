@@ -119,8 +119,8 @@
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">
-                    <{{elementName}} lang="{{es:lang}}">
-                       <button data-i18n--title="hello mouse" data-i18n="{{hello world:data-i18n}}">hover me</button>
+                    <{{elementName}} lang="{{es¦lang}}">
+                       <button data-i18n--title="hello mouse" data-i18n="{{hello world¦data-i18n}}">hover me</button>
                     </{{elementName}}>
                 </script>
     
@@ -184,16 +184,15 @@
             <div class="example__html">
                 <script type="text/plain" class="html-example">
                     <{{elementName}}>
-                        <div class="portuguese" lang="{{pt:lang:pt}}">
+                        <div class="portuguese" lang="{{pt¦lang¦.portuguese}}">
                             <span data-i18n--title="hello mouse" data-i18n="I am portuguese"></span>
                         </div>
-                        <div class="spanish" lang="{{es:lang:es}}">
+                        <div class="spanish" lang="{{es¦lang¦.spanish}}">
                             <span data-i18n--title="hello mouse" data-i18n="I am spanish"></span>
                         </div>
-                        <div class="english" lang="{{en:lang:en}}">
+                        <div class="english" lang="{{en¦lang¦.english}}">
                             <span data-i18n--title="hello mouse" data-i18n="I am english"></span>
                         </div>
-                       <button data-i18n--title="hello mouse" data-i18n="hello world">hover me</button>
                     </{{elementName}}>
                 </script>
     
@@ -235,12 +234,61 @@
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">
-                   <{{elementName}} lang="{{pt:lang}}">
-                       <span title="lorem ipsum" data-i18n="{{I bought 2 carrots:data-i18n}}"></span>
+                   <{{elementName}} lang="{{pt¦lang}}">
+                       
+                        <span data-i18n="{{I bought 2 carrots¦data-i18n}}"></span>
                    </{{elementName}}>
                 </script>
-    
-                </div>
+            </div>
+        </div>
+
+        <h3> Time </h3>
+
+
+        <div class="example example--date">
+            <div class="example__view">
+                <i18n-container lang="pt">
+                    <p class="unix-timestamp" data-i18n="date using timestamp - 1686862473"></p>
+                    <p class="iso-8601" data-i18n="date using ISO 8601 - 2023-06-15T20:55:37.313Z"></p>
+                    <p class="date" data-i18n="or both ways - 0"></p>
+                </i18n-container>
+            </div>
+            <div class="example__json">
+                <div class="example__tabs">
+                    <input type="radio" class="tab" name="example--date" aria-label="pt.json" checked>
+                    <input type="radio" class="tab" name="example--date" aria-label="en.json">
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                                "date using timestamp - {unix timestamp}": "data usando timestamp: {0}",
+                                "date using ISO 8601 - {iso 8601}": "data usando ISO 8601: {0}",
+                                "or both ways - {date}": "ou das duas formas: {0}"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                                "date using timestamp - {unix timestamp}": "date using timestamp: {0}",
+                                "date using ISO 8601 - {iso 8601}": "date using ISO 8601: {0}",
+                                "or both ways - {date}": "or both ways: {0}"
+                            }
+                        </script>
+                    </div>
+                  </div>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                   <{{elementName}} lang="{{pt¦lang}}">
+                   
+                   <p class="unix-timestamp" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.unix-timestamp}}"></p>
+                   
+                   <p class="iso-8601" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.iso-8601}}""></p>
+                   
+                   <p class="date" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.date}}""></p>
+                  </{{elementName}}>
+                </script>
+            </div>
         </div>
     </body>
 </html>

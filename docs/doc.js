@@ -55,7 +55,8 @@ async function applyExample(exampleObject, editorElement){
       },
       parent: editorElement
     })
-    editorElement.querySelectorAll(":scope > :not(.cm-editor)").forEach(el => el.remove())
+    
+    editorElement.replaceChildren(editorView.dom)
     
     const {clientX, clientY} = event 
     requestAnimationFrame(() => {
@@ -65,13 +66,13 @@ async function applyExample(exampleObject, editorElement){
     })
 
   })
-
-
 }
 
 
-document.querySelectorAll('.example--basic, .example--pluralization').forEach(element => {
+document.querySelectorAll('.example').forEach(element => {
   const exampleObj = {}
+
+  console.log(".example %o", element)
 
   element.querySelectorAll('.example__json .editor').forEach(element => {
     const lang = element.getAttribute("data-lang")
@@ -83,35 +84,16 @@ document.querySelectorAll('.example--basic, .example--pluralization').forEach(el
 
   element.addEventListener("input", (event) => {
     if(event.target.matches(".lang-edit")){
-      const node = element.querySelector("[lang]")
+      const selector = event.target.getAttribute("data-bind-selector") || "[lang]"
+      const node = element.querySelector(selector)
       node && node.setAttribute("lang", event.target.textContent)
     }
     if(event.target.matches(".data-i18n-edit")){
       const node = element.querySelector("[data-i18n]")
       node && node.setAttribute("data-i18n", event.target.textContent)
     }
-})
+  })
   
-})
-
-
-document.querySelectorAll('.example--multi-lang').forEach(element => {
-  const exampleObj = {}
-
-  element.querySelectorAll('.example__json .editor').forEach(element => {
-    const lang = element.getAttribute("data-lang")
-    if(!lang){ return }
-    exampleObj[lang] = JSON.parse(element.textContent || "")
-    requestIdleCallback(() => applyExample(exampleObj, element))
-  })
-  updateStore(exampleObj, element)
-
-  element.addEventListener("input", (event) => {
-    if(!event.target.matches(".lang-edit")){ return }
-    if(event.target.matches(".pt")){ element.querySelector(".portuguese")?.setAttribute("lang", event.target.textContent) }
-    else if(event.target.matches(".es")){ element.querySelector(".spanish")?.setAttribute("lang", event.target.textContent) }
-    else if(event.target.matches(".en")){ element.querySelector(".english")?.setAttribute("lang", event.target.textContent) }
-  })
 })
 
 function reactElementNameChange(event) {
