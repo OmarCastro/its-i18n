@@ -1,8 +1,11 @@
 import { test } from '../../../test-utils/unit/test.ts'
 import { isInteger, isNumeric } from './number.utils.js'
 
+/** @type {*} */
+const invalid = {}
+
 test('isNumeric unit tests...', ({ expect }) => {
-  expect(isNumeric({})).toEqual(false)
+  expect(isNumeric(invalid)).toEqual(false)
   expect(isNumeric('0')).toEqual(true)
   expect(isNumeric('asd')).toEqual(false)
   expect(isNumeric('12.45')).toEqual(true)
@@ -10,7 +13,7 @@ test('isNumeric unit tests...', ({ expect }) => {
 })
 
 test('isInteger unit tests...', ({ expect }) => {
-  expect(isInteger({})).toEqual(false)
+  expect(isInteger(invalid)).toEqual(false)
   expect(isInteger('0')).toEqual(true)
   expect(isInteger('asd')).toEqual(false)
   expect(isInteger('12.45')).toEqual(false)

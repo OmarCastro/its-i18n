@@ -69,12 +69,19 @@ export function queryFromTranslations(key, translations) {
 
   if (optimizedMap.literalKeys[key] != null) {
     const valueTemplate = optimizedMap.literalKeys[key]
+
+    let translate = (locale) => {
+      const value = parseValue(valueTemplate)
+      translate = (locale) => value.format([], locale, [])
+      return translate(locale)
+    }
+
     cache[key] = {
       targetKey: key,
       translations,
       found: true,
       valueTemplate,
-      translate: () => valueTemplate,
+      translate,
     }
     return cache[key]
   }
