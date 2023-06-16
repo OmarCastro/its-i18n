@@ -1,7 +1,7 @@
 import { type AST, states, type Token } from './key-ast.util.ts'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 import { formatters as expressionFormatters } from './expression-formatters.ts'
-import { isInteger } from '../utils/algorithms/number.utils.ts'
+import { isInteger } from '../utils/algorithms/number.utils.js'
 
 const emptyArray = Object.freeze([])
 
@@ -47,7 +47,7 @@ function parseCaptureKey(captureToken: Token) {
       case states.bt_string:
         fragmentedCaptureExpressionsInfo.push({
           type: 'string',
-          text: token.text,
+          text: token.text.slice(1, token.text.length - 1),
         })
         continue
       default:

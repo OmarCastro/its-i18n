@@ -51,3 +51,24 @@ test('Given a default unix timestamp formatter, getFormatter result should forma
     'ja-JP': '1 million seconds since unix is in 1970/1/12 14:46:40.000',
   })
 })
+
+test('Given a relative formatter, getFormatter result should format the number with the correct separator', ({ expect }) => {
+  const ast = getAST('unix epoch started {\'0\' | relative time}')
+  const formatter = getFormatter(ast)
+  const usLocale = new Intl.Locale('en-US')
+  const gbLocale = new Intl.Locale('en-GB')
+  const frLocale = new Intl.Locale('fr-FR')
+  const jpLocale = new Intl.Locale('ja-JP')
+
+  expect({
+    'en-US': formatter.format([], usLocale, []),
+    'en-GB': formatter.format([], gbLocale, []),
+    'fr-FR': formatter.format([], frLocale, []),
+    'ja-JP': formatter.format([], jpLocale, []),
+  }).toEqual({
+    'en-US': 'unix epoch started 54 years ago',
+    'en-GB': 'unix epoch started 54 years ago',
+    'fr-FR': 'unix epoch started il y a 54 ans',
+    'ja-JP': 'unix epoch started 54 年前',
+  })
+})

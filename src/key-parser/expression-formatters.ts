@@ -1,4 +1,4 @@
-import { isNumeric } from '../utils/algorithms/number.utils.ts'
+import { isNumeric } from '../utils/algorithms/number.utils.js'
 import { parseISO8601 } from '../utils/algorithms/time.utils.js'
 
 const formatAsIs = (text: string) => text
@@ -40,7 +40,7 @@ const durationUnitArray = Object.entries(durationUnitsMap).sort(([_1, duration1]
   number,
 ][]
 
-const relativeTimeFormat = (locale: Intl.Locale, d1, d2 = Date.now()) => {
+function relativeTimeFormat(locale: Intl.Locale, d1: number, d2 = Date.now()) {
   const elapsed = d1 - d2
   const formatter = new Intl.RelativeTimeFormat(locale.baseName, { numeric: 'auto' })
 
