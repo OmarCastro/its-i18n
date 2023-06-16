@@ -4,11 +4,11 @@
         <title>It's i18n</title>
         <meta name="description" content="documentation of 'it's i18n' component">
         <meta name="keywords" content="i18n webcomponents">
-        <link rel="stylesheet" href="doc.css" ss:inline>
         <script type="module" src="doc.js" async></script>
         <link rel="modulepreload" href="chunk/!(*.lazy.)*.js" as="script" ss:repeat-glob>
         <link rel="modulepreload" href="chunk/*.lazy.*.js" as="script" fetchpriority="low" ss:repeat-glob>
         <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="doc.css" ss:inline>
     </head>
     <body>
         <h1>
@@ -19,13 +19,13 @@
 
         <section style="text-align:center" class="badges-section">
             <a href="reports/coverage/unit" aria-label="Show test code coverage information">
-                <svg ss:include="reports/coverage/unit/coverage-badge-a11y.svg"></svg>
+                <img src="reports/coverage/unit/coverage-badge-a11y.svg" ss:size ss:badge-attrs></svg>
             </a>
             <a href="reports/playwright-report" aria-label="Show test results">
-                <svg ss:include="reports/test-results/test-results-badge-a11y.svg"></svg>
+                <img src="reports/test-results/test-results-badge-a11y.svg" ss:size ss:badge-attrs></svg>
             </a>
             <a href="https://github.com/OmarCastro/its-i18n" aria-label="go to Github repository" title="go to Github repository">
-                <svg ss:include="reports/license-badge-a11y.svg"></svg>
+                <img src="reports/license-badge-a11y.svg" ss:size ss:badge-attrs></svg>
             </a>
             <!--a href="https://github.com/OmarCastro/its-a-color-wheel" aria-label="go to Github repository" title="go to Github repository">
                 <img src="https://img.shields.io/github/v/release/OmarCastro/its-i18n?style=for-the-badge" alt="project version" height="30" width="150" ></img>
