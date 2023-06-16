@@ -33,7 +33,7 @@ test('Given a string with spaces inside curly braces {}, parseKey should return 
   })
 })
 
-test('Given a string with spaces inside curly braces {}, parseKey should return a result with a normalized key', ({ expect }) => {
+test('Given a string with spaces inside curly braces {} and expression separator, parseKey should return a result with a normalized key', ({ expect }) => {
   const parseKeyResult = parseKey('hello { number | string }')
   const { priority, key, normalizedKey } = parseKeyResult
 
