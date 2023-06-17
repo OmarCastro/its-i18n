@@ -1,6 +1,6 @@
 import { isNumeric } from '../utils/algorithms/number.utils.js'
 import { parseISO8601 } from '../utils/algorithms/time.utils.js'
-import { formatters } from './expression-formatters.ts'
+import { formatters } from './expression-formatters.js'
 
 const defaultFormat = formatters['as is'].format
 
