@@ -7,7 +7,7 @@ import {imageSize} from 'image-size'
 
 const projectPath = new URL('../',import.meta.url).pathname;
 const docsPath = new URL('../docs',import.meta.url).pathname;
-const docsOutputPath = new URL('../build/docs',import.meta.url).pathname;
+const docsOutputPath = new URL('../.tmp/build/docs',import.meta.url).pathname;
 
 const fs = await import('fs')
 
@@ -136,7 +136,7 @@ const minifiedHtml = minify("<!DOCTYPE html>" + document.documentElement?.outerH
   collapseWhitespace: true
 })
 
-fs.writeFileSync(`${projectPath}/build/docs/${process.argv[2]}`, minifiedHtml);
+fs.writeFileSync(`${docsOutputPath}/${process.argv[2]}`, minifiedHtml);
 
 
 

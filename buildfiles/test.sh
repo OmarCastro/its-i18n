@@ -2,9 +2,14 @@
 
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$DIR/.."
-rm -rf coverage
+rm -rf reports/coverage
 
-npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --report-dir reports/coverage/unit --reporter json-summary --reporter text --reporter lcov --reporter html playwright test
+npx c8  --all --include "src/**/*.{js,ts}" \
+		--exclude "src/**/*.{test,spec}.{js,ts}" \
+		--temp-directory ".tmp/coverage" \
+		--report-dir reports/coverage/unit \
+		--reporter json-summary --reporter text --reporter html \
+		playwright test
 
 # build coverage badge
 node buildfiles/build-badges.js
