@@ -36,6 +36,7 @@
     "cm6-theme-basic-dark": "^0.2.0",
     "codemirror": "^6.0.1",
     "esbuild": "^0.18.0",
+    "eslint": "^8.43.0",
     "expect": "^29.5.0",
     "glob": "^10.2.7",
     "http-server": "^14.1.1",
