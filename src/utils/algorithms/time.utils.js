@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * Parses ISO-8601 text
  *

@@ -1,4 +1,3 @@
-// @ts-check
 /**
  * Traverse up in the document DOM closest element by passing shadow DOM
  *
