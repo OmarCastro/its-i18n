@@ -282,7 +282,9 @@ const sanitizeElement = ({ currentElement, removedElements, removedAttributes })
  * @returns {SanitizeHtmlResult} Sanitization result
  */
 export function sanitizeI18nHtml(html) {
+  /** @type {Element[]} */
   const removedElements = []
+    /** @type {RemovedAttr[]} */
   const removedAttributes = []
   const doc = _initDocument(html)
   for (const currentElement of Array.from(doc.children)) {
