@@ -142,7 +142,7 @@ function getMatcherFromTokens(tokens: Token[]) {
   }
 }
 
-export function getMatcher(ast) {
+export function getMatcher(ast: AST) {
   return getMatcherFromTokens(ast.tokens)
 }
 

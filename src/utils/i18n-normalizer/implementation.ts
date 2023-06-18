@@ -1,5 +1,5 @@
 const typeOf = (targetVar: unknown) => targetVar == null ? String(targetVar) : typeof targetVar
-const isPlainObject = (value): value is Record<string, unknown> => value?.constructor === Object
+const isPlainObject = (value: unknown): value is Record<string, unknown> => value?.constructor === Object
 const properyPath = (propName: string) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
 const mergePath = (prop1: string, prop2: string) => prop1 + (prop2 === '.' || prop2.startsWith('.[') ? prop2.substring(1) : prop2)
 
@@ -54,7 +54,7 @@ export function normalizeTranslations(translations: unknown): { result: Translat
     }
   }
 
-  const result = {}
+  const result = {} as Translations
   const errors = [] as ErrorList
 
   for (const [key, value] of Object.entries(translations)) {

@@ -190,7 +190,7 @@ export type CaptureExpressionInfo = {
    *
    * @param parameters - Match predicate creator parameters
    */
-  matchPredicate?(...parameters: unknown[]): (text: string) => boolean
+  matchPredicate(...parameters: unknown[]): (text: string) => boolean
   /**
    * Default format to be used when no formatter is explicitly applied.
    *
@@ -212,4 +212,7 @@ export const captureExpressions = {
     ...baseCapureExpressions,
     ...timeCaptureExpresions,
   },
+} as {
+  special: typeof specialCapureExpressions
+  named: CaptureExpressionMap
 }
