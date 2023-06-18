@@ -2,7 +2,7 @@
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$DIR"/..
 
-
+npx http-server -b -o build/docs &
 
 while :; do 
 	buildfiles/build.sh && \
