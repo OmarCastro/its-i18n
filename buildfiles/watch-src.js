@@ -13,7 +13,7 @@ async function nextDirChangePromise(dir){
     const { signal } = ac;
 
     try {
-        const watcher = watch(__filename, { signal, recursive: true });
+        const watcher = watch(dir, { signal, recursive: true });
         for await (const event of watcher){
             console.log(event.eventType);
             ac.abort();

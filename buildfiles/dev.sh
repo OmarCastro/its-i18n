@@ -9,7 +9,7 @@ buildfiles/build.sh
 npx http-server -b -o build/docs &
 
 while :; do 
-	inotifywait -q -r -e modify src docs
+	node buildfiles/watch-src.js
 	buildfiles/build.sh && \
 	buildfiles/format-code.sh && \
 	buildfiles/lint-code.sh
