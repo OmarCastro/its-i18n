@@ -1,4 +1,4 @@
-import { test } from '../../test-utils/unit/test.ts'
+import { test } from '../../test-utils/unit/test.js'
 import { getAST } from './key-ast.util.ts'
 import { getFormatter } from './value-formatter.ts'
 import { captureExpressions } from './capture-expression-values.ts'

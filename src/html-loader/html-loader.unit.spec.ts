@@ -1,5 +1,5 @@
 import { window } from '../../test-utils/unit/init-dom.ts'
-import { test } from '../../test-utils/unit/test.ts'
+import { test } from '../../test-utils/unit/test.js'
 import { loadI18n } from './html-loader.ts'
 import { provide } from '../utils/i18n-importer/provider.ts'
 

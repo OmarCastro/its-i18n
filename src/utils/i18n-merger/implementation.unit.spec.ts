@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { builder } from './implementation.ts'
 
 test('Given a single map, merge return a normalized definition', ({ expect }) => {

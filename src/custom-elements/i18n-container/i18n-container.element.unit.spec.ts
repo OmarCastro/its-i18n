@@ -1,5 +1,5 @@
 import { window } from '../../../test-utils/unit/init-dom.ts'
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { provide } from '../../utils/i18n-importer/provider.ts'
 import { loadI18n } from '../../html-loader/html-loader.ts'
 import { setStoreFromElement } from '../../utils/store-map/store-map.ts'

@@ -1,6 +1,6 @@
 import { window } from '../../../test-utils/unit/init-dom.ts'
 import { getLanguageFromElement } from './get-lang-from-element.util.ts'
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 
 const html = String.raw
 

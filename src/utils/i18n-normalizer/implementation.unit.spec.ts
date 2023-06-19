@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from './implementation.ts'
 
 test('Given an invalid input type, normalizeI18nDefinition returns empty definition with error', ({ expect }) => {

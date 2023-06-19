@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { importI18nJson, importTranslations } from './implementation.ts'
 
 test('Given `fetch` returns a valid, normalized json, `importI18nJson` should return the same json', async ({ expect }) => {

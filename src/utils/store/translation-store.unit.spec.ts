@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { i18nTanslationStore } from './translation-store.ts'
 import { provide } from '../i18n-importer/provider.ts'
 

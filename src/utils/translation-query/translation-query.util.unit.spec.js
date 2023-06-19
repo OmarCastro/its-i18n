@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { queryFromTranslations } from './translation-query.util.js'
 
 test('Given a simple translation, queryFromTranslations with a declared key should return a key with found flag enable', ({ expect }) => {

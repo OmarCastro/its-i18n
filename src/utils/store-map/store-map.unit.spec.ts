@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.ts'
+import { test } from '../../../test-utils/unit/test.js'
 import { document } from '../../../test-utils/unit/init-dom.ts'
 import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.ts'
 import { i18nTanslationStore } from '../store/translation-store.ts'
