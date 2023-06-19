@@ -1,12 +1,21 @@
-import { getTestAdapter, Test, TestAPI } from "./unit-test.provider.js";
+import { adapt } from "./unit-test.provider.js";
 
-const testsToExecute = [] as Readonly<Test>[];
-let adaptedtests = [] as any[];
+/** @type {Readonly<Test>[]} */
+const testsToExecute = [];
+/** @type {*[]} */
+let adaptedtests = [];
 
-export function test(description: string, test: (t: TestAPI) => any){
+/**
+ * 
+ * Creates a test scenario
+ * 
+ * @param {string} description 
+ * @param {import('./unit-test.provider.js').TestCall} test 
+ */
+export function test(description, test){
   const data = Object.freeze({description, test})
   testsToExecute.push(data)
-  adaptedtests.push(getTestAdapter()(data))
+  adaptedtests.push(adapt(data))
 
 }
 

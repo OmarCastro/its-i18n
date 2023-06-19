@@ -1,15 +1,9 @@
-
 /**
- * @typedef {object} TestAPI
- * @property {typeof import('expect').expect} expect
- * @property {(description: string, step: () => any) => any} step
- * @property {(path: URL) => Promise<string>} readFrom
- */
-
-/**
- * @typedef {object} Test
- * @property {string} description
- * @property {(t: TestAPI) => any} test
+ * this file adapts the test to their own environment
+ * 
+ * on Deno uses Deno API
+ * on Node it uses playwright
+ * on browser it uses a custom api
  */
 
 
@@ -85,5 +79,29 @@ const fn = async () => {
 
 await fn()
 
+/**
+ * @param {Test} test to adapt
+ */
+export const adapt = (test) => adapter(test)
 
-export const getTestAdapter = () => adapter
+
+/**
+ * @callback TestCall
+ * @param {TestAPI} test
+ */
+
+/**
+ * @typedef {object} TestAPI
+ * @property {typeof import('expect').expect} expect
+ * @property {(description: string, step: () => any) => any} step
+ * @property {(path: URL) => Promise<string>} readFrom
+ */
+
+/**
+ * @typedef {object} Test
+ * @property {string} description
+ * @property {TestCall} test
+ */
+
+
+
