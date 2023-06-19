@@ -284,7 +284,7 @@ const sanitizeElement = ({ currentElement, removedElements, removedAttributes })
 export function sanitizeI18nHtml(html) {
   /** @type {Element[]} */
   const removedElements = []
-    /** @type {RemovedAttr[]} */
+  /** @type {RemovedAttr[]} */
   const removedAttributes = []
   const doc = _initDocument(html)
   for (const currentElement of Array.from(doc.children)) {
