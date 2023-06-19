@@ -1,4 +1,4 @@
-import { getTestAdapter, Test, TestAPI } from "./unit-test.provider.ts";
+import { getTestAdapter, Test, TestAPI } from "./unit-test.provider.js";
 
 const testsToExecute = [] as Readonly<Test>[];
 let adaptedtests = [] as any[];

@@ -1,31 +1,27 @@
 
+/**
+ * @typedef {object} TestAPI
+ * @property {typeof import('expect').expect} expect
+ * @property {(description: string, step: () => any) => any} step
+ * @property {(path: URL) => Promise<string>} readFrom
+ */
 
-export interface TestAPI {
-    expect: any
-    step(description: string, step: () => any): any
-    readFrom(path: URL): Promise<string>
-}
-
-export interface Test {
-    description: string,
-    test: (t: TestAPI) => any
-}
-
-type Adapter =  (test: Readonly<Test>) => any
+/**
+ * @typedef {object} Test
+ * @property {string} description
+ * @property {(t: TestAPI) => any} test
+ */
 
 
-let adapter: Adapter;
 
-function setTestAdapter(newadapter: Adapter){
-    adapter = newadapter
-} 
+/** @type {(test: Readonly<Test>) => any} */
+let adapter;
 
-export function getTestAdapter(){
-    return adapter
-} 
+const setTestAdapter = (newAdapter) => adapter = newAdapter
+
 // thee 2 lines are to prevent esbuild to bundle the await imports
-const importModule = (str: string) => import(str) 
-let importStr: string;
+const importModule = (str) => import(str) 
+let importStr;
 const fn = async () => {
     if(globalThis.Deno != undefined){
 
@@ -81,10 +77,13 @@ const fn = async () => {
                     await test()
                 },
                 expect,
-                readFrom: async (url) => { throw new Error("readFrom not implemented yet")}
+                readFrom: async (url) => await fetch(url).then(req => req.text())
             });
         })
     }
 }
 
 await fn()
+
+
+export const getTestAdapter = () => adapter
