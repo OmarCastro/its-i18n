@@ -1,7 +1,7 @@
 // @ts-nocheck Since this file adds info to globalThis as to simulate a browser
 // on a Deno environment, it is better to disable type checking and code coverage
 // for this file
-let windowObj: Window;
+let windowObj;
 
 if("Deno" in globalThis || globalThis.window == undefined ){
   // running in Deno
@@ -23,7 +23,7 @@ if("Deno" in globalThis || globalThis.window == undefined ){
     },
   );
   
-  windowObj = jsdom.window as Window 
+  windowObj = jsdom.window 
   globalThis.requestAnimationFrame = (callback) => setTimeout(callback, 10)
   globalThis.cancelAnimationFrame = (frameNumber) => clearTimeout(frameNumber)
   globalThis.requestIdleCallback = windowObj.requestIdleCallback
@@ -42,5 +42,6 @@ if("Deno" in globalThis || globalThis.window == undefined ){
   windowObj = globalThis.window 
 }
 
+/** @type {Window} */
 export const window = windowObj 
-export const document = windowObj.document
+export const document = window.document

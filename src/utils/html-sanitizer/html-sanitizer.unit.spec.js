@@ -1,5 +1,5 @@
 // @ts-check
-import '../../../test-utils/unit/init-dom.ts'
+import '../../../test-utils/unit/init-dom.js'
 import { test } from '../../../test-utils/unit/test.js'
 import { sanitizeI18nHtml } from './html-sanitizer.js'
 

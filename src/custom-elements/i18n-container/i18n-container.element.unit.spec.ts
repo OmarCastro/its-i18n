@@ -1,4 +1,4 @@
-import { window } from '../../../test-utils/unit/init-dom.ts'
+import { window } from '../../../test-utils/unit/init-dom.js'
 import { test } from '../../../test-utils/unit/test.js'
 import { provide } from '../../utils/i18n-importer/provider.ts'
 import { loadI18n } from '../../html-loader/html-loader.ts'

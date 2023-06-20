@@ -1,4 +1,4 @@
-import { window } from '../../../test-utils/unit/init-dom.ts'
+import { window } from '../../../test-utils/unit/init-dom.js'
 import { getLanguageFromElement } from './get-lang-from-element.util.ts'
 import { test } from '../../../test-utils/unit/test.js'
 
