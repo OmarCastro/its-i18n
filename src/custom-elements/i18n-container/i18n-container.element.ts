@@ -1,5 +1,5 @@
 import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.ts'
-import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.ts'
+import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.js'
 import { isElementTranslatable } from '../../utils/algorithms/get-translate-from-element.util.js' 
 import { getStoresInfoFromElement } from '../../utils/store-map/store-map.ts'
 import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.js'

@@ -1,6 +1,6 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { document } from '../../../test-utils/unit/init-dom.js'
-import { getLanguageFromElement } from './get-lang-from-element.util.ts'
+import { getLanguageFromElement } from './get-lang-from-element.util.js'
 import { eventName, observeLangFromElement, rootEventName, unobserveLangFromElement } from './observe-lang-from-element.util.ts'
 
 const html = String.raw

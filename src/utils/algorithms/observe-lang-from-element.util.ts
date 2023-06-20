@@ -1,4 +1,4 @@
-import { getLanguageFromElement } from './get-lang-from-element.util.ts'
+import { getLanguageFromElement } from './get-lang-from-element.util.js'
 
 interface ObserveInfomation {
   observingElements: Set<WeakRef<Element>>
