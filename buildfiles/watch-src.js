@@ -1,28 +1,22 @@
 #!/bin/env node
-import { watch } from 'node:fs/promises'
+import { watch } from 'node:fs'
 
-const projectPath = new URL('../',import.meta.url).pathname;
+const watchers = []
+const wait = () => { if(watchers.length){ wait.timeout = setTimeout(wait, 500) } }
 
 /**
  * 
  * @param {string} dir - directory to watch for changes
  * @returns 
  */
-async function nextDirChangePromise(dir){
-    const ac = new AbortController();
-    const { signal } = ac;
-
-    try {
-        const watcher = watch(dir, { signal, recursive: true });
-        for await (const event of watcher){
-            console.log(event.eventType);
-            ac.abort();
-        }
-      } catch (err) {
-        if (err.name === 'AbortError')
-          return;
-        throw err;
-      }
+function nextDirChangePromise(dir){
+	watchers.push(watch(dir, { recursive: true }, (eventType, filename) => {
+		console.log(`${eventType} ${filename}`)
+		watchers.forEach(watcher => watcher.close())
+		clearTimeout(wait.timeout)
+	}));
 }
 
-await nextDirChangePromise(`${projectPath}/src`)
+nextDirChangePromise(new URL('../src',import.meta.url))
+nextDirChangePromise(new URL('../docs',import.meta.url))
+wait()
