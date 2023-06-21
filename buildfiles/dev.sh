@@ -9,7 +9,7 @@ buildfiles/build.sh
 npx http-server -b -o build/docs &
 
 while :; do 
-	node buildfiles/watch-src.js
+	node buildfiles/wait-dir-changes.js
 	buildfiles/build.sh && \
 	buildfiles/format-code.sh && \
 	buildfiles/lint-code.sh
