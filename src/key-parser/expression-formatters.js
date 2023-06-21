@@ -17,16 +17,38 @@ const baseFormatter = {
   'date': {
     format: (text, locale) => {
       const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      return Intl.DateTimeFormat(locale.baseName, defaultDateFormatOptions).format(date)
+    },
+  },
+
+  'datetime': {
+    format: (text, locale) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
+    },
+  },
+
+  'timestamp': {
+    format: (text, locale) => {
+      const date = isNumeric(text) ? new Date(+text) : parseISO8601(text)
+      return Intl.DateTimeFormat(locale.baseName, timestampFormatOptions).format(date)
     },
   },
 
   'long date': {
     format: (text, locale) => {
       const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      return Intl.DateTimeFormat(locale.baseName, longDateFormatOptions).format(date)
+    },
+  },
+
+  'long datetime': {
+    format: (text, locale) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, longDateTimeFormatOptions).format(date)
     },
   },
+
   'relative time': {
     format: (text, locale) => {
       const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
@@ -41,6 +63,17 @@ const baseFormatter = {
 
 /** @type {Intl.DateTimeFormatOptions} */
 const defaultDateTimeFormatOptions = {
+  dateStyle: 'short',
+  timeStyle: 'medium',
+}
+
+/** @type {Intl.DateTimeFormatOptions} */
+const defaultDateFormatOptions = {
+  dateStyle: 'short',
+}
+
+/** @type {Intl.DateTimeFormatOptions} */
+const timestampFormatOptions = {
   year: 'numeric',
   month: 'numeric',
   day: 'numeric',
@@ -52,18 +85,24 @@ const defaultDateTimeFormatOptions = {
 }
 
 /** @type {Intl.DateTimeFormatOptions} */
+const longDateFormatOptions = {
+  dateStyle: 'long',
+}
+
+/** @type {Intl.DateTimeFormatOptions} */
 const longDateTimeFormatOptions = {
   dateStyle: 'long',
+  timeStyle: 'long',
 }
 
 /** @type {[Intl.RelativeTimeFormatUnit, number][]} */
 const durationUnits = [
-  ['year', 24 * 60 * 60 * 1000 * 365],
-  ['month', 24 * 60 * 60 * 1000 * 365 / 12],
-  ['day', 24 * 60 * 60 * 1000 * 365],
-  ['hour', 24 * 60 * 60 * 1000 * 365],
-  ['minute', 24 * 60 * 60 * 1000 * 365],
-  ['second', 24 * 60 * 60 * 1000 * 365],
+  ['year', 1000 * 60 * 60 * 24 * 365],
+  ['month', 1000 * 60 * 60 * 24 * 365 / 12],
+  ['day', 1000 * 60 * 60 * 24],
+  ['hour', 1000 * 60 * 60],
+  ['minute', 1000 * 60],
+  ['second', 1000],
 ]
 
 /**
