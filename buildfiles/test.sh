@@ -4,7 +4,7 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$DIR/.."
 rm -rf reports/coverage
 
-npx c8  --all --include "src/**/*.{js,ts}" \
+TZ=UTC npx c8  --all --include "src/**/*.{js,ts}" \
 		--exclude "src/**/*.{test,spec}.{js,ts}" \
 		--temp-directory ".tmp/coverage" \
 		--report-dir reports/coverage/unit \
