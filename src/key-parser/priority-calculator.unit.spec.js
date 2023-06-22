@@ -1,5 +1,5 @@
 import { test } from '../../test-utils/unit/test.js'
-import { getAST, states } from './key-ast.util.ts'
+import { getAST, states } from './key-ast.util.js'
 import { calculatePriority, getNumericValuePriority } from './priority-calculator.ts'
 
 test('Given a simple string, calculatePriority should return the max priority', ({ expect }) => {

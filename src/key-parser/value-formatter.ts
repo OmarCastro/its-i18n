@@ -1,4 +1,4 @@
-import { type AST, states, type Token } from './key-ast.util.ts'
+import { type AST, states, type Token } from './key-ast.util.js'
 import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
 import { formatters as expressionFormatters } from './expression-formatters.js'
 import { isInteger } from '../utils/algorithms/number.utils.js'

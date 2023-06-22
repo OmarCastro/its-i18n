@@ -1,9 +1,9 @@
-import { type AST, getAST, states, type Token } from './key-ast.util.ts'
+import { type AST, getAST, states, type Token } from './key-ast.util.js'
 import { getFormatter } from './value-formatter.ts'
 
 const tokenToString = (() => {
   const mapper = [] as ((token: Token) => string)[]
-  const defaultMapper = (token) => token.text
+  const defaultMapper = (token: Token) => token.text
   mapper[states.normal] = defaultMapper
   mapper[states.capture] = (token) => {
     const { childTokens } = token

@@ -1,5 +1,5 @@
 import { test } from '../../test-utils/unit/test.js'
-import { getAST } from './key-ast.util.ts'
+import { getAST } from './key-ast.util.js'
 import { getFormatter } from './value-formatter.ts'
 import { captureExpressions } from './capture-expression-values.ts'
 
