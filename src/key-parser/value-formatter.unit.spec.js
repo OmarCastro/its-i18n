@@ -45,10 +45,10 @@ test('Given a default unix timestamp formatter, getFormatter result should forma
     'fr-FR': formatter.format(['1000000'], frLocale, defaultFormatters),
     'ja-JP': formatter.format(['1000000'], jpLocale, defaultFormatters),
   }).toEqual({
-    'en-US': '1 million seconds since unix is in 1/12/1970, 13:46:40.000',
-    'en-GB': '1 million seconds since unix is in 12/01/1970, 13:46:40.000',
-    'fr-FR': '1 million seconds since unix is in 12/01/1970 13:46:40,000',
-    'ja-JP': '1 million seconds since unix is in 1970/1/12 13:46:40.000',
+    'en-US': '1 million seconds since unix is in 1/12/1970, 1:46:40 PM',
+    'en-GB': '1 million seconds since unix is in 12/01/1970, 13:46:40',
+    'fr-FR': '1 million seconds since unix is in 12/01/1970 13:46:40',
+    'ja-JP': '1 million seconds since unix is in 1970/01/12 13:46:40',
   })
 })
 

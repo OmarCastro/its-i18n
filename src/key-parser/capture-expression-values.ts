@@ -49,53 +49,33 @@ const specialCapureExpressions = {
   },
 } satisfies CaptureExpressionMap
 
-const defaultDateTimeFormatOptions = {
-  year: 'numeric',
-  month: 'numeric',
-  day: 'numeric',
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  fractionalSecondDigits: 3,
-  hour12: false,
-} as Intl.DateTimeFormatOptions
-
 const baseTimeCaptureExpressions = {
   // normal times
   'unix timestamp': {
     value: 550,
     matchPredicate: () => (text: string) => isNumeric(text),
-    defaultFormat: (text: string, locale: Intl.Locale) => {
-      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date((+text) * 1000))
-    },
+    defaultFormat: formatters.datetime.format,
     isConstant: false,
   },
 
   'iso 8601': {
     value: 550,
     matchPredicate: () => (text: string) => !isNaN(parseISO8601(text)),
-    defaultFormat: (text: string, locale: Intl.Locale) => {
-      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(parseISO8601(text))
-    },
+    defaultFormat: formatters.datetime.format,
     isConstant: false,
   },
 
   'date': {
     value: 500,
     matchPredicate: () => (text: string) => isNumeric(text) || !isNaN(parseISO8601(text)),
-    defaultFormat: (text: string, locale: Intl.Locale) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
-      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
-    },
+    defaultFormat: formatters.datetime.format,
     isConstant: false,
   },
 
   'unix millis': {
     value: 550,
     matchPredicate: () => (text: string) => isNumeric(text),
-    defaultFormat: (text: string, locale: Intl.Locale) => {
-      return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(new Date(+text))
-    },
+    defaultFormat: formatters.timestamp.format,
     isConstant: false,
   },
 }
