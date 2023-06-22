@@ -90,7 +90,7 @@ const attributePrefixPriority = {
   'data-i18n-attribute-': 3,
 }
 
-const dataI18nAttributeMatchRegex = /^(data\-i18n\-(?:attr)?(?:ibute)?-)(.*)$/
+const dataI18nAttributeMatchRegex = /^(data\-i18n\-(?:attr(?:ibute)?)?-)(.*)$/
 
 function getAttributesToUpdate(element: Element): { [k: string]: string } {
   const attributesToUpdate = {} as { [k: string]: { prefix: keyof typeof attributePrefixPriority; value: string } }
