@@ -7,7 +7,7 @@ import { getMatcher } from './template-matcher.ts'
  */
 const normalizeToken = (() => {
   const mapper = [] as ((token: Token) => string)[]
-  const defaultMapper = (token) => token.text
+  const defaultMapper = (token: Token) => token.text
   mapper[states.normal] = defaultMapper
   mapper[states.capture] = (token) => {
     const { childTokens } = token
@@ -56,7 +56,7 @@ export function parseKey(key: string) {
     ast,
     match,
     normalizedKey,
-    matches: (text) => match(text).isMatch,
+    matches: (text: string) => match(text).isMatch,
   }
 }
 

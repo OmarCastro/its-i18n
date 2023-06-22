@@ -167,7 +167,7 @@ function getFormatterFromTokens(tokens: Token[]) {
   return formatterWithFormat({ strings, formatters })
 }
 
-export function getFormatter(ast) {
+export function getFormatter(ast: AST) {
   return getFormatterFromTokens(ast.tokens)
 }
 
