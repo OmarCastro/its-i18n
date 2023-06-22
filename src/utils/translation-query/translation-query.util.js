@@ -69,19 +69,12 @@ export function queryFromTranslations(key, translations) {
 
   if (optimizedMap.literalKeys[key] != null) {
     const valueTemplate = optimizedMap.literalKeys[key]
-
-    let translate = (locale) => {
-      const value = parseValue(valueTemplate)
-      translate = (locale) => value.format([], locale, [])
-      return translate(locale)
-    }
-
     cache[key] = {
       targetKey: key,
       translations,
       found: true,
       valueTemplate,
-      translate,
+      translate: translatorFromValue(valueTemplate),
     }
     return cache[key]
   }
@@ -90,24 +83,15 @@ export function queryFromTranslations(key, translations) {
   for (const { key: templateKey } of optimizedMap.sortedTemplateKeys) {
     const { parsedKey } = templateKeys[templateKey]
     const match = parsedKey.match(key)
-
     if (match.isMatch) {
       const valueTemplate = templateKeys[templateKey].value
-
-      let translate = (locale) => {
-        const value = parseValue(valueTemplate)
-        translate = (locale) => value.format(match.parameters, locale, match.defaultFormatters)
-        return translate(locale)
-      }
-
       cache[key] = {
         targetKey: key,
         translations,
         found: true,
         valueTemplate,
-        translate,
+        translate: translatorFromValue(valueTemplate, match),
       }
-
       return cache[key]
     }
   }
@@ -118,6 +102,24 @@ export function queryFromTranslations(key, translations) {
     found: false,
     valueTemplate: '',
     translate: () => key,
+  }
+}
+
+/**
+ * Gets the tranlate function from value template and match result, in case match Result is undefined
+ * it will assume it came from a literal key match
+ * 
+ * @param {string} valueTemplate target match result
+ * @param {ReturnType<ReturnType<typeof parseKey>["match"]>} [match] target match result
+ * @returns {TranslateFunction} translate function from targetMatch
+ */
+function translatorFromValue(valueTemplate, match) {
+  const parameters = match?.parameters ?? []
+  const defaultFormatters = match?.defaultFormatters ?? []
+  let value
+  return (locale) => {
+    value ??= parseValue(valueTemplate)
+    return value.format(parameters, locale, defaultFormatters)
   }
 }
 
