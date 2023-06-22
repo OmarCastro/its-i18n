@@ -93,14 +93,14 @@ const attributePrefixPriority = {
 const dataI18nAttributeMatchRegex = /^(data\-i18n\-(?:attr)?(?:ibute)?-)(.*)$/
 
 function getAttributesToUpdate(element: Element): { [k: string]: string } {
-  const attributesToUpdate = {} as { [k: string]: { prefix: string; value: string } }
+  const attributesToUpdate = {} as { [k: string]: { prefix: keyof typeof attributePrefixPriority; value: string } }
   for (const attribute of element.attributes) {
     const { name, value } = attribute
     const match = name.match(dataI18nAttributeMatchRegex)
     if (!match) {
       continue
     }
-    const [, prefix, attrName] = match
+    const [, prefix, attrName] = match as [unknown, keyof typeof attributePrefixPriority, string]
     const previous = attributesToUpdate[attrName]
     if (!previous || attributePrefixPriority[previous.prefix] < attributePrefixPriority[prefix]) {
       attributesToUpdate[attrName] = { prefix, value }
@@ -183,7 +183,7 @@ function triggerUpdate() {
 }
 
 let frameRequestNumber: number | undefined
-function observerCallback(records) {
+function observerCallback(records: MutationRecord[]) {
   const { elements, subtrees } = targetsToUpdateI18n
   for (const record of records) {
     const { target, type } = record
