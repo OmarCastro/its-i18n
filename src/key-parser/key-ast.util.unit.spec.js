@@ -1,5 +1,5 @@
 import { test } from '../../test-utils/unit/test.js'
-import { getAST, states } from './key-ast.util.ts'
+import { getAST, states } from './key-ast.util.js'
 
 test('Given a simple string, getAST should return an AST with one token', ({ expect }) => {
   const ast = getAST('hello world')
@@ -12,13 +12,13 @@ test('Given a simple string, getAST should return an AST with one token', ({ exp
   }])
 })
 
-test('Given a string with escaped initial curly brace, getAST should return an AST with 1 tokens', ({ expect }) => {
-  const ast = getAST('hello \\{} world')
+test('Given a string with double initial curly brace, getAST should return an AST with 1 tokens', ({ expect }) => {
+  const ast = getAST('hello {{} world')
   expect(ast.tokens).toEqual([{
     start: 0,
     end: 15,
     type: states.normal,
-    text: 'hello \\{} world',
+    text: 'hello {} world',
     childTokens: [],
   }])
 })

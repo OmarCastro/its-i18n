@@ -40,7 +40,6 @@ const defaultNextState = (() => {
 const normalState = (() => {
   const state = []
   state[ch('{')] = states.capture
-  state[ch('\\')] = states.escape
   return state
 })()
 
@@ -213,6 +212,12 @@ export function getAST(key) {
     }
 
     if (currentState == states.normal) {
+      // at this point the next state is always `states.capture`
+      if(key.charCodeAt(i + 1) === ch){
+        i++
+        continue
+      }
+
       currentToken.end = i
       if (currentToken.end > currentToken.start) {
         rootnode.tokens.push(currentToken)
@@ -243,14 +248,19 @@ export function getAST(key) {
   }
 
   /** @type {(a: TmpToken) => Token} */
-  const toToken  = ({ start, end, type, childTokens }
-  ) => ({
-    start,
-    end,
-    type,
-    text: key.substring(start, end),
-    childTokens: childTokens.map(toToken),
-  })
+  const toToken  = ({ start, end, type, childTokens }) => {
+    const substring = key.substring(start, end)
+    const text = type === states.normal ? substring.replaceAll("{{", "{") : substring
+
+    return {
+      start,
+      end,
+      type,
+      text,
+      childTokens: childTokens.map(toToken),
+    }
+    
+  }
 
   return {
     key,
