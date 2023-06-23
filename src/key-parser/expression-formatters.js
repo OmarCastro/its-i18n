@@ -10,25 +10,25 @@ const baseFormatter = {
     format: formatAsIs,
   },
 
-  'number': {
+  number: {
     format: (text, locale) => Intl.NumberFormat(locale.baseName).format(Number(text)),
   },
 
-  'date': {
+  date: {
     format: (text, locale) => {
       const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, defaultDateFormatOptions).format(date)
     },
   },
 
-  'datetime': {
+  datetime: {
     format: (text, locale) => {
       const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, defaultDateTimeFormatOptions).format(date)
     },
   },
 
-  'timestamp': {
+  timestamp: {
     format: (text, locale) => {
       const date = isNumeric(text) ? new Date(+text) : parseISO8601(text)
       return Intl.DateTimeFormat(locale.baseName, timestampFormatOptions).format(date)
@@ -113,7 +113,7 @@ const durationUnits = [
  * @param {number} d2 timestamp to compare, if not defined uses current time
  * @returns formatted relative time
  */
-function relativeTimeFormat(locale, d1, d2 = Date.now()) {
+function relativeTimeFormat (locale, d1, d2 = Date.now()) {
   const elapsed = d1 - d2
   const formatter = new Intl.RelativeTimeFormat(locale.baseName, { numeric: 'auto' })
 
