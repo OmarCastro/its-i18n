@@ -10,3 +10,5 @@ parserOptions:
   sourceType: module
 rules:
   comma-dangle: [error, always-multiline]
+  key-spacing: ["error", { "mode": "minimum" }]
+  no-multi-spaces: [error, { exceptions: { Property: true, ObjectExpression: true }}]
