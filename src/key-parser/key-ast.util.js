@@ -18,7 +18,7 @@ export const states = {
 }
 
 /**
- * @param {string} char 
+ * @param {string} char - target string char
  * @returns {number} the Unicode value of the character
  */
 const ch = (char) => char.charCodeAt(0)
@@ -111,17 +111,16 @@ const stateMachine = (() => {
   return state
 })()
 
-
 /**
  * Parses the string into an Abstract Syntac Tree (AST)
- * 
+ *
  * @param {string} key - target sting
  * @returns {AST} the parsed AST of the target key
  */
-export function getAST(key) {
+export function getAST (key) {
   let currentState = states.normal
   let currentMachineState = stateMachine[currentState]
-  const tokens = []
+
   /** @type {AST_In_Progress} */
   const rootnode = {
     tokens: [],
@@ -138,7 +137,7 @@ export function getAST(key) {
 
   /**
    * Sets the current state
-   * @param {number} newState 
+   * @param {number} newState
    */
   const setCurrentState = (newState) => {
     currentState = newState
@@ -151,18 +150,15 @@ export function getAST(key) {
    */
   const isRootNode = (node) => node === rootnode
 
-
   /**
    * sets the current token the parent node or the
-   * @param {number} index 
+   * @param {number} index
    */
   const upOneLevel = (index) => {
     setCurrentState(/** @type {TmpToken} */(currentToken.parentNode).type ?? states.normal)
 
-
-
     if (currentToken.type === states.escape) {
-      const {parentNode} = currentToken
+      const { parentNode } = currentToken
 
       if (isRootNode(parentNode)) {
         currentToken = /** @type {TmpToken} */(rootnode.tokens.pop())
@@ -174,12 +170,12 @@ export function getAST(key) {
 
     currentToken.end = index + 1
 
-    const {parentNode} = currentToken
+    const { parentNode } = currentToken
 
     if (isRootNode(parentNode)) {
       parentNode.tokens.push(currentToken)
       currentToken = {
-        parentNode: parentNode,
+        parentNode,
         start: index + 1,
         end: index + 1,
         type: states.normal,
@@ -190,7 +186,6 @@ export function getAST(key) {
 
     parentNode.childTokens.push(currentToken)
     currentToken = parentNode
-    return
   }
 
   const length = key.length
@@ -211,9 +206,9 @@ export function getAST(key) {
       continue
     }
 
-    if (currentState == states.normal) {
+    if (currentState === states.normal) {
       // at this point the next state is always `states.capture`
-      if(key.charCodeAt(i + 1) === ch){
+      if (key.charCodeAt(i + 1) === ch) {
         i++
         continue
       }
@@ -241,16 +236,16 @@ export function getAST(key) {
     }
     setCurrentState(nextState)
   }
-  
+
   currentToken.end = key.length
   if (currentToken.end > currentToken.start) {
     rootnode.tokens.push(currentToken)
   }
 
   /** @type {(a: TmpToken) => Token} */
-  const toToken  = ({ start, end, type, childTokens }) => {
+  const toToken = ({ start, end, type, childTokens }) => {
     const substring = key.substring(start, end)
-    const text = type === states.normal ? substring.replaceAll("{{", "{") : substring
+    const text = type === states.normal ? substring.replaceAll('{{', '{') : substring
 
     return {
       start,
@@ -259,7 +254,6 @@ export function getAST(key) {
       text,
       childTokens: childTokens.map(toToken),
     }
-    
   }
 
   return {
@@ -268,33 +262,30 @@ export function getAST(key) {
   }
 }
 
-
-
 /**
  * @typedef {object} AST
- * 
+ *
  * Abstract syntax tree (AST), or just syntax tree, A parse tree is a visual representation of the
  * syntactic structure of a piece of source code, as produced by a parser.
  * It shows the hierarchy of the elements in the code and the relationships between them.
- * 
+ *
  * @property {string} key - the target key used to create the key
  * @property {Token[]} tokens - the direct descentdant of the root tree
- * 
+ *
  */
 
 /**
  * @typedef {object} AST_In_Progress
- * 
+ *
  * A "work in progress" AST, it is just a object used to build the {@see AST}
- * 
+ *
  * @property {TmpToken[]} tokens - the direct descentdant of the root tree
  */
-
 
 /**
  * @typedef {object} Token
  * Represents a Node in the {@link AST}
- * 
+ *
  * @property {number} start - text ocurrent starting position (start index), number is inclusive
  * @property {number} end - text ocurrent ending position (end index), number is exclusive
  * @property {typeof states[keyof typeof states]} type - the node type
@@ -302,11 +293,10 @@ export function getAST(key) {
  * @property {Token[]} childTokens - direct child tokens of the node
  */
 
-
 /**
  * @typedef {object} TmpToken
  * Temporary {@link Token}, used to create the final {@link Token}
- * 
+ *
  * @property {AST_In_Progress | TmpToken} parentNode - parent node
  * @property {number} start - text ocurrent starting position (start index), number is inclusive
  * @property {number} end - text ocurrent ending position (end index), number is exclusive

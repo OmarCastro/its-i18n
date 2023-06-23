@@ -4,7 +4,7 @@
  * @param {string} text - ISO8601 input as string
  * @returns {number} the representing ISO date as milliseconds from UNIX time on valid input, NaN on invalid input
  */
-export function parseISO8601(text) {
+export function parseISO8601 (text) {
   if (typeof text !== 'string') {
     return NaN
   }

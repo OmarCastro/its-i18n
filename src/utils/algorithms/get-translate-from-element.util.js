@@ -16,7 +16,7 @@ import { traverseUpDomWithSlots } from './traverse-up-dom.js'
  * @param {Element} element
  * @returns {boolean} true if element is translatable, false otherwise
  */
-export function isElementTranslatable(element) {
+export function isElementTranslatable (element) {
   // the vast majority of element are HTMLElement, so validating it first is good
   if (element instanceof HTMLElement) {
     return element.translate

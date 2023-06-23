@@ -5,7 +5,7 @@ import { traverseUpDomWithSlots } from './traverse-up-dom.js'
  * @param {string} invalidLanguage
  * @returns {string} corrected language
  */
-function handleInvalidLanguage(elementWithLangAttr, invalidLanguage) {
+function handleInvalidLanguage (elementWithLangAttr, invalidLanguage) {
   if (elementWithLangAttr === elementWithLangAttr.ownerDocument.documentElement) {
     return navigator.language
   } else if (elementWithLangAttr.parentNode instanceof ShadowRoot) {
@@ -20,7 +20,7 @@ function handleInvalidLanguage(elementWithLangAttr, invalidLanguage) {
  * @param {Element | null} element
  * @returns {string} element language
  */
-export function getLanguageFromElement(element) {
+export function getLanguageFromElement (element) {
   if (element == null) {
     return navigator.language
   }
