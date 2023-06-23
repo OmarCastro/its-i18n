@@ -2,11 +2,11 @@ env:
   browser: true
   es2021: true
   node: true
-extends: standard-with-typescript
+extends: standard
 plugins:
   - jsdoc
 parserOptions:
   ecmaVersion: latest
   sourceType: module
 rules:
-  comma-dangle: “always-multiline”
+  comma-dangle: [error, always-multiline]
