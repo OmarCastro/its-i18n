@@ -1,20 +1,20 @@
-import { type I18nDefinitionMap, importI18nJson, importTranslations, type Translations } from '../utils/i18n-importer/i18n-importer.js'
-import { i18nTanslationStore, type StoreData, type TranslationStore } from '../utils/store/translation-store.ts'
+import { importI18nJson } from '../utils/i18n-importer/i18n-importer.js'
+import { i18nTanslationStore, type TranslationStore } from '../utils/store/translation-store.ts'
 import { builder } from '../utils/i18n-merger/mod.ts'
 
 async function loadLocaleMaps({ document, location, merger }: LoadPartParameters) {
   const locationHref = location.href
 
-  const localeMaps = document.querySelectorAll('link[rel="i18n-locale-map"]')
+  const localeMaps = Array.from(document.querySelectorAll('link[rel="i18n-locale-map"]'))
   if (localeMaps.length <= 0) {
     return merger
   }
 
-  const deferredMapPromises = [] as Promise<[I18nDefinitionMap, URL]>[]
-
-  localeMaps.forEach((link) => {
-    const href = link.getAttribute('href')!
-    deferredMapPromises.push(importI18nJson(href, locationHref).then((result) => [result, new URL(href, locationHref)]))
+  const deferredMapPromises = localeMaps.flatMap((link) => {
+    const href = link.getAttribute('href')
+    if(!href) return []
+    
+    return [importI18nJson(href, locationHref).then((result) => ({result, location: new URL(href, locationHref)}))]
   })
 
   const promiseResults = await Promise.allSettled(deferredMapPromises)
@@ -24,7 +24,8 @@ async function loadLocaleMaps({ document, location, merger }: LoadPartParameters
       console.error('error loading file: %o', settled.reason)
       return merger
     }
-    return merger.addMap(...settled.value)
+    const {result, location} = settled.value
+    return merger.addMap(result, location)
   }, merger)
 }
 

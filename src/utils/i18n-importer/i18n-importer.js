@@ -9,4 +9,3 @@ export const importI18nJson = (url, base) => implementation.importI18nJson(url, 
 /** @typedef {import('./provider.js').ImportTranslations} ImportTranslations */
 /** @typedef {import('./provider.js').ImportI18nJson} ImportI18nJson */
 /** @typedef {import('./provider.js').I18nDefinitionMap} I18nDefinitionMap */
-/** @typedef {import('./provider.js').Translations} Translations */
