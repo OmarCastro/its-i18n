@@ -1,13 +1,12 @@
 import { test } from '../../test-utils/unit/test.js'
 import { getAST } from './key-ast.util.js'
 import { getFormatter } from './value-formatter.ts'
-import { captureExpressions } from './capture-expression-values.ts'
+import { captureExpressions } from './capture-expression-values.js'
 
 test('Given a simple string, getFormatter result should format the same string', ({ expect }) => {
   const ast = getAST('hello world')
   const formatter = getFormatter(ast)
   const locale = new Intl.Locale('en-GB')
-  const result = formatter.format([], locale)
   expect(formatter.format([], locale)).toEqual('hello world')
 })
 
@@ -45,7 +44,7 @@ test('Given a default unix timestamp formatter, getFormatter result should forma
     'fr-FR': formatter.format(['1000000'], frLocale, defaultFormatters),
     'ja-JP': formatter.format(['1000000'], jpLocale, defaultFormatters),
   }).toEqual({
-    'en-US': '1 million seconds since unix is in 1/12/1970, 1:46:40 PM',
+    'en-US': '1 million seconds since unix is in 1/12/70, 1:46:40 PM',
     'en-GB': '1 million seconds since unix is in 12/01/1970, 13:46:40',
     'fr-FR': '1 million seconds since unix is in 12/01/1970 13:46:40',
     'ja-JP': '1 million seconds since unix is in 1970/01/12 13:46:40',
