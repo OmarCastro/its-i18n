@@ -1,6 +1,6 @@
 import { type AST, states, type Token } from './key-ast.util.js'
 import { escape } from '../utils/algorithms/regex.utils.js'
-import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.ts'
+import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.js'
 
 const falsePredicate = () => false
 const emptyArray = Object.freeze([])

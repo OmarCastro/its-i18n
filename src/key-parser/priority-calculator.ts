@@ -1,5 +1,5 @@
 import { type AST, states, type Token } from './key-ast.util.js'
-import { captureExpressions } from './capture-expression-values.ts'
+import { captureExpressions } from './capture-expression-values.js'
 
 function calculatePriorityFromTokens(tokens: Token[]) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
