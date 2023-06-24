@@ -1,4 +1,4 @@
-import { type I18nDefinitionMap, importI18nJson, importTranslations, type Translations } from '../utils/i18n-importer/mod.ts'
+import { type I18nDefinitionMap, importI18nJson, importTranslations, type Translations } from '../utils/i18n-importer/i18n-importer.js'
 import { i18nTanslationStore, type StoreData, type TranslationStore } from '../utils/store/translation-store.ts'
 import { builder } from '../utils/i18n-merger/mod.ts'
 

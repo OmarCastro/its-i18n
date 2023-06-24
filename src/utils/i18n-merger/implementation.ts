@@ -1,4 +1,4 @@
-import type { I18nDefinitionMap } from '../i18n-importer/mod.ts'
+import type { I18nDefinitionMap } from '../i18n-importer/i18n-importer.js'
 import {
   I18nDefinition,
   NormalizedI18nDefinition,

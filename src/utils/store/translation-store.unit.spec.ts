@@ -1,6 +1,6 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { i18nTanslationStore } from './translation-store.ts'
-import { provide } from '../i18n-importer/provider.ts'
+import { provide } from '../i18n-importer/provider.js'
 
 test('Given a new store, when loadTranslations ', async ({ step: originalStep, expect }) => {
   const store = i18nTanslationStore()

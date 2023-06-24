@@ -1,4 +1,4 @@
-import { importTranslations } from '../i18n-importer/mod.ts'
+import { importTranslations } from '../i18n-importer/i18n-importer.js'
 
 const emptyObj = Object.freeze({})
 const intialDataStore = Object.freeze({
