@@ -1,5 +1,5 @@
 import { test } from '../../../test-utils/unit/test.js'
-import { i18nTanslationStore } from './translation-store.ts'
+import { i18nTanslationStore } from './translation-store.js'
 import { provide } from '../i18n-importer/provider.js'
 
 test('Given a new store, when loadTranslations ', async ({ step: originalStep, expect }) => {

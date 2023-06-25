@@ -1,7 +1,7 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { document } from '../../../test-utils/unit/init-dom.js'
 import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.ts'
-import { i18nTanslationStore } from '../store/translation-store.ts'
+import { i18nTanslationStore } from '../store/translation-store.js'
 
 const html = String.raw
 
