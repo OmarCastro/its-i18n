@@ -1,6 +1,6 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { document } from '../../../test-utils/unit/init-dom.js'
-import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.ts'
+import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.js'
 import { i18nTanslationStore } from '../store/translation-store.js'
 
 const html = String.raw
@@ -19,14 +19,14 @@ test('Given a simple document without any store set on any element, getStoresInf
       </div>
   `
 
-  const level1Div = document.querySelector('.level-1')!
-  const level4Div = document.querySelector('.level-4')!
+  const level1Div = document.querySelector('.level-1')
+  const level4Div = document.querySelector('.level-4')
 
   // act
   const result1 = Array.from(getStoresInfoFromElement(level1Div))
   const result2 = Array.from(getStoresInfoFromElement(level4Div))
 
-  //assert
+  // assert
   expect({ result1, result2 }).toEqual({
     result1: [noStoresFound],
     result2: [noStoresFound],
@@ -65,39 +65,38 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ step
     </div>
 `
 
-  const level1Div = document.querySelector('.level-1')!
-  const level2Div = document.querySelector('.level-2')!
-  const level3Div = document.querySelector('.level-3')!
-  const level4Div = document.querySelector('.level-4')!
+  const level1Div = document.querySelector('.level-1')
+  const level2Div = document.querySelector('.level-2')
+  const level3Div = document.querySelector('.level-3')
+  const level4Div = document.querySelector('.level-4')
   const shadowRootLv2 = level2Div.attachShadow({ mode: 'open' })
   shadowRootLv2.innerHTML = level2ShadowDomHtml
 
-  const shadow2level1Div = shadowRootLv2.querySelector('.shadow-level-1')!
-  const shadow2level2Div = shadowRootLv2.querySelector('.shadow-level-2')!
-  const shadow2level12Div = shadowRootLv2.querySelector('.shadow-level-1-2')!
+  const shadow2level1Div = shadowRootLv2.querySelector('.shadow-level-1')
+  const shadow2level2Div = shadowRootLv2.querySelector('.shadow-level-2')
+  const shadow2level12Div = shadowRootLv2.querySelector('.shadow-level-1-2')
 
   const shadowRootLv3 = level3Div.attachShadow({ mode: 'closed' })
   shadowRootLv3.innerHTML = level3ClosedShadowDomHtml
 
-  const shadow3level3Div = shadowRootLv3.querySelector('.shadow-level-3')!
+  const shadow3level3Div = shadowRootLv3.querySelector('.shadow-level-3')
 
   const subShadowRoot = shadow2level1Div.attachShadow({ mode: 'open' })
   subShadowRoot.innerHTML = level2SubShadowDomHtml
 
-  const subshadow2level1Div = subShadowRoot.querySelector('.shadow-level-1')!
-  const subshadow2level2Div = subShadowRoot.querySelector('.shadow-level-2')!
+  const subshadow2level2Div = subShadowRoot.querySelector('.shadow-level-2')
 
   const level1Store = i18nTanslationStore()
   level1Store.loadTranslations({
     location: 'http://example.com',
-    languages: { 'en': { translations: { 'level1': 'level1' } } },
+    languages: { en: { translations: { level1: 'level1' } } },
   })
   setStoreFromElement(level1Div, level1Store)
 
   const level2Store = i18nTanslationStore()
   level2Store.loadTranslations({
     location: 'http://example2.com',
-    languages: { 'en': { translations: { 'level2': 'level2' } } },
+    languages: { en: { translations: { level2: 'level2' } } },
   })
 
   setStoreFromElement(level2Div, level2Store)
@@ -105,7 +104,7 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ step
   const level3Store = i18nTanslationStore()
   level3Store.loadTranslations({
     location: 'http://example3.com',
-    languages: { 'en': { translations: { 'level3': 'level3' } } },
+    languages: { en: { translations: { level3: 'level3' } } },
   })
 
   setStoreFromElement(level3Div, level3Store)
@@ -113,7 +112,7 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ step
   const shadow2level1Store = i18nTanslationStore()
   shadow2level1Store.loadTranslations({
     location: 'http://example-shadow2.com',
-    languages: { 'en': { translations: { 'level2': 'shadow1' } } },
+    languages: { en: { translations: { level2: 'shadow1' } } },
   })
 
   setStoreFromElement(shadow2level1Div, shadow2level1Store)
@@ -121,7 +120,7 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ step
   const shadow3level1Store = i18nTanslationStore()
   shadow3level1Store.loadTranslations({
     location: 'http://example-shadow3.com',
-    languages: { 'en': { translations: { 'level3': 'shadow1' } } },
+    languages: { en: { translations: { level3: 'shadow1' } } },
   })
 
   setStoreFromElement(shadow3level3Div, shadow3level1Store)
@@ -135,7 +134,7 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ step
   const step3Result4 = Array.from(getStoresInfoFromElement(shadow3level3Div))
   const step3Result5 = Array.from(getStoresInfoFromElement(subshadow2level2Div))
 
-  //assert
+  // assert
   const level1StoreResult = { store: level1Store, element: level1Div }
   const level2StoreResult = { store: level2Store, element: level2Div }
   const level3StoreResult = { store: level3Store, element: level3Div }

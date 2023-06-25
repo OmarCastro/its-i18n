@@ -2,7 +2,7 @@ import { window } from '../../../test-utils/unit/init-dom.js'
 import { test } from '../../../test-utils/unit/test.js'
 import { provide } from '../../utils/i18n-importer/provider.js'
 import { loadI18n } from '../../html-loader/html-loader.ts'
-import { setStoreFromElement } from '../../utils/store-map/store-map.ts'
+import { setStoreFromElement } from '../../utils/store-map/store-map.js'
 
 const html = String.raw
 
