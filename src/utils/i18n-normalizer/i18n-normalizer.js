@@ -122,7 +122,7 @@ export function normalizeI18nDefinition (data) {
   const hasTranslations = Object.hasOwn(data, 'translations')
 
   const extendsValue = (() => {
-    if (hasExtends) { return [] }
+    if (!hasExtends) { return [] }
     const extendsValueResult = normalizesExtendsValue(data.extends)
     errors.push(...extendsValueResult.errors.map(({ path, message }) => ({ path: mergePath('.extends', path), message })))
     return extendsValueResult.result
@@ -153,7 +153,7 @@ export function normalizeI18nDefinition (data) {
  *
  * @param {I18nDefinitionMap} data - target i18n definition map to be normalized
  *
- * @returns {NormalizationResult} normalized i18n definition map
+ * @returns normalized i18n definition map
  */
 export function normalizeI18nDefinitionMap (data) {
   const errors = []
@@ -245,5 +245,5 @@ const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('
  * @typedef {object} NormalizationResult
  * @property {NormalizedI18nDefinitionMap} result
  * @property {ErrorList} warnings
- * @property {ErrorList} errors
+ * @property {ErrorList} warnings
  */
