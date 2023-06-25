@@ -1,6 +1,6 @@
 import { importI18nJson } from '../utils/i18n-importer/i18n-importer.js'
 import { i18nTanslationStore, type TranslationStore } from '../utils/store/translation-store.js'
-import { builder } from '../utils/i18n-merger/mod.ts'
+import { builder } from '../utils/i18n-merger/i18n-merger.util.js'
 
 async function loadLocaleMaps({ document, location, merger }: LoadPartParameters) {
   const locationHref = location.href
