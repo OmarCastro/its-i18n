@@ -1,0 +1,5 @@
+{
+    "en": { "import": "./translations.en.json" },
+    "es": { "import": "./translations.es.json" },
+    "pt": { "import": "./translations.pt.json" }
+}

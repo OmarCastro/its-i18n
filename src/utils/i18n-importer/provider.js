@@ -26,7 +26,7 @@ export function provide (newImpl) {
 
 /**
  * @typedef {object} I18nDefinition
- * @property {string | string[]} [extends]    - Additional files to import to the definition
+ * @property {string | string[]} [import]    - Additional files to import to the definition
  * @property {Translations}      translations - translaion map
  */
 

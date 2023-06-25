@@ -15,18 +15,18 @@ export function validateImportPath (path) {
 }
 
 /**
- * Normalize Extends Array, eliminating invalid import paths
+ * Normalize Import Array, eliminating invalid import paths
  *
- * @param {string[]} extendsArray
+ * @param {string[]} importArray
  * @returns {{ result: string[]; errors: ErrorList }}
  */
-function normalizeExtendsArray (extendsArray) {
+function normalizeImportArray (importArray) {
   const result = []
   const errors = []
-  for (const [index, importPath] of extendsArray.entries()) {
+  for (const [index, importPath] of importArray.entries()) {
     const checkResult = validateImportPath(importPath)
     if (!checkResult.valid) {
-      errors.push({ path: `.[${index}]`, message: `${checkResult.error}, ignoring extends` })
+      errors.push({ path: `.[${index}]`, message: `${checkResult.error}, ignoring import` })
       continue
     }
     result.push(importPath)
@@ -35,14 +35,14 @@ function normalizeExtendsArray (extendsArray) {
 }
 
 /**
- * Normalize Extends string, into an normalized extends array
+ * Normalize Import string, into an normalized import array
  *
  * @param {unknown} extdensVal
  * @returns {{ result: string[]; errors: ErrorList }}
  */
-function normalizesExtendsValue (extdensVal) {
+function normalizesImportValue (extdensVal) {
   if (extdensVal === '') {
-    return { result: [], errors: [{ path: '', message: 'cannot import empty path, ignoring extends' }] }
+    return { result: [], errors: [{ path: '', message: 'cannot import empty path, ignoring import' }] }
   }
 
   if (typeof extdensVal === 'string') {
@@ -50,7 +50,7 @@ function normalizesExtendsValue (extdensVal) {
   }
 
   if (Array.isArray(extdensVal)) {
-    return normalizeExtendsArray(extdensVal)
+    return normalizeImportArray(extdensVal)
   }
 
   return {
@@ -97,35 +97,35 @@ export function normalizeTranslations (translations) {
 export function normalizeI18nDefinition (data) {
   if (data === '') {
     return {
-      result: { extends: [], translations: {} },
-      errors: [{ path: '', message: 'cannot import empty path, ignoring extends' }],
+      result: { import: [], translations: {} },
+      errors: [{ path: '', message: 'cannot import empty path, ignoring import' }],
     }
   }
 
   if (typeof data === 'string') {
-    return { result: { extends: [data], translations: {} }, errors: [] }
+    return { result: { import: [data], translations: {} }, errors: [] }
   }
 
   if (Array.isArray(data)) {
-    const extendsArrayResult = normalizeExtendsArray(data)
-    const errors = extendsArrayResult.errors
-    const result = { extends: extendsArrayResult.result, translations: {} }
+    const importArrayResult = normalizeImportArray(data)
+    const errors = importArrayResult.errors
+    const result = { import: importArrayResult.result, translations: {} }
     return { result, errors }
   }
 
   if (!isPlainObject(data)) {
-    return { result: { extends: [], translations: {} }, errors: [{ path: '', message: 'invalid type' }] }
+    return { result: { import: [], translations: {} }, errors: [{ path: '', message: 'invalid type' }] }
   }
 
   const errors = []
-  const hasExtends = Object.hasOwn(data, 'extends')
+  const hasimport = Object.hasOwn(data, 'import')
   const hasTranslations = Object.hasOwn(data, 'translations')
 
-  const extendsValue = (() => {
-    if (!hasExtends) { return [] }
-    const extendsValueResult = normalizesExtendsValue(data.extends)
-    errors.push(...extendsValueResult.errors.map(({ path, message }) => ({ path: mergePath('.extends', path), message })))
-    return extendsValueResult.result
+  const importValue = (() => {
+    if (!hasimport) { return [] }
+    const importValueResult = normalizesImportValue(data.import)
+    errors.push(...importValueResult.errors.map(({ path, message }) => ({ path: mergePath('.import', path), message })))
+    return importValueResult.result
   })()
 
   const translationsValue = (() => {
@@ -135,16 +135,16 @@ export function normalizeI18nDefinition (data) {
     return translationsValueResult.result
   })()
 
-  if (hasExtends || hasTranslations) {
+  if (hasimport || hasTranslations) {
     return {
-      result: { extends: extendsValue, translations: translationsValue },
+      result: { import: importValue, translations: translationsValue },
       errors,
     }
   }
 
   return {
-    result: { extends: [], translations: {} },
-    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translations" keys' }],
+    result: { import: [], translations: {} },
+    errors: [{ path: '', message: 'invalid object, the object must have "import" or "translations" keys' }],
   }
 }
 
@@ -231,11 +231,11 @@ const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('
 
 /** @typedef {Record<string, string>} Translations */
 
-/** @typedef { { extends: string[] , translations: Translations}} NormalizedI18nDefinition */
+/** @typedef { { import: string[] , translations: Translations}} NormalizedI18nDefinition */
 
 /** @typedef {Record<string, NormalizedI18nDefinition>} NormalizedI18nDefinitionMap */
 
-/** @typedef {string | string[] | { extends?: string[] | string, translations: Translations} | { extends: string[] | string, translations?: Translations}} I18nDefinition */
+/** @typedef {string | string[] | { import?: string[] | string, translations: Translations} | { import: string[] | string, translations?: Translations}} I18nDefinition */
 
 /** @typedef {Record<string, I18nDefinition>} I18nDefinitionMap */
 

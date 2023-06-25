@@ -67,10 +67,10 @@ const getTranslationsFromData = async (store, locale) => {
   if (!definition) {
     return {}
   }
-  if (!Array.isArray(definition.extends) || definition.extends.length <= 0) {
+  if (!Array.isArray(definition.import) || definition.import.length <= 0) {
     return definition.translations
   }
-  const translationsPromises = definition.extends.map(extend => isLocale(extend)
+  const translationsPromises = definition.import.map(extend => isLocale(extend)
     ? getTranslationsFromData(store, extend)
     : importTranslations(extend, store.data.location),
   )

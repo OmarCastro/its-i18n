@@ -119,12 +119,12 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     return await originalStep.apply(null, args)
   }
 
-  await step('from "import-extends/i18n.json" should load wihout problems', async () => {
+  await step('from "import/i18n.json" should load wihout problems', async () => {
     const impl = i18nImporterImplWith({ readFrom })
     provide(impl)
 
     const base = import.meta.url
-    const location = './translation-store.test.ts--filesystem/import-extends/i18n.json'
+    const location = './translation-store.test.ts--filesystem/import/i18n.json'
     const json = await impl.importI18nJson(location, base)
 
     const store = i18nTanslationStore()
@@ -134,17 +134,17 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     })
     expect(consoleCalls).toEqual({ error: [], warn: [] })
     expect(store.data.languages).toEqual({
-      'en': { 'extends': ['./translations.en.json'], translations: {} },
-      'es': { 'extends': ['./translations.es.json'], translations: {} },
-      'pt': { 'extends': ['./translations.pt.json'], translations: {} },
+      'en': { 'import': ['./translations.en.json'], translations: {} },
+      'es': { 'import': ['./translations.es.json'], translations: {} },
+      'pt': { 'import': ['./translations.pt.json'], translations: {} },
     })
   })
 
-  await step('from "import-extends-outer/base/i18n.json" should load wihout problems', async () => {
+  await step('from "import-outer/base/i18n.json" should load wihout problems', async () => {
     const impl = i18nImporterImplWith({ readFrom })
     provide(impl)
 
-    const basePathFolder = './translation-store.test.ts--filesystem/import-extends-outer/base'
+    const basePathFolder = './translation-store.test.ts--filesystem/import-outer/base'
     const base = import.meta.url
     const location = `${basePathFolder}/i18n.json`
     const json = await impl.importI18nJson(location, base)
@@ -156,9 +156,9 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     })
     expect(consoleCalls).toEqual({ error: [], warn: [] })
     expect(store.data.languages).toEqual({
-      'en': { 'extends': ['../languages/en/translations.en.json'], translations: {} },
-      'es': { 'extends': ['../languages/es/translations.es.json'], translations: {} },
-      'pt': { 'extends': ['../languages/pt/translations.pt.json'], translations: {} },
+      'en': { 'import': ['../languages/en/translations.en.json'], translations: {} },
+      'es': { 'import': ['../languages/es/translations.es.json'], translations: {} },
+      'pt': { 'import': ['../languages/pt/translations.pt.json'], translations: {} },
     })
   })
 
@@ -166,7 +166,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
   console.error = originalConsoleError
 })
 
-test('Given a storeData loaded from "import-extends/i18n.json", when getting translationsFromLanguage ', async ({ step, expect, readFrom }) => {
+test('Given a storeData loaded from "import/i18n.json", when getting translationsFromLanguage ', async ({ step, expect, readFrom }) => {
   const importLanguageCalls = [] as { url: string | URL; base: string | URL }[]
   const impl = {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
@@ -176,7 +176,7 @@ test('Given a storeData loaded from "import-extends/i18n.json", when getting tra
   provide(impl)
 
   const base = import.meta.url
-  const location = './translation-store.test.ts--filesystem/import-extends/i18n.json'
+  const location = './translation-store.test.ts--filesystem/import/i18n.json'
   const json = await impl.importI18nJson(location, base)
 
   const store = i18nTanslationStore()
@@ -189,7 +189,7 @@ test('Given a storeData loaded from "import-extends/i18n.json", when getting tra
     await store.translationsFromLanguage('en')
     await store.translationsFromLanguage('en-US')
     await store.translationsFromLanguage('en-Latn-US')
-    expect(importLanguageCalls).toEqual([{ url: json.en.extends, base: store.data.location }])
+    expect(importLanguageCalls).toEqual([{ url: json.en.import, base: store.data.location }])
   })
 
   await step('"en", should import & return english translations', async () => {

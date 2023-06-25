@@ -5,7 +5,7 @@ test('Given an invalid input type, normalizeI18nDefinition returns empty definit
   const input = null
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
-    result: { extends: [], translations: {} },
+    result: { import: [], translations: {} },
     errors: [{ path: '', message: 'invalid type' }],
   })
 })
@@ -14,122 +14,122 @@ test('Given an empty string, normalizeI18nDefinition returns empty definition wi
   const input = ''
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
-    result: { extends: [], translations: {} },
-    errors: [{ path: '', message: 'cannot import empty path, ignoring extends' }],
+    result: { import: [], translations: {} },
+    errors: [{ path: '', message: 'cannot import empty path, ignoring import' }],
   })
 })
 
-test('Given a valid string, normalizeI18nDefinition normalizes to an singluar tuple extends', ({ expect }) => {
+test('Given a valid string, normalizeI18nDefinition normalizes to an singluar tuple import', ({ expect }) => {
   const input = 'lang.en.json'
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: [input],
+      import: [input],
       translations: {},
     },
     errors: [],
   })
 })
 
-test('Given an valid array, normalizeI18nDefinition normalizes to an tuple extends', ({ expect }) => {
+test('Given an valid array, normalizeI18nDefinition normalizes to an tuple import', ({ expect }) => {
   const input = ['lang.en.json', 'customization.lang.en']
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: input,
+      import: input,
       translations: {},
     },
     errors: [],
   })
 })
 
-test('Given an array with errors, normalizeI18nDefinition normalizes to an tuple extends with erros', ({ expect }) => {
+test('Given an array with errors, normalizeI18nDefinition normalizes to an tuple import with erros', ({ expect }) => {
   const input = ['lang.en.json', '', null, undefined]
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: ['lang.en.json'],
+      import: ['lang.en.json'],
       translations: {},
     },
     errors: [
-      { path: '.[1]', message: 'cannot import empty path, ignoring extends' },
-      { path: '.[2]', message: 'expected string instead of null, ignoring extends' },
-      { path: '.[3]', message: 'expected string instead of undefined, ignoring extends' },
+      { path: '.[1]', message: 'cannot import empty path, ignoring import' },
+      { path: '.[2]', message: 'expected string instead of null, ignoring import' },
+      { path: '.[3]', message: 'expected string instead of undefined, ignoring import' },
     ],
   })
 })
 
-test('Given an object with null extends, normalizeI18nDefinition normalizes to empty definition with error', ({ expect }) => {
-  const input = { extends: null }
+test('Given an object with null import, normalizeI18nDefinition normalizes to empty definition with error', ({ expect }) => {
+  const input = { import: null }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: [],
+      import: [],
       translations: {},
     },
     errors: [
-      { path: '.extends', message: 'expected string or string array (string[]) instead of null' },
+      { path: '.import', message: 'expected string or string array (string[]) instead of null' },
     ],
   })
 })
 
-test('Given an object with empty string extends, normalizeI18nDefinition normalizes to empty definition with error', ({ expect }) => {
-  const input = { extends: '' }
+test('Given an object with empty string import, normalizeI18nDefinition normalizes to empty definition with error', ({ expect }) => {
+  const input = { import: '' }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: [],
+      import: [],
       translations: {},
     },
     errors: [
-      { path: '.extends', message: 'cannot import empty path, ignoring extends' },
+      { path: '.import', message: 'cannot import empty path, ignoring import' },
     ],
   })
 })
 
-test('Given a valid extends string, normalizeI18nDefinition normalizes to an singluar tuple extends', ({ expect }) => {
-  const input = { extends: 'lang.en.json' }
+test('Given a valid import string, normalizeI18nDefinition normalizes to an singluar tuple import', ({ expect }) => {
+  const input = { import: 'lang.en.json' }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: ['lang.en.json'],
+      import: ['lang.en.json'],
       translations: {},
     },
     errors: [],
   })
 })
 
-test('Given an object with extends arry with errors, normalizeI18nDefinition normalizes to an tuple extends with erros', ({ expect }) => {
-  const input = { extends: [null, 'lang.en.json', '', 123, {}] }
+test('Given an object with import arry with errors, normalizeI18nDefinition normalizes to an tuple import with erros', ({ expect }) => {
+  const input = { import: [null, 'lang.en.json', '', 123, {}] }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: ['lang.en.json'],
+      import: ['lang.en.json'],
       translations: {},
     },
     errors: [
-      { path: '.extends[0]', message: 'expected string instead of null, ignoring extends' },
-      { path: '.extends[2]', message: 'cannot import empty path, ignoring extends' },
-      { path: '.extends[3]', message: 'expected string instead of number, ignoring extends' },
-      { path: '.extends[4]', message: 'expected string instead of object, ignoring extends' },
+      { path: '.import[0]', message: 'expected string instead of null, ignoring import' },
+      { path: '.import[2]', message: 'cannot import empty path, ignoring import' },
+      { path: '.import[3]', message: 'expected string instead of number, ignoring import' },
+      { path: '.import[4]', message: 'expected string instead of object, ignoring import' },
     ],
   })
 })
 
-test('Given an object with valid extends array, normalizeI18nDefinition normalizes to an tuple extends', ({ expect }) => {
-  const input = { extends: ['lang.en.json', 'customization.en.json'] }
+test('Given an object with valid import array, normalizeI18nDefinition normalizes to an tuple import', ({ expect }) => {
+  const input = { import: ['lang.en.json', 'customization.en.json'] }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: ['lang.en.json', 'customization.en.json'],
+      import: ['lang.en.json', 'customization.en.json'],
       translations: {},
     },
     errors: [],
   })
 })
 
-test('Given an object with valid extends array and translation, normalizeI18nDefinition returns an equal result', ({ expect }) => {
-  const input = { extends: ['lang.en.json', 'customization.en.json'], translations: {} }
+test('Given an object with valid import array and translation, normalizeI18nDefinition returns an equal result', ({ expect }) => {
+  const input = { import: ['lang.en.json', 'customization.en.json'], translations: {} }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: input,
@@ -137,7 +137,7 @@ test('Given an object with valid extends array and translation, normalizeI18nDef
   })
 })
 
-test('Given an valid translation object, normalizeI18nDefinition returns an result with an empty extends', ({ expect }) => {
+test('Given an valid translation object, normalizeI18nDefinition returns an result with an empty import', ({ expect }) => {
   const input = {
     translations: {
       'hello world': 'olá mundo',
@@ -145,7 +145,7 @@ test('Given an valid translation object, normalizeI18nDefinition returns an resu
   }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
-    result: { extends: [], translations: input.translations },
+    result: { import: [], translations: input.translations },
     errors: [],
   })
 })
@@ -154,8 +154,8 @@ test('Given an invalid object, normalizeI18nDefinition empty definition with err
   const input = { lorem: ['lang.en.json', 'customization.en.json'], ipsum: {} }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
-    result: { extends: [], translations: {} },
-    errors: [{ path: '', message: 'invalid object, the object must have "extends" or "translations" keys' }],
+    result: { import: [], translations: {} },
+    errors: [{ path: '', message: 'invalid object, the object must have "import" or "translations" keys' }],
   })
 })
 
@@ -163,7 +163,7 @@ test('Given an object only with an invalid translation object, normalizeI18nDefi
   const input = { translations: '' }
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
-    result: { extends: [], translations: {} },
+    result: { import: [], translations: {} },
     errors: [{ path: '.translations', message: 'expected a plain object instead of string' }],
   })
 })
@@ -179,7 +179,7 @@ test('Given an object with an invalid translation value, normalizeI18nDefinition
   const result = normalizeI18nDefinition(input)
   expect(result).toEqual({
     result: {
-      extends: [],
+      import: [],
       translations: {
         'hello world': 'olá mundo',
         'I like red color': 'Gosto da cor vermelha',
@@ -197,8 +197,8 @@ test('Given a valid object, normalizeI18nDefinitionMap returns a normalized defi
   const result = normalizeI18nDefinitionMap(inputMap)
   expect(result).toEqual({
     result: {
-      pt: { extends: ['lang.pt.json', 'customization.pt.json'], translations: {} },
-      'pt-BR': { extends: ['customization-br.pt-BR.json'], translations: {} },
+      pt: { import: ['lang.pt.json', 'customization.pt.json'], translations: {} },
+      'pt-BR': { import: ['customization-br.pt-BR.json'], translations: {} },
     },
     errors: [],
     warnings: [],
@@ -208,7 +208,7 @@ test('Given a valid object, normalizeI18nDefinitionMap returns a normalized defi
 test('Given an i18n with configuration error, returns a normalized definition with errors', ({ expect }) => {
   const inputMap = {
     pt: {
-      extends: ['lang.pt.json', 'customization.pt.json', null],
+      import: ['lang.pt.json', 'customization.pt.json', null],
     },
     'pt-BR': ['customization-br.pt-BR.json', null],
     es: {
@@ -223,10 +223,10 @@ test('Given an i18n with configuration error, returns a normalized definition wi
   const result = normalizeI18nDefinitionMap(inputMap)
   expect(result).toEqual({
     result: {
-      pt: { extends: ['lang.pt.json', 'customization.pt.json'], translations: {} },
-      'pt-BR': { extends: ['customization-br.pt-BR.json'], translations: {} },
+      pt: { import: ['lang.pt.json', 'customization.pt.json'], translations: {} },
+      'pt-BR': { import: ['customization-br.pt-BR.json'], translations: {} },
       es: {
-        extends: [],
+        import: [],
         translations: {
           'hello world': 'hola mundo',
           'I like red color': 'Me gusta la color roja',
@@ -236,12 +236,12 @@ test('Given an i18n with configuration error, returns a normalized definition wi
     },
     errors: [
       {
-        path: '.pt.extends[2]',
-        message: 'expected string instead of null, ignoring extends',
+        path: '.pt.import[2]',
+        message: 'expected string instead of null, ignoring import',
       },
       {
         path: '.["pt-BR"][1]',
-        message: 'expected string instead of null, ignoring extends',
+        message: 'expected string instead of null, ignoring import',
       },
       {
         path: '.es.translations["lorem ipsum"]',
@@ -260,7 +260,7 @@ test('Given an i18n with invalid locale, returns a normalized definition with er
   const result = normalizeI18nDefinitionMap(inputMap)
   expect(result).toEqual({
     result: {
-      es: { extends: ['lang.es.json'], translations: {} },
+      es: { import: ['lang.es.json'], translations: {} },
     },
     errors: [
       {
@@ -280,8 +280,8 @@ test('Given an i18n with an reserved locale such as "en-UK" locale, returns a no
   const result = normalizeI18nDefinitionMap(inputMap)
   expect(result).toEqual({
     result: {
-      en: { extends: ['lang.en.json'], translations: {} },
-      'en-GB': { extends: ['lang.en-uk.json'], translations: {} },
+      en: { import: ['lang.en.json'], translations: {} },
+      'en-GB': { import: ['lang.en-uk.json'], translations: {} },
     },
     warnings: [{
       path: '.["en-UK"]',
@@ -300,8 +300,8 @@ test('Given an i18n with an conflicting locale such as "en-UK" & "en-gb" locale,
   const result = normalizeI18nDefinitionMap(inputMap)
   expect(result).toEqual({
     result: {
-      en: { extends: ['lang.en.json'], translations: {} },
-      'en-GB': { extends: ['lang.en-gb.json'], translations: {} },
+      en: { import: ['lang.en.json'], translations: {} },
+      'en-GB': { import: ['lang.en-gb.json'], translations: {} },
     },
     errors: [{
       path: '.["en-UK"]',

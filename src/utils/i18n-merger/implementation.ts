@@ -24,7 +24,7 @@ type I18nLangMergeData = {
 
 type I18nMergeIntermediaryResult = {
   [language: string]: {
-    extends: Set<string>
+    import: Set<string>
     translations: Translations
   }
 }
@@ -36,13 +36,13 @@ const merge = (...data: I18nLangMergeData[]) => {
     language: string,
     locationBase: string | URL,
   ) => {
-    const { translations, extends: ext } = normalizeI18nDefinition(i18nDefinition).result
+    const { translations, import: ext } = normalizeI18nDefinition(i18nDefinition).result
     const strLang = language.toString()
-    const definition = acc[strLang] || { extends: new Set(), translations: {} }
-    const definitionExtSet = definition.extends
+    const definition = acc[strLang] || { import: new Set(), translations: {} }
+    const definitionExtSet = definition.import
     ext.forEach((e) => {
-      const extendsLocation = new URL(e, locationBase).href
-      definitionExtSet.add(extendsLocation)
+      const importLocation = new URL(e, locationBase).href
+      definitionExtSet.add(importLocation)
     })
 
     definition.translations = {
@@ -74,10 +74,10 @@ const merge = (...data: I18nLangMergeData[]) => {
   }, {})
 
   return Object.fromEntries(
-    Object.entries(result).map(([lang, { extends: ext, translations }]) => [
+    Object.entries(result).map(([lang, { import: ext, translations }]) => [
       lang,
       {
-        extends: [...ext],
+        import: [...ext],
         translations,
       },
     ]),

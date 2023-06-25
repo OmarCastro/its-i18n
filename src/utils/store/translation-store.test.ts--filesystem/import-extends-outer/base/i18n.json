@@ -1,5 +1,0 @@
-{
-    "en": { "extends": "../languages/en/translations.en.json" },
-    "es": { "extends": "../languages/es/translations.es.json" },
-    "pt": { "extends": "../languages/pt/translations.pt.json" }
-}
