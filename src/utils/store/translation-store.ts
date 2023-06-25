@@ -1,4 +1,5 @@
 import { importTranslations } from '../i18n-importer/i18n-importer.js'
+import { normalizeI18nDefinitionMap, type NormalizedI18nDefinitionMap, type I18nDefinitionMap } from '../i18n-normalizer/i18n-normalizer.js' 
 
 const emptyObj = Object.freeze({})
 const intialDataStore = Object.freeze({
@@ -15,36 +16,14 @@ const isLocale = (locale: string) => {
   }
 }
 
-function normalizeTranslationData(data: StoreData) {
-  const originalLangs = data.languages
-  const languages = {} as typeof originalLangs
-  const result: StoreData = {
+function normalizeTranslationData(data: StoreDataEntry) {
+  const normalizedLanguages = normalizeI18nDefinitionMap(data.languages)
+  normalizedLanguages.errors.forEach((error) => console.error('Error on %s::%s, %s', data.location, error.path, error.message))
+  normalizedLanguages.warnings.forEach((error) => console.warn('Warning on %s::%s, %s', data.location, error.path, error.message))
+  return {
     location: data.location,
-    languages,
+    languages: structuredClone(normalizedLanguages.result)
   }
-
-  for (const localeString of Object.keys(data.languages)) {
-    let locale: Intl.Locale
-    try {
-      locale = new Intl.Locale(localeString)
-    } catch {
-      console.error(`Error: Invalid locale "${localeString}", it will not be added to the I18n store`)
-      continue
-    }
-    const { baseName } = locale
-    if (baseName !== localeString) {
-      if (originalLangs[baseName]) {
-        console.error(
-          `Error: Invalid locale "${localeString}", it also conflicts with correct locale "${baseName}", it will not be added to the I18n store`,
-        )
-        continue
-      } else {
-        console.warn(`Warn: Invalid locale "${localeString}", fixed to locale "${baseName}"`)
-      }
-    }
-    languages[baseName] = structuredClone(originalLangs[localeString])
-  }
-  return result
 }
 
 const memoizedTranslationsMap: WeakMap<TranslationStore, Record<string, Translations>> = new WeakMap()
@@ -56,20 +35,18 @@ const getTranslationsFromData = async (store: TranslationStore, locale: string):
   }
   const definition = store.data.languages[locale]
   if (!definition) return {}
-  if (!definition.extends) {
+  if (!Array.isArray(definition.extends) || definition.extends.length <= 0) {
     return definition.translations
   }
-  const extendsArray = [].concat(definition.extends as never) as string[]
-  const translationsFromExtends = {}
-  for (const extend of extendsArray) {
-    const translations = isLocale(extend)
-      ? await getTranslationsFromData(store, extend)
-      : await importTranslations(extend, store.data.location)
-    Object.assign(translationsFromExtends, translations)
-  }
+  const translationsPromises = definition.extends.map(extend => isLocale(extend) ? 
+    getTranslationsFromData(store, extend) :
+    importTranslations(extend, store.data.location)
+  )
+  const translationsArray = await Promise.all(translationsPromises)
+  const importedTranslations = translationsArray.reduce((acc, translations) => ({...acc, ...translations}))
 
   computed[locale] = {
-    ...translationsFromExtends,
+    ...importedTranslations,
     ...definition.translations,
   }
   return computed[locale]
@@ -126,24 +103,22 @@ export function i18nTanslationStore(): TranslationStore {
 
 type Translations = Record<string, string>
 
-type TranslationsDefinition = {
-  /**
-   * `extends` variable saves a list of files to load, can be a string if it is to load a single file
-   * When there are multiple files, the keys are merged, files in next value of the list overrides the previous
-   * one in case of conflicts.
-   */
-  extends?: string | string[]
-  /**
-   * List of translations, merges with all keys from `extends`, overriding any conflicting key in case of conflicts
-   */
-  translations: Translations
-}
-
 export type StoreData = {
   /**
    * Store data languages
    */
-  languages: Record<string, TranslationsDefinition>
+  languages: NormalizedI18nDefinitionMap
+  /**
+   * location of stored data, used to get relative path to load additional i18n files
+   */
+  location: string
+}
+
+export type StoreDataEntry = {
+  /**
+   * Store data languages
+   */
+  languages: I18nDefinitionMap
   /**
    * location of stored data, used to get relative path to load additional i18n files
    */
@@ -154,7 +129,7 @@ export type TranslationStore = {
   /**
    * loads translations in data
    */
-  loadTranslations(this: TranslationStore, data: StoreData): void
+  loadTranslations(this: TranslationStore, data: StoreDataEntry): void
 
   /**
    * @param locale - Intl.Locale of a string definition
