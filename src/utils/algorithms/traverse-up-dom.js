@@ -3,7 +3,7 @@
  *
  * @param {Element} targetElement
  */
-export function* traverseUpDom(targetElement) {
+export function * traverseUpDom (targetElement) {
   let el = targetElement
   while (el != null) {
     yield el
@@ -24,7 +24,7 @@ export function* traverseUpDom(targetElement) {
  *
  * @param {Element} targetElement
  */
-export function* traverseUpDomWithSlots(targetElement) {
+export function * traverseUpDomWithSlots (targetElement) {
   let el = targetElement
   while (el != null) {
     yield el

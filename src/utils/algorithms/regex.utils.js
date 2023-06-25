@@ -4,6 +4,6 @@
  * @param {string} pattern
  * @returns {string} escaped regex pattern
  */
-export function escape(pattern) {
+export function escape (pattern) {
   return String(pattern).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&')
 }
