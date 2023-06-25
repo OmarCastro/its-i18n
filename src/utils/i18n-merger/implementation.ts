@@ -5,7 +5,7 @@ import {
   normalizeI18nDefinition,
   normalizeI18nDefinitionMap,
   Translations,
-} from '../i18n-normalizer/mod.ts'
+} from '../i18n-normalizer/i18n-normalizer.js'
 
 type I18nLangMergeData = {
   kind: 'map'

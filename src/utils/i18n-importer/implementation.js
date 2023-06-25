@@ -1,4 +1,4 @@
-import { normalizeI18nDefinitionMap, normalizeTranslations } from '../i18n-normalizer/mod.js'
+import { normalizeI18nDefinitionMap, normalizeTranslations } from '../i18n-normalizer/i18n-normalizer.js'
 import { provide } from './provider.js'
 
 /** @type {import('./provider.js').ImportTranslations} */
