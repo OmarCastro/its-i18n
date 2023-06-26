@@ -8,19 +8,6 @@ const intialDataStore = Object.freeze({
 })
 
 /**
- * @param {string} locale - target locale string
- * @returns true if sting is a valid locale, false otherwise
- */
-const isLocale = (locale) => {
-  try {
-    (() => new Intl.Locale(locale))()
-    return true
-  } catch {
-    return false
-  }
-}
-
-/**
  * Normalizes `StoreDataEntry.data`
  * @param {StoreDataEntry} data
  */
@@ -70,10 +57,7 @@ const getTranslationsFromData = async (store, locale) => {
   if (!Array.isArray(definition.import) || definition.import.length <= 0) {
     return definition.translations
   }
-  const translationsPromises = definition.import.map(extend => isLocale(extend)
-    ? getTranslationsFromData(store, extend)
-    : importTranslations(extend, store.data.location),
-  )
+  const translationsPromises = definition.import.map(extend => importTranslations(extend, store.data.location))
   const translationsArray = await Promise.all(translationsPromises)
   const importedTranslations = translationsArray.reduce((acc, translations) => ({ ...acc, ...translations }))
 
