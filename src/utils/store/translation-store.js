@@ -96,9 +96,7 @@ const StorePrototype = {
     if (typeof locale === 'string') {
       return await this.translationsFromLanguage(new Intl.Locale(locale))
     }
-    if (!memoizedTranslationsMap.has(this)) {
-      memoizedTranslationsMap.set(this, {})
-    }
+
     const memoizedTranslations = getMemoizedTranslations(this)
 
     if (memoizedTranslations[locale.baseName]) {
