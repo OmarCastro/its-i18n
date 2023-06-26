@@ -1,5 +1,5 @@
-import { setStoreFromElement } from '../src/utils/store-map/store-map'
-import { i18nTanslationStore } from '../src/utils/store/translation-store.ts'
+import { setStoreFromElement } from '../src/utils/store-map/store-map.js'
+import { i18nTanslationStore } from '../src/utils/store/translation-store.js'
 import '../src/utils/i18n-importer/implementation.js'
 import('../src/custom-elements/i18n-container/i18n-container.element').then(({ default: I18nElement }) => customElements.define('i18n-container', I18nElement))
 
