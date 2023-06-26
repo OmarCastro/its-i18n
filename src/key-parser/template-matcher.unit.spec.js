@@ -1,6 +1,6 @@
 import { test } from '../../test-utils/unit/test.js'
-import { getAST, states } from './key-ast.util.ts'
-import { getMatcher } from './template-matcher.ts'
+import { getAST } from './key-ast.util.js'
+import { getMatcher } from './template-matcher.js'
 
 test('Given a simple string, getMatcher result should match the same sting only', ({ expect }) => {
   const ast = getAST('hello world')
