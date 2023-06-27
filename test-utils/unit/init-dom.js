@@ -1,11 +1,11 @@
 // @ts-nocheck Since this file adds info to globalThis as to simulate a browser
 // on a Deno environment, it is better to disable type checking and code coverage
 // for this file
-let windowObj;
+let windowObj
 
-if("Deno" in globalThis || globalThis.window == undefined ){
-  // running in Deno
-  const { JSDOM } = await import("jsdom")
+if ('Deno' in globalThis || globalThis.window == null) {
+  // running in Deno or node
+  const { JSDOM } = await import('jsdom')
   const jsdom = new JSDOM(
     `<!DOCTYPE html>
   <html lang="en">
@@ -16,14 +16,14 @@ if("Deno" in globalThis || globalThis.window == undefined ){
     </body>
   </html>`,
     {
-      url: "https://example.com/",
-      referrer: "https://example.org/",
-      contentType: "text/html",
-      storageQuota: 10000000, 
+      url: 'https://example.com/',
+      referrer: 'https://example.org/',
+      contentType: 'text/html',
+      storageQuota: 10000000,
     },
-  );
-  
-  windowObj = jsdom.window 
+  )
+
+  windowObj = jsdom.window
   globalThis.requestAnimationFrame = (callback) => setTimeout(callback, 10)
   globalThis.cancelAnimationFrame = (frameNumber) => clearTimeout(frameNumber)
   globalThis.requestIdleCallback = windowObj.requestIdleCallback
@@ -39,9 +39,9 @@ if("Deno" in globalThis || globalThis.window == undefined ){
   globalThis.DOMParser = windowObj.DOMParser
   globalThis.XMLSerializer = windowObj.XMLSerializer
 } else {
-  windowObj = globalThis.window 
+  windowObj = globalThis.window
 }
 
 /** @type {Window} */
-export const window = windowObj 
+export const window = windowObj
 export const document = window.document
