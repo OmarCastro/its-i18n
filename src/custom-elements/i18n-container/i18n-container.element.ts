@@ -1,4 +1,4 @@
-import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.ts'
+import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.js'
 import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.js'
 import { isElementTranslatable } from '../../utils/algorithms/get-translate-from-element.util.js'
 import { getStoresInfoFromElement } from '../../utils/store-map/store-map.js'
@@ -210,6 +210,9 @@ function observerCallback(records: MutationRecord[]) {
     })
   }
 }
+
+const tickingElements: Set<WeakRef<Element>> = new Set()
+
 
 const observer = new MutationObserver(observerCallback)
 
