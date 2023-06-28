@@ -1,7 +1,8 @@
+/* eslint-disable camelcase */
 import { test } from '../../../test-utils/unit/test.js'
 import { document } from '../../../test-utils/unit/init-dom.js'
 import { getLanguageFromElement } from './get-lang-from-element.util.js'
-import { eventName, observeLangFromElement, rootEventName, unobserveLangFromElement } from './observe-lang-from-element.util.ts'
+import { eventName, observeLangFromElement, rootEventName, unobserveLangFromElement } from './observe-lang-from-element.util.js'
 
 const html = String.raw
 
@@ -16,13 +17,13 @@ test('observeLangFromElement should trigger correctly when lang changed', async 
             </div>
         </div>
     `
-  const level1Div = document.querySelector('.level-1') as Element
-  const level4Div = document.querySelector('.level-4') as Element
+  const level1Div = document.querySelector('.level-1')
+  const level4Div = document.querySelector('.level-4')
 
   // act
   observeLangFromElement(level4Div)
   const level4DivLang = getLanguageFromElement(level4Div)
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     level4Div.addEventListener(eventName, () => {
       resolve()
     }, { once: true })
@@ -50,16 +51,17 @@ test('observeLangFromElement should trigger another event on node root', async (
         </div>
     `
 
-  const level3Div = document.querySelector('.level-3') as Element
-  const level4Div = document.querySelector('.level-4') as Element
+  const level3Div = document.querySelector('.level-3')
+  const level4Div = document.querySelector('.level-4')
   const rootEvent = { triggered: false }
 
   // act
   observeLangFromElement(level4Div)
   const level4DivLang = getLanguageFromElement(level4Div)
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     document.addEventListener(rootEventName, () => {
-      rootEvent.triggered = true, resolve()
+      rootEvent.triggered = true
+      resolve()
     }, { once: true })
     level3Div.setAttribute('lang', 'es')
   })
@@ -89,10 +91,10 @@ test('observeLangFromElement should trigger multiple observing elements when anc
         </div>
     `
 
-  const level3Div = document.querySelector('.level-3') as Element
-  const level4Div = document.querySelector('.level-4') as Element
-  const level5Div = document.querySelector('.level-5') as Element
-  const level5_2Div = document.querySelector('.level-5-2') as Element
+  const level3Div = document.querySelector('.level-3')
+  const level4Div = document.querySelector('.level-4')
+  const level5Div = document.querySelector('.level-5')
+  const level5_2Div = document.querySelector('.level-5-2')
   const triggeredEvents = {
     level3: false,
     level4: false,
@@ -118,7 +120,7 @@ test('observeLangFromElement should trigger multiple observing elements when anc
     triggeredEvents.level5_2 = true
   }, { once: true })
 
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     document.addEventListener(rootEventName, () => {
       resolve()
     }, { once: true })
@@ -149,13 +151,13 @@ test('observeLangFromElement should trigger when lang changed in the middle of t
             </div>
         </div>
     `
-  const level3Div = document.querySelector('.level-3') as Element
-  const level4Div = document.querySelector('.level-4') as Element
+  const level3Div = document.querySelector('.level-3')
+  const level4Div = document.querySelector('.level-4')
 
   // act
   observeLangFromElement(level4Div)
   const level4DivLang = getLanguageFromElement(level4Div)
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     level4Div.addEventListener(eventName, () => {
       resolve()
     }, { once: true })
@@ -182,8 +184,8 @@ test('observeLangFromElement should not trigger event when a new lang was added 
             </div>
         </div>
     `
-  const level3Div = document.querySelector('.level-3') as Element
-  const level4Div = document.querySelector('.level-4') as Element
+  const level3Div = document.querySelector('.level-3')
+  const level4Div = document.querySelector('.level-4')
   const triggeredEvents = {
     rootEvent: false,
     level4DivLangEvent: false,
@@ -195,9 +197,10 @@ test('observeLangFromElement should not trigger event when a new lang was added 
     triggeredEvents.level4DivLangEvent = true
   }, { once: true })
 
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     document.addEventListener(rootEventName, () => {
-      triggeredEvents.rootEvent = true, resolve()
+      triggeredEvents.rootEvent = true
+      resolve()
     }, { once: true })
     level3Div.setAttribute('lang', 'pt')
   })
@@ -232,17 +235,17 @@ test('observeLangFromElement should trigger on shadowDom element when lang chang
         </div>
     `
 
-  const level1Div = document.querySelector('.level-1') as Element
-  const level2Div = document.querySelector('.level-2') as Element
-  const level4Div = document.querySelector('.level-4') as Element
+  const level1Div = document.querySelector('.level-1')
+  const level2Div = document.querySelector('.level-2')
+  // const level4Div = document.querySelector('.level-4')
   const shadowRoot = level2Div.attachShadow({ mode: 'open' })
   shadowRoot.innerHTML = level2ShadowDomHtml
-  const shadowLevel2Div = shadowRoot.querySelector('.shadow-level-2') as Element
+  const shadowLevel2Div = shadowRoot.querySelector('.shadow-level-2')
 
   // act
   observeLangFromElement(shadowLevel2Div)
   const shadowLevel2DivLang = getLanguageFromElement(shadowLevel2Div)
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     shadowLevel2Div.addEventListener(eventName, () => {
       resolve()
     }, { once: true })
