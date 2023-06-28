@@ -1,12 +1,13 @@
 import { getLanguageFromElement } from './get-lang-from-element.util.js'
+import { IterableWeakMap, IterableWeakSet } from './iterable-weak-struct.js'
 
 interface ObserveInfomation {
-  observingElements: Set<WeakRef<Element>>
+  observingElements: IterableWeakSet<Element>
   observer: MutationObserver
   targetNode: WeakRef<Node>
 }
 
-const rootNodes: Set<ObserveInfomation> = new Set()
+const rootNodes: IterableWeakMap<Node, ObserveInfomation> = new IterableWeakMap()
 const observingElementsCurrentLanguage: WeakMap<Element, string> = new WeakMap()
 
 export const eventName = 'lang-changed'
@@ -18,18 +19,6 @@ const mutationProperties = Object.freeze({
   subtree: true,
 } as MutationObserverInit)
 
-function observeInfomationOfRootNode(targetNode: Node): ObserveInfomation | undefined {
-  for (const observeInfomation of rootNodes) {
-    const node = observeInfomation.targetNode.deref()
-    if (!node) {
-      rootNodes.delete(observeInfomation)
-    }
-    if (node === targetNode) {
-      return observeInfomation
-    }
-  }
-}
-
 function createObserver(targetNode: Node) {
   const observer = new MutationObserver((records) => {
     const triggeredNodes = new Set() as Set<Node>
@@ -37,13 +26,8 @@ function createObserver(targetNode: Node) {
     for (const record of records) {
       const rootNode = record.target.getRootNode()
       rootNodesToTrigger.add(rootNode)
-      const observingElements = observeInfomationOfRootNode(rootNode)?.observingElements
-      observingElements && observingElements.forEach((ref) => {
-        const node = ref.deref()
-        if (!node) {
-          observingElements.delete(ref)
-          return
-        }
+      const observingElements = rootNodes.get(rootNode)?.observingElements
+      observingElements && observingElements.forEach((node) => {
         if (triggeredNodes.has(node)) {
           return
         }
@@ -67,14 +51,13 @@ function createObserver(targetNode: Node) {
 }
 
 function traverseRootNode(rootNode: Node, element: Element) {
-  const ref = new WeakRef(element)
-  const observeInfomation = observeInfomationOfRootNode(rootNode)
+  const observeInfomation = rootNodes.get(rootNode)
   if (observeInfomation) {
-    observeInfomation.observingElements.add(ref)
+    observeInfomation.observingElements.add(element)
   } else {
-    rootNodes.add({
+    rootNodes.set(rootNode, {
       observer: createObserver(rootNode),
-      observingElements: new Set([ref]),
+      observingElements: new IterableWeakSet([element]),
       targetNode: new WeakRef(rootNode),
     })
   }
@@ -92,21 +75,20 @@ export function observeLangFromElement(element: Element) {
 }
 
 function removeObservingElementFrom(observingElements: ObserveInfomation['observingElements'], element: Element) {
-  for (const ref of observingElements.values()) {
-    const node = ref.deref()
+  for (const node of observingElements.values()) {
     if (!node || node === element) {
-      observingElements.delete(ref)
+      observingElements.delete(node)
     }
   }
 }
 
 export function unobserveLangFromElement(element: Element) {
-  for (const info of rootNodes.values()) {
+  for (const [rootNode, info] of rootNodes.entries()) {
     const { observingElements, observer } = info
     removeObservingElementFrom(observingElements, element)
     if (observingElements.size <= 0) {
       observer.disconnect()
-      rootNodes.delete(info)
+      rootNodes.delete(rootNode)
     }
   }
 }
