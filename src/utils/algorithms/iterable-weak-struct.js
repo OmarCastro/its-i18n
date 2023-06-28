@@ -3,7 +3,7 @@
  * @template {object} K
  * @template V
  */
-class IterableWeakMap {
+export class IterableWeakMap {
   /**
    *
    * @param {Iterable<readonly [K, V]>} [iterable]
@@ -12,6 +12,7 @@ class IterableWeakMap {
     for (const [key, value] of iterable) { this.set(key, value) }
   }
 
+  /** @returns {number} */
   get size () {
     return dataOf(this).keySet.size
   }
@@ -112,6 +113,102 @@ class IterableWeakMap {
   }
 }
 
+/**
+ * @constructor
+ * @template {object} V
+ */
+export class IterableWeakSet {
+  /**
+   *
+   * @param {Iterable<V>} [iterable]
+   */
+  constructor (iterable = []) {
+    for (const value of iterable) { this.add(value) }
+  }
+
+  /** @returns {number} */
+  get size () {
+    return dataOf(this).keySet.size
+  }
+
+  /**
+   *
+   * @param {V} key
+   */
+  delete (key) {
+    const { keySet, refWeakMap } = dataOf(this)
+    const entry = refWeakMap.get(key)
+    if (!entry) return false
+    keySet.delete(entry.ref)
+    refWeakMap.delete(key)
+    return true
+  }
+
+  [Symbol.iterator] () {
+    return this.entries()
+  }
+
+  /**
+   * @returns {IterableIterator<V>}
+   */
+  * entries () {
+    for (const value of this.keys()) { yield value }
+  }
+
+  /**
+   *
+   * @param {(value : V, set : this) => void} callback
+   * @param {*} [thisArg]
+   */
+  forEach (callback, thisArg) {
+    for (const value of this.entries()) { callback.call(thisArg, value, this) }
+  }
+
+  /**
+   *
+   * @param {V} value
+   */
+  has (value) {
+    return dataOf(this).refWeakMap.has(value)
+  }
+
+  * keys () {
+    const { keySet } = dataOf(this)
+    const array = Array.from(keySet)
+    for (const ref of array) {
+      const deref = ref.deref()
+      if (!deref) {
+        keySet.delete(ref)
+        continue
+      }
+      yield deref
+    }
+  }
+
+  /**
+   *
+   * @param {V} value
+   * @returns
+   */
+  add (value) {
+    const { keySet, refWeakMap } = dataOf(this)
+    if (refWeakMap.has(value)) {
+      return this
+    }
+    const ref = new WeakRef(value)
+    refWeakMap.set(value, { ref, value: true })
+    keySet.add(ref)
+    return this
+  }
+
+  /**
+   * @returns {IterableIterator<V>}
+   */
+  * values () {
+    for (const value of this.keys()) { yield value }
+  }
+}
+
 const dataOf = (() => {
   /**
    * @template {object} K
@@ -125,12 +222,12 @@ const dataOf = (() => {
    */
 
   /**
-   * @type {WeakMap<IterableWeakMap<object,*>, IterableWeakMapData<object,*>>} valueMap
+   * @type {WeakMap<*, IterableWeakMapData<object,*>>} valueMap
    */
   const map = new WeakMap()
 
   /**
-   * @param {IterableWeakMap<object, *>} iter
+   * @param {IterableWeakSet<object> | IterableWeakMap<object, *>} iter
    */
   function init (iter) {
     const keySet = new Set()
@@ -143,7 +240,7 @@ const dataOf = (() => {
   /**
      * @template {object} K
      * @template V
-     * @param {IterableWeakMap<K, V>} iter
+     * @param {IterableWeakSet<K> | IterableWeakMap<K, V>} iter
      * @returns {IterableWeakMapData<K, V>} iter
      */
   function getData (iter) {
