@@ -4,6 +4,8 @@ import { isElementTranslatable } from '../../utils/algorithms/get-translate-from
 import { getStoresInfoFromElement } from '../../utils/store-map/store-map.js'
 import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.js'
 import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
+import { timeTick } from '../../utils/tick-time/tick-time.js'
+
 
 class I18nContainerElement extends HTMLElement {
   constructor() {
@@ -31,6 +33,7 @@ class I18nContainerElement extends HTMLElement {
     })
   }
 }
+
 
 function updateI18nOnElements(iterable: Iterable<Element>) {
   const promises = [] as Promise<Element | null>[]
@@ -65,6 +68,12 @@ function updateI18nOnElements(iterable: Iterable<Element>) {
       })
       promises.push(promise)
     }
+
+    const isTicking = element.hasAttribute("data-i18n-tick-time")
+    if(isTicking){
+      timeTick().tickElement(element)
+    }
+
   }
 
   return Promise.allSettled(promises).then((promises) => {
@@ -211,7 +220,16 @@ function observerCallback(records: MutationRecord[]) {
   }
 }
 
-const tickingElements: Set<WeakRef<Element>> = new Set()
+timeTick().addCallback(({untick, targets}) => {
+  const validTargets = targets.filter((target) => {
+    const isTicking = target.hasAttribute("data-i18n-tick-time")
+    if(!isTicking){
+      untick(target)
+    }
+    return isTicking
+  })
+  updateI18nOnElements(validTargets)
+})
 
 
 const observer = new MutationObserver(observerCallback)
