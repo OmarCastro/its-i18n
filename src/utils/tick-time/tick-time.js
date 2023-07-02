@@ -1,4 +1,13 @@
 import { IterableWeakSet } from '../algorithms/iterable-weak-struct'
+import { timeNowFrame } from '../algorithms/time.utils'
+
+/**
+ * A margin that improves the reliabiliby of the next time value to change
+ * due to possible protections to fingerprinting on the client side
+ *
+ * {@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now}
+ */
+const MARGIN_MILLIS = 100
 
 let timeTickInstances
 /**
@@ -8,8 +17,7 @@ let timeTickInstances
 export function checkTick (newInstance) {
   const { callbacks, tickingElements, timeoutNumber } = newInstance
   if (timeoutNumber === undefined && tickingElements.size > 0 && callbacks.size > 0) {
-    const now = Date.now()
-    const nextSecond = 1000 - (now % 1000)
+    const nextSecond = 1000 - timeNowFrame() % 1000
     newInstance.timeoutNumber = setTimeout(() => {
       for (const tickCallback of callbacks) {
         tickCallback({
@@ -19,7 +27,7 @@ export function checkTick (newInstance) {
       }
       newInstance.timeoutNumber = undefined
       checkTick(newInstance)
-    }, nextSecond)
+    }, nextSecond + MARGIN_MILLIS)
   }
 }
 
