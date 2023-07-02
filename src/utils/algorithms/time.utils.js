@@ -12,13 +12,31 @@ export function parseISO8601 (text) {
     /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
   return !text.match(iso8601Regex) ? NaN : Date.parse(text)
 }
-/** @type {number | null} */
-let frameTime = null
-export function timeNowFrame () {
-  if (frameTime === null) {
-    frameTime = Date.now()
-    requestAnimationFrame(() => { frameTime = null })
-  }
 
-  return frameTime
-}
+/**
+ * Returns current time and memoizes it for the duration of a frame
+ *
+ * This function exists because many operations related to relative time
+ * relies on current time, calling Date.now() continuosly not only returns
+ * different result each call, it is expensive. Calling it continuously
+ * will affect performance
+ *
+ * The impact of different results in Date.now() is that each frame you may,
+ * see inconsistent results on all ticking elements in a screen (one or two elements jumps 2 seconds,
+ * or no seconds at all, while others are ok)
+ *
+ * @returns {number} the current time, or the time of first call if called more than once during a frame
+ */
+export const timeNowFrame = (() => {
+  /** @type {number | null} */
+  let frameTime = null
+
+  return function timeNowFrame () {
+    if (frameTime === null) {
+      frameTime = Date.now()
+      requestAnimationFrame(() => { frameTime = null })
+    }
+
+    return frameTime
+  }
+})()
