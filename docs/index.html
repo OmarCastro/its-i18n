@@ -11,13 +11,22 @@
         <link rel="stylesheet" href="doc.css" ss:inline>
     </head>
     <body>
-        <h1>
+        <div class="sidebar">
+
+        <div class="toc">
+            <strong>Table of contents</strong>
+
+            <ul ss:toc></ul>
+
+        </div>
+    </div>
+    <div class="content">
+
+        <h1 class="no-toc">
             It's i18n
         </h1>
 
-
-
-        <section style="text-align:center" class="badges-section">
+        <section class="section section--badge">
             <a href="reports/coverage/unit" aria-label="Show test code coverage information">
                 <img src="reports/coverage/unit/coverage-badge-a11y.svg" ss:size ss:badge-attrs></svg>
             </a>
@@ -32,24 +41,42 @@
             </a-->
         </section>
 
-        <section>
+        <section class="section section--introduction">
             <h2> Introducion </h2>
 
             "It's i18n" is a web component that intenationalizes input content
 
-            <h2> Features </h2>
+        </section>
 
 
+        <section class="section section--background">
+            <h2> Background </h2>
+
+            <p>
+                This project started when I was developing an application to generate bootstraps for future projects, and internationalization is one of the
+                features that would be added, so I did not find a simple i18n library that the only thing you had to worry is to put an i18n file and one component
+                in the HTML document and voilá, the page is internationalized.    
+            </p>
+            <p>
+
+            Another point that I found strange is in the translation files. Parameterization/templating the keys is just complex in HTML.
+            </p>
+
+            <script type="text/plain" class="js-example">
+                 import i18n from "example-i18n-library"
+                 // ...
+                 i18n("key with param", param1, param2)
+            </script>
 
         </section>
 
-        <section>
+        <section class="section section--getting-started">
             <h2> Getting started </h2>
 
             <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://omarcastro.github.io/its-i18n/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
         </section>
 
-        <section>
+        <section class="section section--getting-started">
             <h2> Features </h2>
 
             This component has the following features:
@@ -62,18 +89,17 @@
 
             <h3> Reactive </h3>
 
-            Everytime a data-i18n-* attribute is added or changed inside the component, its respective content will be automatically updated to reflect the content
+            Everytime a data-i18n-* attribute is added or changed inside the component, its respective content will be automatically updated to reflect the content.
+            Removing it just disables it, leaving for the developer to remove the translated content if he wishes
 
             <h3> Lazy loading </h3>
 
             Only the necessary content is loaded to apply the internationalization
 
-            
-
-
-
         </section>
 
+
+        <section class="section section--examples">
 
         <h2> Example </h2>
 
@@ -403,5 +429,7 @@
                 </script>
             </div>
         </div>
+        </section>
+    </div>
     </body>
 </html>
