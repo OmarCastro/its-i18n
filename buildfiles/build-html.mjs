@@ -87,6 +87,46 @@ queryAll('svg[ss:include]').forEach(element => {
   element.outerHTML = svgText
 })
 
+queryAll('[ss:toc]').forEach(element => {
+  const ul = document.createElement('ul')
+  /** @type {[HTMLElement, HTMLElement][]} */
+  const path = []
+  for (const element of queryAll('h1, h2, h3, h4, h5, h6')) {
+    if (element.matches('.no-toc')) {
+      continue
+    }
+    const id = element.getAttribute('id') || element.textContent.trim().toLowerCase().replaceAll(/\s+/g, '-')
+    if (!element.hasAttribute('id')) {
+      element.setAttribute('id', id)
+    }
+    const li = document.createElement('li')
+    const a = document.createElement('a')
+    a.href = `#${id}`
+    a.textContent = element.textContent
+    li.append(a)
+
+    const parent = (() => {
+      while (path.length > 0) {
+        const [title, possibleParent] = path.at(-1)
+        if (title.tagName < element.tagName) {
+          const possibleParentList = possibleParent.querySelector('ul')
+          if (!possibleParentList) {
+            const ul = document.createElement('ul')
+            possibleParent.append(ul)
+            return ul
+          }
+          return possibleParentList
+        }
+        path.pop()
+      }
+      return ul
+    })()
+    parent.append(li)
+    path.push([element, li])
+  }
+  element.replaceWith(ul)
+})
+
 queryAll('img[ss:size]').forEach(element => {
   const imageSrc = element.getAttribute('src')
   const size = imageSize(`${docsOutputPath}/${imageSrc}`)
