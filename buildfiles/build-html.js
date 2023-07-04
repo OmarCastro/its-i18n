@@ -3,11 +3,9 @@ import { globSync } from 'glob'
 import { minify } from 'html-minifier'
 import { imageSize } from 'image-size'
 
-// import { minifyHTML } from "https://deno.land/x/minifier/mod.ts";
-
-const projectPath = new URL('../', import.meta.url).pathname
-const docsPath = new URL('../docs', import.meta.url).pathname
-const docsOutputPath = new URL('../.tmp/build/docs', import.meta.url).pathname
+const projectPath = new URL('../', import.meta.url)
+const docsPath = new URL('docs', projectPath).pathname
+const docsOutputPath = new URL('.tmp/build/docs', projectPath).pathname
 
 const fs = await import('fs')
 

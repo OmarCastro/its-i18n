@@ -23,4 +23,4 @@ cp -r .tmp/build/dist .tmp/build/docs/dist
 # publish reports in docs
 cp -R reports .tmp/build/docs/reports
 
-node buildfiles/build-html.mjs index.html && rm -rf build; mv .tmp/build build
+node buildfiles/build-html.js index.html && rm -rf build; mv .tmp/build build
