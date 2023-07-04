@@ -24,10 +24,6 @@ if ('Deno' in globalThis || globalThis.window == null) {
   )
 
   windowObj = jsdom.window
-  globalThis.requestAnimationFrame = (callback) => setTimeout(callback, 10)
-  globalThis.cancelAnimationFrame = (frameNumber) => clearTimeout(frameNumber)
-  globalThis.requestIdleCallback = windowObj.requestIdleCallback
-  globalThis.cancelIdleCallback = windowObj.cancelIdleCallback
   globalThis.ShadowRoot = windowObj.ShadowRoot
   globalThis.MutationObserver = windowObj.MutationObserver
   globalThis.CustomEvent = windowObj.CustomEvent
