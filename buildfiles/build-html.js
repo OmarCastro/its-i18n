@@ -86,7 +86,7 @@ queryAll('svg[ss:include]').forEach(element => {
 })
 
 queryAll('[ss:toc]').forEach(element => {
-  const ul = document.createElement('ul')
+  const ol = document.createElement('ol')
   /** @type {[HTMLElement, HTMLElement][]} */
   const path = []
   for (const element of queryAll('h1, h2, h3, h4, h5, h6')) {
@@ -107,22 +107,22 @@ queryAll('[ss:toc]').forEach(element => {
       while (path.length > 0) {
         const [title, possibleParent] = path.at(-1)
         if (title.tagName < element.tagName) {
-          const possibleParentList = possibleParent.querySelector('ul')
+          const possibleParentList = possibleParent.querySelector('ol')
           if (!possibleParentList) {
-            const ul = document.createElement('ul')
-            possibleParent.append(ul)
-            return ul
+            const ol = document.createElement('ol')
+            possibleParent.append(ol)
+            return ol
           }
           return possibleParentList
         }
         path.pop()
       }
-      return ul
+      return ol
     })()
     parent.append(li)
     path.push([element, li])
   }
-  element.replaceWith(ul)
+  element.replaceWith(ol)
 })
 
 queryAll('img[ss:size]').forEach(element => {
