@@ -1,4 +1,5 @@
 import { adapt } from './unit-test.provider.js'
+import './polyfills.js'
 
 /** @type {Readonly<Test>[]} */
 const testsToExecute = []
