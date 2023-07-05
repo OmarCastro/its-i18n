@@ -28,6 +28,19 @@ html {
     padding: 1em;
 }
 
+.toc li {
+    list-style: none;
+}
+
+.toc li a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.toc li a:hover {
+    text-decoration: underline;
+}
+
 body {
     display: flex;
     flex-direction: row;
