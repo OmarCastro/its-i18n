@@ -60,6 +60,7 @@
             <p>
 
             Another point that I found strange is in the translation files. Parameterization/templating the keys is just complex in HTML.
+            It is easy to do in programming languages like javascript as shown in the next example
             </p>
 
             <script type="text/plain" class="js-example">
@@ -67,6 +68,21 @@
                  // ...
                  i18n("key with param", param1, param2)
             </script>
+
+            <p>
+            How would you do in HTML? there are ways to translate the information using only HTML
+            </p>
+            <script type="text/plain" class="html-example">
+                <!-- the pattern is generally key, end of key char (in this case the ;, or be in parentesis), list of params-->
+                <button data-i18n="hello mouse; param1, param2"></button>
+            </script>
+            <p>
+                Which is why most translations are done using javascript in the browser, the idea of this component is to be able to apply i18n with HTML only.
+            </p>
+
+
+     
+            
 
         </section>
 
