@@ -15,7 +15,7 @@ const setTestAdapter = (newAdapter) => { adapter = newAdapter }
 const importModule = (str) => import(str)
 let importStr
 const fn = async () => {
-  if (globalThis.Deno != undefined) {
+  if (globalThis.Deno != null) {
     // init unit tests for deno
 
     importStr = 'https://deno.land/x/expect/mod.ts'
@@ -31,7 +31,7 @@ const fn = async () => {
     })
     return
   }
-  if (globalThis.window == undefined) {
+  if (globalThis.window == null) {
     // init unit tests for Playwright
 
     importStr = '@playwright/test'
