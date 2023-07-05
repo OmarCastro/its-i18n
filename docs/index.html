@@ -81,9 +81,6 @@
             </p>
 
 
-     
-            
-
         </section>
 
         <section class="section section--getting-started">
@@ -96,12 +93,12 @@
             <h2> Features </h2>
 
             This component has the following features:
-            <ul>
+            <ol>
                 <li> Reactive </li>
                 <li> Lazy loading </li>
                 <li> 1 to 1 mapping </li>
                 <li> template keys </li>
-            </ul>
+            </ol>
 
             <h3> Reactive </h3>
 
@@ -110,14 +107,14 @@
 
             <h3> Lazy loading </h3>
 
-            Only the necessary content is loaded to apply the internationalization
+            Only the necessary content is loaded to apply the internationalization.
 
         </section>
 
 
         <section class="section section--examples">
 
-        <h2> Example </h2>
+        <h2> Examples </h2>
 
         <h3> Hello world </h3>
 
@@ -150,7 +147,7 @@
                         <script type="text/plain" class="json-example">
                             {
                               "hello world": "hello world",
-                              "hello mouse": "hello mouse" 
+                              "hello mouse": "hello mouse"
                             }
                         </script>
                     </div>
@@ -158,7 +155,7 @@
                         <script type="text/plain" class="json-example">
                             {
                               "hello world": "olá mundo",
-                              "hello mouse": "olá rato" 
+                              "hello mouse": "olá rato"
                             }
                         </script>
                     </div>
@@ -166,9 +163,90 @@
             </div>
             <div class="example__html">
                 <script type="text/plain" class="html-example">
-                    <{{elementName}} lang="{{es¦lang}}">
-                       <button data-i18n--title="hello mouse" data-i18n="{{hello world¦data-i18n}}">hover me</button>
-                    </{{elementName}}>
+                    <html>
+                        <head>
+                            <link rel="i18n-translation-map" href="es.json" lang="es">
+                            <link rel="i18n-translation-map" href="en.json" lang="en">
+                            <link rel="i18n-translation-map" href="pt.json" lang="pt">
+                        </head>
+                        <body>
+                            <{{elementName}} lang="{{es¦lang}}">
+                                <button data-i18n--title="hello mouse" data-i18n="{{hello world¦data-i18n}}">hover me</button>
+                            </{{elementName}}>
+                        </body>
+                    </html>
+                </script>
+    
+                </div>
+        </div>
+
+        <h3> I18n definition import </h3>
+
+        <p>
+            The very first example shows how to use the component, it shows a button
+            with translated "hello world" text and "hello mouse" tooltip that will be
+            shown on mouse cursor above the button
+        </p>
+
+        <div class="example example--definition-import">
+            <div class="example__view">
+                <i18n-container lang="es">
+                    <pre data-i18n--title="hello mouse" data-i18n="hello world">hover me</pre>
+                </i18n-container>
+            </div>
+            <div class="example__json">
+                <div class="example__tabs">
+                    <input type="radio" class="tab" name="example--definition-import" aria-label="definition.json" checked>
+                    <input type="radio" class="tab" name="example--definition-import" aria-label="es.json">
+                    <input type="radio" class="tab" name="example--definition-import" aria-label="en.json">
+                    <input type="radio" class="tab" name="example--definition-import" aria-label="pt.json">
+                    <div class="editor tab-content">
+                        <script type="text/plain" class="json-example">
+                            {
+                                "en": { "import": "en.json" },
+                                "es": { "import": "es.json" },
+                                "pt": { "import": "pt.json" },
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="es">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hola mundo",
+                              "hello mouse": "hola ratón"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hello world",
+                              "hello mouse": "hello mouse"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "olá mundo",
+                              "hello mouse": "olá rato"
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                    <html>
+                        <head>
+                            <link rel="i18n-locale-map" href="definition.json">
+                        </head>
+                        <body>
+                            <{{elementName}} lang="{{es¦lang}}">
+                                <pre data-i18n--title="hello mouse" data-i18n="{{hello world¦data-i18n}}">hover me</pre>
+                            </{{elementName}}>
+                        </body>
+                    </html>
                 </script>
     
                 </div>
