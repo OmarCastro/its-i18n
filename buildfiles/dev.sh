@@ -7,7 +7,7 @@ cd "$DIR"/..
 
 buildfiles/build.sh
 buildfiles/lint-code.sh
-npx http-server -b -o build/docs &
+npx live-server --watch=build --open=build/docs &
 
 while :; do 
 	node buildfiles/wait-dir-changes.js

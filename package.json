@@ -20,19 +20,12 @@
     "url": "https://github.com/OmarCastro/its-i18n/issues"
   },
   "homepage": "https://github.com/OmarCastro/its-i18n#readme",
-  "dependencies": {
-    "@playwright/test": "^1.34.3",
-    "c8": "^7.14.0",
-    "html-minifier": "^4.0.0",
-    "image-size": "^1.0.2",
-    "jsdom": "^22.1.0",
-    "playwright": "^1.34.3",
-    "prismjs": "^1.29.0"
-  },
   "devDependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
     "@codemirror/lang-json": "^6.0.1",
+    "@playwright/test": "^1.35.1",
     "badge-maker": "^3.3.1",
+    "c8": "^8.0.0",
     "cm6-theme-basic-dark": "^0.2.0",
     "codemirror": "^6.0.1",
     "esbuild": "^0.18.0",
@@ -41,7 +34,11 @@
     "eslint-plugin-jsdoc": "^46.2.6",
     "expect": "^29.5.0",
     "glob": "^10.2.7",
-    "http-server": "^14.1.1",
+    "html-minifier": "^4.0.0",
+    "image-size": "^1.0.2",
+    "jsdom": "^22.1.0",
+    "live-server": "^1.2.2",
+    "prismjs": "^1.29.0",
     "typescript": "^5.1.3"
   }
 }
