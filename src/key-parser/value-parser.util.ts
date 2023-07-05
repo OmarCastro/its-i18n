@@ -1,5 +1,5 @@
 import { type AST, getAST, states, type Token } from './key-ast.util.js'
-import { getFormatter } from './value-formatter.ts'
+import { getFormatter } from './value-formatter.js'
 
 const tokenToString = (() => {
   const mapper = [] as ((token: Token) => string)[]

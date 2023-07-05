@@ -1,6 +1,6 @@
 import { test } from '../../test-utils/unit/test.js'
 import { getAST } from './key-ast.util.js'
-import { getFormatter } from './value-formatter.ts'
+import { getFormatter } from './value-formatter.js'
 import { captureExpressions } from './capture-expression-values.js'
 
 test('Given a simple string, getFormatter result should format the same string', ({ expect }) => {
@@ -52,7 +52,7 @@ test('Given a default unix timestamp formatter, getFormatter result should forma
 })
 
 test('Given a relative formatter, getFormatter result should format the number with the correct separator', ({ expect }) => {
-  const ast = getAST('unix epoch started {\'0\' | relative time}')
+  const ast = getAST('unix epoch started { "0" | relative time }')
   const formatter = getFormatter(ast)
   const usLocale = new Intl.Locale('en-US')
   const gbLocale = new Intl.Locale('en-GB')
