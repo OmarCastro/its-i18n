@@ -1,5 +1,5 @@
 import { type AST, getAST, states, type Token } from './key-ast.util.js'
-import { calculatePriority } from './priority-calculator.ts'
+import { calculatePriority } from './priority-calculator.js'
 import { getMatcher } from './template-matcher.ts'
 
 /**

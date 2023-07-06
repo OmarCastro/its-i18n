@@ -1,6 +1,6 @@
 import { test } from '../../test-utils/unit/test.js'
-import { getAST, states } from './key-ast.util.js'
-import { calculatePriority, getNumericValuePriority } from './priority-calculator.ts'
+import { getAST } from './key-ast.util.js'
+import { calculatePriority, getNumericValuePriority } from './priority-calculator.js'
 
 test('Given a simple string, calculatePriority should return the max priority', ({ expect }) => {
   const ast = getAST('hello world')
@@ -26,5 +26,5 @@ test('Given a simple dynamic string with "number" capture, calculatePriority sho
 
 const withNumericValue = (data) => ({
   ...data,
-  priorityAsNumber: getNumericValuePriority(data.priority),
+  priorityAsNumber: getNumericValuePriority(...data.priority),
 })
