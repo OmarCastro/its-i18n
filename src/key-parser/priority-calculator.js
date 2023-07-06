@@ -21,7 +21,7 @@ function calculatePriorityFromTokens (tokens) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
   const captureValues = captureTokens.length
   const captureExpressionsInfo = captureTokens.map(calculateCaptureTokenPriority)
-  const sum = captureExpressionsInfo.reduce((a, b) => a + b)
+  const sum = captureExpressionsInfo.reduce((a, b) => a + b, 0)
   return {
     priority: [captureValues, sum],
     priorityAsNumber: getNumericValuePriority(captureValues, sum),
@@ -81,4 +81,5 @@ export const getNumericValuePriority = (captures, sum) => Number.MAX_SAFE_INTEGE
  *
  * @property {[number, number]} priority
  * @property {number} priorityAsNumber
+ *
  */
