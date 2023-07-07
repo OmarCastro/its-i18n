@@ -1,5 +1,5 @@
 import { test } from '../../test-utils/unit/test.js'
-import { parseKey } from './key-parser.util.ts'
+import { parseKey } from './key-parser.util.js'
 
 test('Given a simple string, parseKey should return a result with max priority', ({ expect }) => {
   const parseKeyResult = parseKey('hello world')

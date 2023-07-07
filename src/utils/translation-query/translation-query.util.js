@@ -1,4 +1,4 @@
-import { parseKey } from '../../key-parser/key-parser.util.ts'
+import { parseKey } from '../../key-parser/key-parser.util.js'
 import { parseValue } from '../../key-parser/value-parser.util.ts'
 
 /**
