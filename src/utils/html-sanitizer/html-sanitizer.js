@@ -281,7 +281,7 @@ const sanitizeElement = ({ currentElement, removedElements, removedAttributes })
  * @param   {string}             html - HTML input string to sanitize
  * @returns {SanitizeHtmlResult} Sanitization result
  */
-export function sanitizeI18nHtml(html) {
+export function sanitizeI18nHtml (html) {
   /** @type {Element[]} */
   const removedElements = []
   /** @type {RemovedAttr[]} */

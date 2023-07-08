@@ -8,7 +8,7 @@ import { parseValue } from '../../key-parser/value-parser.util.ts'
  *
  * @returns {OptimizedTranslations} resulting optimized translation
  */
-function optimizeTranslationForQueries(translations) {
+function optimizeTranslationForQueries (translations) {
   /** @type {OptimizedTranslations} */
   const result = {
     literalKeys: {},
@@ -51,7 +51,7 @@ const translationOptimizations = new WeakMap()
  *
  * @returns {QueryResult} result of the query
  */
-export function queryFromTranslations(key, translations) {
+export function queryFromTranslations (key, translations) {
   let optmization = translationOptimizations.get(translations)
   if (!optmization) {
     optmization = {
@@ -108,12 +108,12 @@ export function queryFromTranslations(key, translations) {
 /**
  * Gets the tranlate function from value template and match result, in case match Result is undefined
  * it will assume it came from a literal key match
- * 
+ *
  * @param {string} valueTemplate target match result
  * @param {ReturnType<ReturnType<typeof parseKey>["match"]>} [match] target match result
  * @returns {TranslateFunction} translate function from targetMatch
  */
-function translatorFromValue(valueTemplate, match) {
+function translatorFromValue (valueTemplate, match) {
   const parameters = match?.parameters ?? []
   const defaultFormatters = match?.defaultFormatters ?? []
   let value
