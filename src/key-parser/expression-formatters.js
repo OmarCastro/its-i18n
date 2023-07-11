@@ -91,6 +91,23 @@ const baseInUnitRelativeTimeFormatter = Object.fromEntries(
   }),
 )
 
+/** @type {Record<string, Formatter>} */
+const baseToUnitRelativeTimeFormatter = Object.fromEntries(
+  durationUnitsEntries.map(([unit, duration]) => {
+    return [`to ${unit}s`, {
+      format: (text, locale) => {
+        const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+        return relativeTimeFormatToUnit(locale, unit, date.valueOf())
+      },
+      nextFrameRenderer: () => (callback) => {
+        const now = Date.now()
+        setTimeout(callback, duration - now % duration)
+      },
+
+    }]
+  }),
+)
+
 const relativeTimeFormatters = (() => {
   const result = {
     ...baseRelativeTimeFormatter,
@@ -98,6 +115,10 @@ const relativeTimeFormatters = (() => {
 
   for (const [baseKey] of Object.entries(baseRelativeTimeFormatter)) {
     for (const [unitPostfix, unitParams] of Object.entries(baseInUnitRelativeTimeFormatter)) {
+      result[`${baseKey} ${unitPostfix}`] = unitParams
+    }
+
+    for (const [unitPostfix, unitParams] of Object.entries(baseToUnitRelativeTimeFormatter)) {
       result[`${baseKey} ${unitPostfix}`] = unitParams
     }
   }
@@ -145,7 +166,7 @@ const longDateTimeFormatOptions = {
  * @param {Intl.Locale} locale
  * @param {number} d1 target timestamp
  * @param {number} d2 timestamp to compare, if not defined uses current time
- * @returns formatted relative time
+ * @returns {string} formatted relative time
  */
 function relativeTimeFormat (locale, d1, d2 = timeNowFrame()) {
   const elapsed = d1 - d2
@@ -167,7 +188,7 @@ function relativeTimeFormat (locale, d1, d2 = timeNowFrame()) {
  * @param {number} d1 target timestamp
  * @param {number} d2 timestamp to compare, if not defined uses current time
  * @param {Intl.RelativeTimeFormatUnit} unit unit to use on the calc
- * @returns formatted relative time
+ * @returns {string} formatted relative time
  */
 function relativeTimeFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
   const elapsed = d1 - d2
@@ -189,11 +210,12 @@ function relativeTimeFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
  * @param {number} d1 target timestamp
  * @param {number} d2 timestamp to compare, if not defined uses current time
  * @param {Intl.RelativeTimeFormatUnit} toUnit unit to use on the calc
- * @returns formatted relative time
+ * @returns {string} formatted relative time
  */
 function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
-  const elapsed = d1 - d2
+  let elapsed = d1 - d2
   const listFormatter = new Intl.ListFormat(locale.baseName, { style: 'long', type: 'conjunction' })
+
   /**
    *
    * @param {string} unit
@@ -206,8 +228,9 @@ function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
   for (const [unit, duration] of durationUnitsEntries) {
     // "Math.abs" accounts for both "past" & "future" scenarios
     if (Math.abs(elapsed) > duration) {
-      const amount = Math.floor(elapsed / duration)
+      const amount = Math.floor(Math.abs(elapsed) / duration)
       list.push(timeUnitFormatter(unit).format(amount))
+      elapsed -= amount * duration * Math.sign(elapsed)
     }
     if (unit === toUnit) {
       if (list.length) {
@@ -216,7 +239,7 @@ function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
       return relativeTimeFormat(locale, d1, d2)
     }
   }
-  listFormatter.format(list)
+  return listFormatter.format(list)
 }
 
 /**
