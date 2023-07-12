@@ -67,26 +67,39 @@ const baseRelativeTimeFormatter = {
       const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
       return relativeTimeFormat(locale, date.valueOf())
     },
-    nextFrameRenderer: () => (callback) => {
-      const now = Date.now()
-      setTimeout(callback, 1000 - now % 1000)
+  },
+}
+
+/** @type {Record<string, Formatter>} */
+const relativeTimeDurationFormatter = {
+  'relative time duration': {
+    format: (text, locale) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      return relativeTimeDurationFormat(locale, date.valueOf())
     },
   },
 }
 
 /** @type {Record<string, Formatter>} */
 const baseInUnitRelativeTimeFormatter = Object.fromEntries(
-  durationUnitsEntries.map(([unit, duration]) => {
+  durationUnitsEntries.map(([unit]) => {
     return [`in ${unit}s`, {
       format: (text, locale) => {
         const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
         return relativeTimeFormatInUnit(locale, unit, date.valueOf())
       },
-      nextFrameRenderer: () => (callback) => {
-        const now = Date.now()
-        setTimeout(callback, duration - now % duration)
-      },
+    }]
+  }),
+)
 
+/** @type {Record<string, Formatter>} */
+const baseDurationInUnitRelativeTimeFormatter = Object.fromEntries(
+  durationUnitsEntries.map(([unit]) => {
+    return [`in ${unit}s`, {
+      format: (text, locale) => {
+        const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+        return relativeTimeDurationFormatInUnit(locale, unit, date.valueOf())
+      },
     }]
   }),
 )
@@ -99,11 +112,6 @@ const baseToUnitRelativeTimeFormatter = Object.fromEntries(
         const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
         return relativeTimeFormatToUnit(locale, unit, date.valueOf())
       },
-      nextFrameRenderer: () => (callback) => {
-        const now = Date.now()
-        setTimeout(callback, duration - now % duration)
-      },
-
     }]
   }),
 )
@@ -111,13 +119,19 @@ const baseToUnitRelativeTimeFormatter = Object.fromEntries(
 const relativeTimeFormatters = (() => {
   const result = {
     ...baseRelativeTimeFormatter,
+    ...relativeTimeDurationFormatter,
   }
 
   for (const [baseKey] of Object.entries(baseRelativeTimeFormatter)) {
     for (const [unitPostfix, unitParams] of Object.entries(baseInUnitRelativeTimeFormatter)) {
       result[`${baseKey} ${unitPostfix}`] = unitParams
     }
+  }
 
+  for (const [baseKey] of Object.entries(relativeTimeDurationFormatter)) {
+    for (const [unitPostfix, unitParams] of Object.entries(baseDurationInUnitRelativeTimeFormatter)) {
+      result[`${baseKey} ${unitPostfix}`] = unitParams
+    }
     for (const [unitPostfix, unitParams] of Object.entries(baseToUnitRelativeTimeFormatter)) {
       result[`${baseKey} ${unitPostfix}`] = unitParams
     }
@@ -182,6 +196,26 @@ function relativeTimeFormat (locale, d1, d2 = timeNowFrame()) {
 }
 
 /**
+ * Shows relative time based on locale, without any time adverbs such as "ago" (2 minutes ago), "in" (in 5 minutes), tomorrow, yesterday, etc
+ *
+ * @param {Intl.Locale} locale
+ * @param {number} d1 target timestamp
+ * @param {number} d2 timestamp to compare, if not defined uses current time
+ * @returns {string} formatted relative time
+ */
+function relativeTimeDurationFormat (locale, d1, d2 = timeNowFrame()) {
+  const elapsed = d1 - d2
+
+  for (const [unit, duration] of durationUnitsEntries) {
+    // "Math.abs" accounts for both "past" & "future" scenarios
+    if (Math.abs(elapsed) > duration) {
+      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(Math.abs(elapsed) / duration))
+    }
+  }
+  return Intl.NumberFormat(locale.baseName, { style: 'unit', unit: 'seconds', unitDisplay: 'long' }).format(0)
+}
+
+/**
  * Shows relative time based on locale in units
  *
  * @param {Intl.Locale} locale
@@ -204,7 +238,28 @@ function relativeTimeFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
 }
 
 /**
- * Shows relative time based on locale, from the longest unit that has a positive value to the selected unit
+ * Shows relative time based on locale in units, without any time adverbs such as "ago" (2 minutes ago), "in" (in 5 minutes), tomorrow, yesterday, etc
+ *
+ * @param {Intl.Locale} locale
+ * @param {number} d1 target timestamp
+ * @param {number} d2 timestamp to compare, if not defined uses current time
+ * @param {Intl.RelativeTimeFormatUnit} unit unit to use on the calc
+ * @returns {string} formatted relative time
+ */
+function relativeTimeDurationFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
+  const elapsed = d1 - d2
+
+  for (const [durationUnit, duration] of durationUnitsEntries) {
+    // "Math.abs" accounts for both "past" & "future" scenarios
+    if (durationUnit === unit) {
+      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(Math.abs(elapsed) / duration))
+    }
+  }
+  return relativeTimeDurationFormat(locale, d1, d2)
+}
+
+/**
+ * Shows relative time based on locale, from the longest unit that has a positive value to the selected unit, without any time adverbs such as "ago" (2 minutes ago), "in" (in 5 minutes), tomorrow, yesterday, etc
  *
  * @param {Intl.Locale} locale
  * @param {number} d1 target timestamp
@@ -222,7 +277,7 @@ function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
    * @param {Intl.NumberFormatOptions["unitDisplay"]} unitDisplay
    * @returns
    */
-  const timeUnitFormatter = (unit, unitDisplay = 'long') => Intl.NumberFormat(locale.toString(), { style: 'unit', unit, unitDisplay })
+  const timeUnitFormatter = (unit, unitDisplay = 'long') => Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay })
   const list = []
 
   for (const [unit, duration] of durationUnitsEntries) {
@@ -256,7 +311,7 @@ function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
 /**
  * @typedef {object} Formatter
  * @property {FormatCall} format
- * @property {() => (callback: () => void) => void} [nextFrameRenderer]
+ * @property {boolean} [isconstant]
  */
 
 export const formatters = {
