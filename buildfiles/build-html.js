@@ -2,6 +2,8 @@ import Prism from 'prismjs'
 import { globSync } from 'glob'
 import { minify } from 'html-minifier'
 import { imageSize } from 'image-size'
+import { JSDOM } from 'jsdom'
+import { marked } from 'marked'
 
 const projectPath = new URL('../', import.meta.url)
 const docsPath = new URL('docs', projectPath).pathname
@@ -10,8 +12,7 @@ const docsOutputPath = new URL('.tmp/build/docs', projectPath).pathname
 const fs = await import('fs')
 
 const data = fs.readFileSync(`${docsPath}/${process.argv[2]}`, 'utf8')
-const jsdom = await import('jsdom')
-const dom = new jsdom.JSDOM(data, {
+const dom = new JSDOM(data, {
   url: import.meta.url,
 })
 /** @type {Window} */
@@ -85,44 +86,9 @@ queryAll('svg[ss:include]').forEach(element => {
   element.outerHTML = svgText
 })
 
-queryAll('[ss:toc]').forEach(element => {
-  const ol = document.createElement('ol')
-  /** @type {[HTMLElement, HTMLElement][]} */
-  const path = []
-  for (const element of queryAll('h1, h2, h3, h4, h5, h6')) {
-    if (element.matches('.no-toc')) {
-      continue
-    }
-    const id = element.getAttribute('id') || element.textContent.trim().toLowerCase().replaceAll(/\s+/g, '-')
-    if (!element.hasAttribute('id')) {
-      element.setAttribute('id', id)
-    }
-    const li = document.createElement('li')
-    const a = document.createElement('a')
-    a.href = `#${id}`
-    a.textContent = element.textContent
-    li.append(a)
-
-    const parent = (() => {
-      while (path.length > 0) {
-        const [title, possibleParent] = path.at(-1)
-        if (title.tagName < element.tagName) {
-          const possibleParentList = possibleParent.querySelector('ol')
-          if (!possibleParentList) {
-            const ol = document.createElement('ol')
-            possibleParent.append(ol)
-            return ol
-          }
-          return possibleParentList
-        }
-        path.pop()
-      }
-      return ol
-    })()
-    parent.append(li)
-    path.push([element, li])
-  }
-  element.replaceWith(ol)
+queryAll('[ss:markdown]').forEach(element => {
+  const md = dedent(element.innerHTML)
+  element.innerHTML = marked(md, { mangle: false })
 })
 
 queryAll('img[ss:size]').forEach(element => {
@@ -168,6 +134,46 @@ queryAll('link[href][ss:repeat-glob]').forEach(element => {
     element.insertAdjacentElement('afterend', link)
   })
   element.remove()
+})
+
+queryAll('[ss:toc]').forEach(element => {
+  const ol = document.createElement('ol')
+  /** @type {[HTMLElement, HTMLElement][]} */
+  const path = []
+  for (const element of queryAll('h1, h2, h3, h4, h5, h6')) {
+    if (element.matches('.no-toc')) {
+      continue
+    }
+    const id = element.getAttribute('id') || element.textContent.trim().toLowerCase().replaceAll(/\s+/g, '-')
+    if (!element.hasAttribute('id')) {
+      element.setAttribute('id', id)
+    }
+    const li = document.createElement('li')
+    const a = document.createElement('a')
+    a.href = `#${id}`
+    a.textContent = element.textContent
+    li.append(a)
+
+    const parent = (() => {
+      while (path.length > 0) {
+        const [title, possibleParent] = path.at(-1)
+        if (title.tagName < element.tagName) {
+          const possibleParentList = possibleParent.querySelector('ol')
+          if (!possibleParentList) {
+            const ol = document.createElement('ol')
+            possibleParent.append(ol)
+            return ol
+          }
+          return possibleParentList
+        }
+        path.pop()
+      }
+      return ol
+    })()
+    parent.append(li)
+    path.push([element, li])
+  }
+  element.replaceWith(ol)
 })
 
 const minifiedHtml = minify('<!DOCTYPE html>' + document.documentElement?.outerHTML || '', {

@@ -89,25 +89,34 @@
             <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://omarcastro.github.io/its-i18n/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
         </section>
 
-        <section class="section section--getting-started">
-            <h2> Features </h2>
+        <section class="section section--getting-started" ss:markdown>
+            ## Features
 
             This component has the following features:
-            <ol>
-                <li> Reactive </li>
-                <li> Lazy loading </li>
-                <li> 1 to 1 mapping </li>
-                <li> template keys </li>
-            </ol>
 
-            <h3> Reactive </h3>
+            - Reactive
+            - Lazy loading
+            - Template keys
+            - 1 to 1 mapping
 
+
+            ### Reactive
+            
             Everytime a data-i18n-* attribute is added or changed inside the component, its respective content will be automatically updated to reflect the content.
             Removing it just disables it, leaving for the developer to remove the translated content if he wishes
 
-            <h3> Lazy loading </h3>
+            ### Lazy loading
 
             Only the necessary content is loaded to apply the internationalization.
+
+            ### Template keys
+
+            I18n key can match multiple translation, because of that, conflict may arise, to handle it. Prioritization
+            rules are made to choose which of the translation key are to be used
+
+            ### 1 to 1 mapping
+
+            Due to template keys. Not only simplifies the translation file, it makes them consistent
 
         </section>
 
@@ -254,6 +263,11 @@
 
 
         <h3> Multiple languages </h3>
+
+        <p ss:markdown>
+            The language used is based on the lang attribute. It will find the lang on the element and it's ancestors until the document root, the &lt;html> element.
+            If not found it will choose the language defined in the browser using `navigator.language`
+        </p>
 
         <div class="example example--multi-lang">
             <div class="example__view">
