@@ -6,20 +6,19 @@ import { queryFromTranslations } from '../../utils/translation-query/translation
 import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 import { timeTick } from '../../utils/tick-time/tick-time.js'
 
-
 class I18nContainerElement extends HTMLElement {
-  constructor() {
+  constructor () {
     super()
     observeLangFromElement(this)
     this.addEventListener(eventName, () => this.updateNodes())
     observer.observe(this, mutationProperties)
   }
 
-  connectedCallback() {
+  connectedCallback () {
     this.updateNodes()
   }
 
-  updateNodes() {
+  updateNodes () {
     return updateI18nOnElements(this.querySelectorAll('*')).then((elementsUpdated) => {
       const result = { elementsUpdated }
 
@@ -34,9 +33,13 @@ class I18nContainerElement extends HTMLElement {
   }
 }
 
-
-function updateI18nOnElements(iterable: Iterable<Element>) {
-  const promises = [] as Promise<Element | null>[]
+/**
+ *
+ * @param {Iterable<Element>} iterable
+ * @returns {Promise<Element[]>}
+ */
+function updateI18nOnElements (iterable) {
+  const promises = []
   for (const element of iterable) {
     if (!isElementTranslatable(element) || !element.hasAttributes()) {
       continue
@@ -69,21 +72,29 @@ function updateI18nOnElements(iterable: Iterable<Element>) {
       promises.push(promise)
     }
 
-    const isTicking = element.hasAttribute("data-i18n-tick-time")
-    if(isTicking){
+    const isTicking = element.hasAttribute('data-i18n-tick-time')
+    if (isTicking) {
       timeTick().tickElement(element)
     }
-
   }
 
-  return Promise.allSettled(promises).then((promises) => {
-    return promises
-      .map((promise) => promise.status === 'fulfilled' ? promise.value : null)
-      .filter((result) => result != null) as Element[]
-  })
+  return Promise.allSettled(promises).then((promises) => promises.flatMap((promise) => {
+    if (promise.status === 'fulfilled' && promise.value) {
+      return [promise.value]
+    }
+    return []
+  }),
+  )
 }
 
-async function translate(text: string, locale: Intl.Locale, context: Element) {
+/**
+ * Translte the text content
+ * @param {string} text - target text
+ * @param {Intl.Locale} locale - language to translate to
+ * @param {Element} context - the element where the translation is done
+ * @returns {Promise<string>} translated text
+ */
+async function translate (text, locale, context) {
   for (const storeInfo of getStoresInfoFromElement(context)) {
     const result = queryFromTranslations(text, await storeInfo.store.translationsFromLanguage(locale))
     if (result.found) {
@@ -93,23 +104,30 @@ async function translate(text: string, locale: Intl.Locale, context: Element) {
   return text
 }
 
+/** @type  {{ [k: string]: number }} */
 const attributePrefixPriority = {
   'data-i18n--': 1,
   'data-i18n-attr-': 2,
   'data-i18n-attribute-': 3,
 }
 
-const dataI18nAttributeMatchRegex = /^(data\-i18n\-(?:attr(?:ibute)?)?-)(.*)$/
+const dataI18nAttributeMatchRegex = /^(data-i18n-(?:attr(?:ibute)?)?-)(.*)$/
 
-function getAttributesToUpdate(element: Element): { [k: string]: string } {
-  const attributesToUpdate = {} as { [k: string]: { prefix: keyof typeof attributePrefixPriority; value: string } }
+/**
+ *
+ * @param {Element} element
+ * @returns {{ [k: string]: string }}
+ */
+function getAttributesToUpdate (element) {
+  /** @type {{ [k: string]: { prefix: string; value: string } }} */
+  const attributesToUpdate = {}
   for (const attribute of element.attributes) {
     const { name, value } = attribute
     const match = name.match(dataI18nAttributeMatchRegex)
     if (!match) {
       continue
     }
-    const [, prefix, attrName] = match as [unknown, keyof typeof attributePrefixPriority, string]
+    const [, prefix, attrName] = match
     const previous = attributesToUpdate[attrName]
     if (!previous || attributePrefixPriority[previous.prefix] < attributePrefixPriority[prefix]) {
       attributesToUpdate[attrName] = { prefix, value }
@@ -118,12 +136,14 @@ function getAttributesToUpdate(element: Element): { [k: string]: string } {
   return Object.fromEntries(Object.entries(attributesToUpdate).map(([key, val]) => [key, val.value]))
 }
 
-type ElementContentSetter = (element: Element, text: string) => void
-
 const contentAttributeDetails = (() => {
-  const setTextContent = (element: Element, text: string) => element.textContent = text
-  const setInnerHtml = (element: Element, text: string) => element.innerHTML = text
-  const setSanitizedHtml = (element: Element, text: string) => element.innerHTML = sanitizeI18nHtml(text).html
+  /** @type {ElementContentSetter} */
+  function setTextContent (element, text) { element.textContent = text }
+  /** @type {ElementContentSetter} */
+  function setInnerHtml (element, text) { element.innerHTML = text }
+  /** @type {ElementContentSetter} */
+  function setSanitizedHtml (element, text) { element.innerHTML = sanitizeI18nHtml(text).html }
+
   return {
     'data-i18n-unsafe-html': {
       priority: 1,
@@ -141,11 +161,6 @@ const contentAttributeDetails = (() => {
       priority: 3,
       contentSetter: setTextContent,
     },
-  } as {
-    [text: string]: {
-      priority: number
-      contentSetter: ElementContentSetter
-    }
   }
 })()
 
@@ -160,13 +175,19 @@ const notFoundContentDetails = Object.freeze({
   contentSetter: () => {},
 })
 
-function getContentDetailsToUpdate(element: Element): typeof orderedContentAttributeDetails[number] & { key: string } {
+/**
+ *
+ * @param {Element} element
+ * @returns {typeof orderedContentAttributeDetails[number] & { key: string }}
+ */
+function getContentDetailsToUpdate (element) {
   for (const detail of orderedContentAttributeDetails) {
     const { attribute } = detail
-    if (element.hasAttribute(attribute)) {
+    const key = element.getAttribute(attribute)
+    if (key != null) {
       return {
         ...detail,
-        key: element.getAttribute(attribute)!,
+        key,
       }
     }
   }
@@ -174,11 +195,13 @@ function getContentDetailsToUpdate(element: Element): typeof orderedContentAttri
 }
 
 const targetsToUpdateI18n = {
-  elements: new Set() as Set<Element>,
-  subtrees: new Set() as Set<Element>,
+  /** @type {Set<Element>} */
+  elements: new Set(),
+  /** @type {Set<Element>} */
+  subtrees: new Set(),
 }
 
-function triggerUpdate() {
+function triggerUpdate () {
   const { elements, subtrees } = targetsToUpdateI18n
   if (elements.size === 0 && subtrees.size === 0) {
     return
@@ -191,8 +214,14 @@ function triggerUpdate() {
   updateI18nOnElements(targets)
 }
 
-let frameRequestNumber: number | undefined
-function observerCallback(records: MutationRecord[]) {
+/** @type {number | undefined} */
+let frameRequestNumber
+
+/**
+ *
+ * @param {MutationRecord[]} records
+ */
+function observerCallback (records) {
   const { elements, subtrees } = targetsToUpdateI18n
   for (const record of records) {
     const { target, type } = record
@@ -220,10 +249,10 @@ function observerCallback(records: MutationRecord[]) {
   }
 }
 
-timeTick().addCallback(({untick, targets}) => {
+timeTick().addCallback(({ untick, targets }) => {
   const validTargets = targets.filter((target) => {
-    const isTicking = target.hasAttribute("data-i18n-tick-time")
-    if(!isTicking){
+    const isTicking = target.hasAttribute('data-i18n-tick-time')
+    if (!isTicking) {
       untick(target)
     }
     return isTicking
@@ -231,9 +260,11 @@ timeTick().addCallback(({untick, targets}) => {
   updateI18nOnElements(validTargets)
 })
 
-
 const observer = new MutationObserver(observerCallback)
 
-const mutationProperties = Object.freeze({ attributes: true, subtree: true } as MutationObserverInit)
+/** @type {MutationObserverInit} */
+const mutationProperties = Object.freeze({ attributes: true, subtree: true })
 
 export default I18nContainerElement
+
+/** @typedef { (element: Element, text: string) => void} ElementContentSetter */

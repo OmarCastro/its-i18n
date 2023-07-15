@@ -8,7 +8,7 @@ const html = String.raw
 
 const tag = 'x-i18n'
 let defineWebComponent = async () => {
-  const module = await import('./i18n-container.element.ts')
+  const module = await import('./i18n-container.element.js')
   window.customElements.define(tag, module.default)
   defineWebComponent = () => Promise.resolve()
 }
