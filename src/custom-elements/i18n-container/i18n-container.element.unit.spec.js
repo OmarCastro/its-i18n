@@ -13,14 +13,15 @@ let defineWebComponent = async () => {
   defineWebComponent = () => Promise.resolve()
 }
 
-function getPromiseFromEvent(item, event) {
-  let func: unknown = () => {}
+function getPromiseFromEvent (item, event) {
+  let func = () => {}
+  /** @type {PromiseLike<void>} */
   const obj = {
     then: (newFunc) => {
       func = newFunc
     },
-  } as PromiseLike<void>
-  item.addEventListener(event, () => (func as CallableFunction)())
+  }
+  item.addEventListener(event, () => func())
   return obj
 }
 
@@ -50,10 +51,10 @@ test('Given an HTML page with i18n-translation-map links and es lang on body, x-
 </${tag}> 
 `
 
-  const component = document.body.querySelector('.component')!
+  const component = document.body.querySelector('.component')
   await getPromiseFrom18nApplyEvent(component)
 
-  const target = document.querySelector('.target-1')!
+  const target = document.querySelector('.target-1')
 
   await expect(target.getAttribute('data-i18n')).toEqual('I counted 4 sheeps')
   await expect(target.textContent).toEqual('conté 4 ovejas')
@@ -85,11 +86,11 @@ test('Given an HTML page with i18n-translation-map links and "pt" lang on body a
 </${tag}> 
 `
 
-  const component = document.body.querySelector('.component')!
+  const component = document.body.querySelector('.component')
   await getPromiseFrom18nApplyEvent(component)
 
-  const target = document.querySelector('.target-1')!
-  const targetEn = document.querySelector('.target-1-en')!
+  const target = document.querySelector('.target-1')
+  const targetEn = document.querySelector('.target-1-en')
 
   await expect(target.getAttribute('data-html')).toEqual('contei 20 ovelhas')
   await expect(targetEn.getAttribute('data-html')).toEqual('I counted 30 sheeps')
@@ -122,13 +123,13 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
 </${tag}> 
 `
 
-  const component = document.body.querySelector('.component')!
+  const component = document.body.querySelector('.component')
   await getPromiseFrom18nApplyEvent(component)
 
-  const target1 = document.querySelector('.target-1')!
-  const target2 = document.querySelector('.target-2')!
-  const target3 = document.querySelector('.target-3')!
-  const target4 = document.querySelector('.target-4')!
+  const target1 = document.querySelector('.target-1')
+  const target2 = document.querySelector('.target-2')
+  const target3 = document.querySelector('.target-3')
+  const target4 = document.querySelector('.target-4')
 
   await step('"data-i18n-attr-*" has higher priority than "data-i18n--*"', async () => {
     await expect(target1.getAttribute('data-attr')).toEqual('I counted 4 sheeps')
@@ -146,9 +147,9 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
   })
 })
 
-function i18nImporterImplWith({ readFrom }: { readFrom: Parameters<Parameters<typeof test>[1]>[0]['readFrom'] }) {
+function i18nImporterImplWith ({ readFrom }) {
   return {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
     importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-  } as Parameters<typeof provide>[0]
+  }
 }
