@@ -5,6 +5,7 @@ import { getStoresInfoFromElement } from '../../utils/store-map/store-map.js'
 import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.js'
 import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 import { timeTick } from '../../utils/tick-time/tick-time.js'
+import { loadI18n } from '../../html-loader/html-loader.js'
 
 class I18nContainerElement extends HTMLElement {
   constructor () {
@@ -12,6 +13,22 @@ class I18nContainerElement extends HTMLElement {
     observeLangFromElement(this)
     this.addEventListener(eventName, () => this.updateNodes())
     observer.observe(this, mutationProperties)
+
+    const document = this.ownerDocument
+    const stores = Array.from(getStoresInfoFromElement(document.documentElement))
+    if (stores.length >= 2) {
+      return
+    }
+    const window = document.defaultView
+    if (!window) {
+      return
+    }
+
+    loadI18n(window).then(() => {
+      if (this.isConnected) {
+        this.updateNodes()
+      }
+    })
   }
 
   connectedCallback () {
