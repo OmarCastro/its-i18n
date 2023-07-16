@@ -7,6 +7,10 @@ import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 import { timeTick } from '../../utils/tick-time/tick-time.js'
 import { loadI18n } from '../../html-loader/html-loader.js'
 
+/** @type {ReturnType<typeof loadI18n>} */
+let loadingPromise
+const pendingElements = new WeakSet()
+
 export class I18nContainerElement extends HTMLElement {
   constructor () {
     super()
@@ -24,16 +28,24 @@ export class I18nContainerElement extends HTMLElement {
       return
     }
 
-    loadI18n(window).then((store) => {
+    if (!loadingPromise) {
+      loadingPromise = loadI18n(window)
+    }
+
+    pendingElements.add(this)
+    loadingPromise.then((store) => {
       setStoreFromElement(document.documentElement, store)
       if (this.isConnected) {
         this.updateNodes()
+        pendingElements.delete(this)
       }
     })
   }
 
   connectedCallback () {
-    this.updateNodes()
+    if (!pendingElements.has(this)) {
+      this.updateNodes()
+    }
   }
 
   updateNodes () {
