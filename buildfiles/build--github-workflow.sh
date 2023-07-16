@@ -7,3 +7,4 @@ npm ci
 # run tests
 buildfiles/test.sh
 buildfiles/build.sh
+cp -R build/dist build/docs/dist
