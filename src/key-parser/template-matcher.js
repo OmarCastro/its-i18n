@@ -1,14 +1,16 @@
-import { type AST, states, type Token } from './key-ast.util.js'
+import { states } from './key-ast.util.js'
 import { escape } from '../utils/algorithms/regex.utils.js'
-import { type CaptureExpressionInfo, captureExpressions } from './capture-expression-values.js'
+import { captureExpressions } from './capture-expression-values.js'
 
 const falsePredicate = () => false
+/** @type {readonly []} */
 const emptyArray = Object.freeze([])
 
+/** @type {ParameterMatchResult} */
 const anyMatchExpression = Object.freeze({
   isMatch: true,
   expressionInfo: captureExpressions.special.any,
-}) as ParameterMatchResult
+})
 
 const noMatchExpression = Object.freeze({
   isMatch: false,
@@ -18,21 +20,32 @@ const anyMatchCaptureExpressionsInfo = {
   matchPredicate: () => anyMatchExpression,
 }
 
+/** @type {MatchResult} */
 const noMatch = Object.freeze({
   isMatch: false,
   parameters: emptyArray,
   defaultFormatters: emptyArray,
-}) as MatchResult
+})
 
+/** @type {MatchResult} */
 const emptyYesMatch = Object.freeze({
   isMatch: true,
   parameters: emptyArray,
   defaultFormatters: emptyArray,
-}) as MatchResult
+})
 
-const exactStringMatcher = (textToMatch: string) => (text: string) => (textToMatch === text) ? emptyYesMatch : noMatch
+/**
+ * @param {string} textToMatch
+ * @returns {Matcher}
+ */
+const exactStringMatcher = (textToMatch) => (text) => (textToMatch === text) ? emptyYesMatch : noMatch
 
-function getMatcherFromTokens(tokens: Token[]) {
+/**
+ *
+ * @param {import('./key-ast.util.js').Token[]} tokens
+ * @returns {Matcher}
+ */
+function getMatcherFromTokens (tokens) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
 
   if (captureTokens.length <= 0) {
@@ -41,7 +54,8 @@ function getMatcherFromTokens(tokens: Token[]) {
   }
 
   const captureExpressionsInfo = captureTokens.map((captureToken) => {
-    const fragmentedCaptureExpressionsInfo = [] as CaptureExpressionsInfoDetail[]
+    /** @type {CaptureExpressionsInfoDetail[]} */
+    const fragmentedCaptureExpressionsInfo = []
     if (captureToken.childTokens.length === 0) {
       return anyMatchCaptureExpressionsInfo
     }
@@ -91,7 +105,12 @@ function getMatcherFromTokens(tokens: Token[]) {
     }
 
     return {
-      matchPredicate: (text: string): ParameterMatchResult => {
+      /**
+       *
+       * @param {string} text
+       * @returns {ParameterMatchResult}
+       */
+      matchPredicate: (text) => {
         const expressionPart = fragmentedCaptureExpressionsInfo.find((expressionPart) => expressionPart.matches(text))
         if (!expressionPart) {
           return noMatchExpression
@@ -114,7 +133,7 @@ function getMatcherFromTokens(tokens: Token[]) {
 
   const regex = new RegExp('^' + regexStr + '$')
 
-  return (text: string) => {
+  return (text) => {
     if (typeof text !== 'string') return noMatch
     const matches = text.match(regex)
     if (matches == null) {
@@ -122,7 +141,7 @@ function getMatcherFromTokens(tokens: Token[]) {
     }
 
     const parameters = matches.slice(1)
-    const paramMatchInfo = [] as CaptureExpressionInfo[]
+    const paramMatchInfo = []
 
     for (const [index, text] of parameters.entries()) {
       const matchResult = captureExpressionsInfo[index].matchPredicate(text)
@@ -138,32 +157,42 @@ function getMatcherFromTokens(tokens: Token[]) {
       isMatch: true,
       parameters,
       defaultFormatters,
-    } as MatchResult
+    }
   }
 }
 
-export function getMatcher(ast: AST) {
+/**
+ *
+ * @param {import('./key-ast.util.js').AST} ast
+ * @returns {Matcher}
+ */
+export function getMatcher (ast) {
   return getMatcherFromTokens(ast.tokens)
 }
 
-type CaptureExpressionsInfoDetail = {
-  type: 'expression' | 'regex' | 'string' | 'any'
-  text: string
-  expressionInfo: CaptureExpressionInfo
-  matches(text: string): boolean
-}
+/**
+ * @typedef {object} CaptureExpressionsInfoDetail
+ * @property {'expression' | 'regex' | 'string' | 'any'} type
+ * @property {string} text
+ * @property {import('./capture-expression-values.js').CaptureExpressionInfo} expressionInfo
+ * @property {(text: string) => boolean} matches
+ */
 
-type Formatter = (text: string, locale: Intl.Locale) => string
+/**
+ * @typedef {(text: string, locale: Intl.Locale) => string} Formatter
+ */
 
-type ParameterMatchResult = Readonly<
-  { isMatch: false } | {
-    isMatch: true
-    expressionInfo: CaptureExpressionInfo
-  }
->
+/**
+ * @typedef {Readonly<{ isMatch: false } | {isMatch: true, expressionInfo: import('./capture-expression-values.js').CaptureExpressionInfo}>} ParameterMatchResult
+ */
 
-type MatchResult = {
-  isMatch: boolean
-  parameters: readonly string[]
-  defaultFormatters: readonly Formatter[]
-}
+/**
+ * @typedef {(text: string) => MatchResult} Matcher
+ */
+
+/**
+ * @typedef {object} MatchResult
+ * @property {boolean} isMatch
+ * @property {readonly string[]} parameters
+ * @property {readonly Formatter[]} defaultFormatters
+ */
