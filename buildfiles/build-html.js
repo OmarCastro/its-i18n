@@ -88,7 +88,7 @@ queryAll('svg[ss:include]').forEach(element => {
 
 queryAll('[ss:markdown]').forEach(element => {
   const md = dedent(element.innerHTML)
-  element.innerHTML = marked(md, { mangle: false })
+  element.innerHTML = marked(md, { mangle: false, headerIds: false })
 })
 
 queryAll('img[ss:size]').forEach(element => {
