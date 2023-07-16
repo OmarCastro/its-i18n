@@ -89,8 +89,22 @@
 
         <section class="section section--getting-started">
             <h2> Getting started </h2>
+            <h3> CDN </h3>
 
             <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://omarcastro.github.io/its-i18n/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
+
+            <h3> Nodejs </h3>
+
+            If you wish to import from nodejs and use a bundler, you can install the 'its-i18n' package
+
+            <pre><code class="language-shell keep-markup"></code>npm install its-i18n</pre>
+
+            Since bundlers may not support query strings in import, it would be better to import the component and define the component like the following code
+
+            <pre><code class="language-js keep-markup">import element from 'its-i18n'
+
+customElements.define('<span class="component-name-edit" contenteditable="true">i18n-container</span>', element)</code></pre>
+
         </section>
 
         <section class="section section--getting-started" ss:markdown>
