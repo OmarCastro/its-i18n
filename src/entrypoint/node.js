@@ -1,3 +1,4 @@
+import '../utils/i18n-importer/implementation.js'
 import I18nElement from '../custom-elements/i18n-container/i18n-container.element.js'
 
 const url = new URL(import.meta.url)

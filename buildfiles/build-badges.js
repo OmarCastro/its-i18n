@@ -1,6 +1,10 @@
 import { makeBadge } from 'badge-maker'
 import { readFile as fsReadFile, writeFile } from 'node:fs/promises'
 import { JSDOM } from 'jsdom'
+import { promisify } from 'util'
+import { exec as pexec } from 'child_process'
+const exec = promisify(pexec)
+
 const jsdom = new JSDOM('<body></body>', { url: import.meta.url })
 /** @type {Document} */
 const document = jsdom.window.document
@@ -15,13 +19,15 @@ const colors = {
   yellow: '#777700',
   orange: '#aa0000',
   red: '#aa0000',
+  blue: '#007ec6',
 }
 
 const lightVersion = {
   [colors.green]: '#90e59a',
-  [colors.yellow]: '#dddd44',
-  [colors.orange]: '#ffaa77',
-  [colors.red]: '#ff7777',
+  [colors.yellow]: '#dd4',
+  [colors.orange]: '#fa7',
+  [colors.red]: '#f77',
+  [colors.blue]: '#acf',
 }
 
 function badgeColor (pct) {
@@ -107,8 +113,25 @@ async function makeBadgeForLicense () {
   await writeFile(`${projectPath}/reports/license-badge-a11y.svg`, applyA11yTheme(svg))
 }
 
+async function makeBadgeForNPMVersion () {
+  const pkg = await readFile(`${projectPath}/package.json`).then(str => JSON.parse(str))
+
+  const version = await exec(`npm view ${pkg.name} version`)
+
+  const svg = makeBadge({
+    label: 'npm',
+    message: version.stdout.trim(),
+    color: '#007ec6',
+    style: 'for-the-badge',
+  })
+
+  await writeFile(`${projectPath}/reports/npm-version-badge.svg`, svg)
+  await writeFile(`${projectPath}/reports/npm-version-badge-a11y.svg`, applyA11yTheme(svg))
+}
+
 await Promise.allSettled([
   makeBadgeForCoverages(`${projectPath}/reports/coverage/unit`),
   makeBadgeForTestResult(`${projectPath}/reports/test-results`),
   makeBadgeForLicense(),
+  makeBadgeForNPMVersion(),
 ])
