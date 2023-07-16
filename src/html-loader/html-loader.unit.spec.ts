@@ -1,6 +1,6 @@
 import { window } from '../../test-utils/unit/init-dom.js'
 import { test } from '../../test-utils/unit/test.js'
-import { loadI18n } from './html-loader.ts'
+import { loadI18n } from './html-loader.js'
 import { provide } from '../utils/i18n-importer/provider.js'
 
 const html = String.raw

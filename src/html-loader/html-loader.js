@@ -1,8 +1,13 @@
 import { importI18nJson } from '../utils/i18n-importer/i18n-importer.js'
-import { i18nTanslationStore, type TranslationStore } from '../utils/store/translation-store.js'
+import { i18nTanslationStore } from '../utils/store/translation-store.js'
 import { builder } from '../utils/i18n-merger/i18n-merger.util.js'
 
-async function loadLocaleMaps({ document, location, merger }: LoadPartParameters) {
+/**
+ *
+ * @param {LoadPartParameters} params
+ * @returns
+ */
+async function loadLocaleMaps ({ document, location, merger }) {
   const locationHref = location.href
 
   const localeMaps = Array.from(document.querySelectorAll('link[rel="i18n-locale-map"]'))
@@ -12,9 +17,9 @@ async function loadLocaleMaps({ document, location, merger }: LoadPartParameters
 
   const deferredMapPromises = localeMaps.flatMap((link) => {
     const href = link.getAttribute('href')
-    if(!href) return []
-    
-    return [importI18nJson(href, locationHref).then((result) => ({result, location: new URL(href, locationHref)}))]
+    if (!href) return []
+
+    return [importI18nJson(href, locationHref).then((result) => ({ result, location: new URL(href, locationHref) }))]
   })
 
   const promiseResults = await Promise.allSettled(deferredMapPromises)
@@ -24,12 +29,17 @@ async function loadLocaleMaps({ document, location, merger }: LoadPartParameters
       console.error('error loading file: %o', settled.reason)
       return merger
     }
-    const {result, location} = settled.value
+    const { result, location } = settled.value
     return merger.addMap(result, location)
   }, merger)
 }
 
-function loadTranslations({ document, location, merger }: LoadPartParameters) {
+/**
+ *
+ * @param {LoadPartParameters} params
+ * @returns
+ */
+function loadTranslations ({ document, location, merger }) {
   const locationHref = location.href
 
   const translationsMaps = document.querySelectorAll('link[rel="i18n-translation-map"]')
@@ -38,8 +48,12 @@ function loadTranslations({ document, location, merger }: LoadPartParameters) {
   }
 
   return [...translationsMaps].reduce((merger, link) => {
-    const href = link.getAttribute('href')!
+    const href = link.getAttribute('href')
     const lang = link.getAttribute('lang')
+    if (href == null) {
+      console.error('link %o requires a href attribute, it will be ignored', link)
+      return merger
+    }
     if (lang == null) {
       console.error('link %o requires a lang attribute, it will be ignored', link)
       return merger
@@ -54,7 +68,12 @@ function loadTranslations({ document, location, merger }: LoadPartParameters) {
   }, merger)
 }
 
-export async function loadI18n({ document, location }: LoadI18nParams = window): Promise<TranslationStore> {
+/**
+ *
+ * @param {LoadI18nParams} params
+ * @returns {Promise<import('../utils/store/translation-store.js').TranslationStore>}
+ */
+export async function loadI18n ({ document, location } = window) {
   location = typeof location === 'string' ? new URL(location) : location
   const localeMapMerger = await loadLocaleMaps({ document, location, merger: builder })
   const finalMerger = loadTranslations({ document, location, merger: localeMapMerger })
@@ -69,18 +88,23 @@ export async function loadI18n({ document, location }: LoadI18nParams = window):
   return store
 }
 
-/** This type is compatible with both URL objects and window.location */
-type BaseURL = {
-  href: string
-}
+/** @typedef {{href: string}} BaseURL - any type that has `href`, like {@link URL} and {@link window.location} */
 
-type LoadPartParameters = {
-  document: Document
-  location: BaseURL
-  merger: typeof builder
-}
+/**
+ * @typedef {object} LoadI18nParams
+ *
+ * Parameters used to load I18n from the DOM
+ *
+ * @property {Document} document
+ * @property {BaseURL | string} location
+ */
 
-type LoadI18nParams = {
-  document: Document
-  location: BaseURL | string
-}
+/**
+ * @typedef {object} LoadPartParameters
+ *
+ * Parameters used to load I18n from the DOM
+ *
+ * @property {Document} document
+ * @property {BaseURL} location
+ * @property {typeof builder} merger
+ */
