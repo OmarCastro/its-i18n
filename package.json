@@ -1,11 +1,12 @@
 {
   "name": "its-i18n",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An i18n web component",
   "main": "src/entrypoint/node.js",
   "type": "module",
   "files" : [
     "README.md",
+    "CHANGELOG.md",
     "src",
     "build/dist",
     "test-utils/",
