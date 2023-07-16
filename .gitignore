@@ -30,3 +30,6 @@ coverage
 
 # Ignore temporary files
 .tmp
+
+# smoke test generated content
+smoke-test/npm/js/index.min.js
