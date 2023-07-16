@@ -1,5 +1,5 @@
 import { parseKey } from '../../key-parser/key-parser.util.js'
-import { parseValue } from '../../key-parser/value-parser.util.ts'
+import { parseValue } from '../../key-parser/value-parser.util.js'
 
 /**
  * Creates an {@link OptimizedTranslations} based on target {@link Translations}
