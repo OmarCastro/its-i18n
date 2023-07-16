@@ -63,12 +63,12 @@ test('Given a simple string, parseKey.matches should return return true only on 
     'hello world': matches('hello world'),
     'hello World': matches('hello World'),
     ' hello world ': matches(' hello world '),
-    'undefined': matches(undefined as never),
+    undefined: matches(undefined),
   }).toEqual({
     'hello world': true,
     'hello World': false,
     ' hello world ': false,
-    'undefined': false,
+    undefined: false,
   })
 })
 
@@ -81,13 +81,13 @@ test('Given a string with { number } capture key , parseKey.matches should retur
     'I found NaN planets': matches('I found NaN planets'),
     'I found some planets': matches('I found some planets'),
     'I found  1  planets ': matches('I found  1  planets'),
-    'undefined': matches(undefined as never),
+    undefined: matches(undefined),
   }).toEqual({
     'I found 1 planets': true,
     'I found NaN planets': false,
     'I found some planets': false,
     'I found  1  planets ': false,
-    'undefined': false,
+    undefined: false,
   })
 })
 
@@ -101,13 +101,13 @@ test('Given a string with { string } capture key , parseKey.matches should retur
     'The message received is `yes`': matches('The message received is `yes`'),
     'The message received is ': matches('The message received is '),
     'The message received is "\\""': matches('The message received is "\\""'),
-    'undefined': matches(undefined as never),
+    undefined: matches(undefined),
   }).toEqual({
     'The message received is ""': true,
     'The message received is \'\'': true,
     'The message received is `yes`': true,
     'The message received is ': false,
     'The message received is "\\""': true,
-    'undefined': false,
+    undefined: false,
   })
 })

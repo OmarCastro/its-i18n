@@ -3,15 +3,13 @@ import { i18nTanslationStore } from './translation-store.js'
 import { provide } from '../i18n-importer/provider.js'
 
 test('Given a new store, when loadTranslations ', async ({ step: originalStep, expect }) => {
-  const store = i18nTanslationStore()
-
   const translations = {
     'untranslated text': 'untranslated text',
   }
 
   const storeDataWithLangs = (languages) => ({ location: 'http://example.com', languages })
 
-  const consoleCalls = { error: [] as unknown[], warn: [] as unknown[] }
+  const consoleCalls = { error: [], warn: [] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
   console.warn = (...args) => {
@@ -22,7 +20,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
     consoleCalls.error.push(args)
   }
 
-  const step = async (...args: Parameters<typeof originalStep>) => {
+  const step = async (...args) => {
     consoleCalls.error.length = 0
     consoleCalls.warn.length = 0
     return await originalStep.apply(null, args)
@@ -56,7 +54,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
     expect(consoleCalls).toEqual({
       error: [],
       warn: [
-        ["Warning on %s::%s, %s", 'http://example.com', '.["en-UK"]', 'invalid locale "en-UK", fixed to locale "en-GB"'],
+        ['Warning on %s::%s, %s', 'http://example.com', '.["en-UK"]', 'invalid locale "en-UK", fixed to locale "en-GB"'],
       ],
     })
     await expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
@@ -71,7 +69,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
     }))
     await expect(consoleCalls).toEqual({
       error: [
-        ['Error on %s::%s, %s', 'http://example.com', '.["en-UK"]','invalid locale "en-UK", it also conflicts with correct locale "en-GB", it will be ignored'],
+        ['Error on %s::%s, %s', 'http://example.com', '.["en-UK"]', 'invalid locale "en-UK", it also conflicts with correct locale "en-GB", it will be ignored'],
       ],
       warn: [],
     })
@@ -102,7 +100,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
 })
 
 test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect, readFrom }) => {
-  const consoleCalls = { error: [] as unknown[], warn: [] as unknown[] }
+  const consoleCalls = { error: [], warn: [] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
   console.warn = (...args) => {
@@ -113,7 +111,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     consoleCalls.error.push(args)
   }
 
-  const step = async (...args: Parameters<typeof originalStep>) => {
+  const step = async (...args) => {
     consoleCalls.error.length = 0
     consoleCalls.warn.length = 0
     return await originalStep.apply(null, args)
@@ -134,9 +132,9 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     })
     expect(consoleCalls).toEqual({ error: [], warn: [] })
     expect(store.data.languages).toEqual({
-      'en': { 'import': ['./translations.en.json'], translations: {} },
-      'es': { 'import': ['./translations.es.json'], translations: {} },
-      'pt': { 'import': ['./translations.pt.json'], translations: {} },
+      en: { import: ['./translations.en.json'], translations: {} },
+      es: { import: ['./translations.es.json'], translations: {} },
+      pt: { import: ['./translations.pt.json'], translations: {} },
     })
   })
 
@@ -156,9 +154,9 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     })
     expect(consoleCalls).toEqual({ error: [], warn: [] })
     expect(store.data.languages).toEqual({
-      'en': { 'import': ['../languages/en/translations.en.json'], translations: {} },
-      'es': { 'import': ['../languages/es/translations.es.json'], translations: {} },
-      'pt': { 'import': ['../languages/pt/translations.pt.json'], translations: {} },
+      en: { import: ['../languages/en/translations.en.json'], translations: {} },
+      es: { import: ['../languages/es/translations.es.json'], translations: {} },
+      pt: { import: ['../languages/pt/translations.pt.json'], translations: {} },
     })
   })
 
@@ -167,11 +165,14 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
 })
 
 test('Given a storeData loaded from "import/i18n.json", when getting translationsFromLanguage ', async ({ step, expect, readFrom }) => {
-  const importLanguageCalls = [] as { url: string | URL; base: string | URL }[]
+  const importLanguageCalls = []
   const impl = {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-    importTranslations: async (url, base) => (importLanguageCalls.push({ url, base }), JSON.parse(await readFrom(new URL(url, base)))),
-  } as Parameters<typeof provide>[0]
+    importTranslations: async (url, base) => {
+      importLanguageCalls.push({ url, base })
+      return JSON.parse(await readFrom(new URL(url, base)))
+    },
+  }
 
   provide(impl)
 
@@ -314,9 +315,9 @@ test('Given a completed storeData with specific locales, when getting translatio
   })
 })
 
-function i18nImporterImplWith({ readFrom }: { readFrom: Parameters<Parameters<typeof test>[1]>[0]['readFrom'] }) {
+function i18nImporterImplWith ({ readFrom }) {
   return {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
     importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-  } as Parameters<typeof provide>[0]
+  }
 }
