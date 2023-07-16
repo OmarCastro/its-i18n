@@ -1,4 +1,4 @@
-import I18nElement from '../custom-elements/i18n-container/i18n-container.element.ts'
+import I18nElement from '../custom-elements/i18n-container/i18n-container.element.js'
 
 const url = new URL(import.meta.url)
 const elementName = url.searchParams.get('named')
