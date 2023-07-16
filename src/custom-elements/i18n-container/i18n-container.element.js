@@ -1,13 +1,13 @@
 import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.js'
 import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.js'
 import { isElementTranslatable } from '../../utils/algorithms/get-translate-from-element.util.js'
-import { getStoresInfoFromElement } from '../../utils/store-map/store-map.js'
+import { getStoresInfoFromElement, setStoreFromElement } from '../../utils/store-map/store-map.js'
 import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.js'
 import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 import { timeTick } from '../../utils/tick-time/tick-time.js'
 import { loadI18n } from '../../html-loader/html-loader.js'
 
-class I18nContainerElement extends HTMLElement {
+export class I18nContainerElement extends HTMLElement {
   constructor () {
     super()
     observeLangFromElement(this)
@@ -24,7 +24,8 @@ class I18nContainerElement extends HTMLElement {
       return
     }
 
-    loadI18n(window).then(() => {
+    loadI18n(window).then((store) => {
+      setStoreFromElement(document.documentElement, store)
       if (this.isConnected) {
         this.updateNodes()
       }
