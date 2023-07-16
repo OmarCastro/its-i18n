@@ -29,10 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm ci
       - name: Run build
-        run: bash ${{ github.workspace }}/buildfiles/build.sh
+        run: ${{ github.workspace }}/buildfiles/build--github-workflow.sh
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
