@@ -1,5 +1,4 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
-import { devices } from '@playwright/test';
+import { devices } from '@playwright/test'
 
 /**
  * Read environment variables from file.
@@ -8,9 +7,10 @@ import { devices } from '@playwright/test';
 // require('dotenv').config();
 
 /**
+ * @type {import("@playwright/test").PlaywrightTestConfig}
  * See https://playwright.dev/docs/test-configuration.
  */
-const config: PlaywrightTestConfig = {
+const config = {
   testDir: './src',
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
@@ -19,7 +19,7 @@ const config: PlaywrightTestConfig = {
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 5000
+    timeout: 5000,
   },
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -30,11 +30,11 @@ const config: PlaywrightTestConfig = {
   /* Opt out of parallel tests on CI. */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [ 
+  reporter: [
     ['html', { open: 'never', outputFolder: 'reports/playwright-report'  }],
     ['json', {  outputFile: 'reports/test-results/test-results.json' }],
     ['junit', { outputFile: 'reports/test-results/results.xml' }],
-    ['list']
+    ['list'],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -49,12 +49,12 @@ const config: PlaywrightTestConfig = {
 
   /* Configure projects for major browsers */
   projects: [
-    /*{
+    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
       },
-      testMatch: /.ui.tes/,
+      testMatch: /.ui.spec/,
     },
 
     {
@@ -63,15 +63,15 @@ const config: PlaywrightTestConfig = {
         ...devices['Desktop Firefox'],
       },
       testMatch: /.ui.spec/,
-    },*/
+    },
 
-    //{
+    // {
     //  name: 'webkit',
     //  use: {
     //    ...devices['Desktop Safari'],
     //  },
-    //  testMatch: /.ui.spec/,      
-    //},
+    //  testMatch: /.ui.spec/,
+    // },
     {
       name: 'unit',
       testMatch: /.unit.spec/,
@@ -113,7 +113,7 @@ const config: PlaywrightTestConfig = {
   /* webServer: {
      command: 'npm run start',
      port: 8080,
-   },*/
-};
+   }, */
+}
 
-export default config;
+export default config
