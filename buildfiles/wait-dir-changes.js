@@ -1,4 +1,5 @@
 #!/bin/env node
+
 import { watch } from 'node:fs'
 
 const watchers = []
