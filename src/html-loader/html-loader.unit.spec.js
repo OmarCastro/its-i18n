@@ -90,32 +90,33 @@ test('an HTML page with i18n-translation-map links, loadI18n should return a sto
   `
 
   provide({
-    importI18nJson(url, base) {
+    importI18nJson (url, base) {
       return Promise.resolve({})
     },
-    importTranslations(url, base) {
-      if (url.endsWith('languages.pt.json')) {
+    importTranslations (url, base) {
+      const href = new URL(url, base).href
+      if (href.endsWith('languages.pt.json')) {
         return Promise.resolve({
           'hello world': 'olá mundo',
           'I like red color': 'Gosto da cor vermelha',
         })
       }
 
-      if (url.endsWith('languages.es.json')) {
+      if (href.endsWith('languages.es.json')) {
         return Promise.resolve({
           'hello world': 'hola mundo',
           'I like red color': 'Me gusta la color roja',
         })
       }
 
-      if (url.endsWith('languages.it.json')) {
+      if (href.endsWith('languages.it.json')) {
         return Promise.resolve({
           'hello world': 'Ciao mondo',
           'I like red color': 'Mi piace il colore rosso',
         })
       }
 
-      if (url.endsWith('languages.en.json')) {
+      if (href.endsWith('languages.en.json')) {
         return Promise.resolve({
           'hello world': 'hello world',
           'I like red color': 'I like red color',
@@ -181,9 +182,9 @@ test('an HTML page with i18n-translation-map links, loadI18n should return a sto
   })
 })
 
-function i18nImporterImplWith({ readFrom }: { readFrom: Parameters<Parameters<typeof test>[1]>[0]['readFrom'] }) {
+function i18nImporterImplWith ({ readFrom }) {
   return {
     importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
     importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-  } as Parameters<typeof provide>[0]
+  }
 }
