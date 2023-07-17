@@ -29,6 +29,7 @@ if (document == null) {
 await import('prismjs/plugins/keep-markup/prism-keep-markup.js')
 // @ts-ignore
 await import('prismjs/components/prism-json.js')
+await import('prismjs/components/prism-bash.js')
 
 const exampleCode = (strings, ...expr) => {
   let statement = strings[0]
