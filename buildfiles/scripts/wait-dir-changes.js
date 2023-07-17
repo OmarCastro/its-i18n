@@ -2,6 +2,7 @@
 
 import { watch } from 'node:fs'
 
+const projectPath = new URL('../../', import.meta.url)
 const watchers = []
 const wait = () => { if (watchers.length) { wait.timeout = setTimeout(wait, 500) } }
 
@@ -25,6 +26,6 @@ function waitOneOfDirChanges (...dirs) {
 }
 
 waitOneOfDirChanges(
-  new URL('../src', import.meta.url),
-  new URL('../docs', import.meta.url),
+  new URL('src', projectPath),
+  new URL('docs', projectPath),
 )

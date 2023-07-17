@@ -11,7 +11,7 @@ buildfiles/test.sh
 buildfiles/build.sh
 
 while :; do 
-	node buildfiles/wait-dir-changes.js
+	node buildfiles/scripts/wait-dir-changes.js
 	buildfiles/test.sh & \
 	buildfiles/build.sh && \
 	buildfiles/lint-code.sh

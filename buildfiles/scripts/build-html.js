@@ -5,7 +5,7 @@ import { imageSize } from 'image-size'
 import { JSDOM } from 'jsdom'
 import { marked } from 'marked'
 
-const projectPath = new URL('../', import.meta.url)
+const projectPath = new URL('../../', import.meta.url)
 const docsPath = new URL('docs', projectPath).pathname
 const docsOutputPath = new URL('.tmp/build/docs', projectPath).pathname
 

@@ -15,4 +15,4 @@ npx esbuild docs/doc.css --bundle --minify --sourcemap --outfile=.tmp/build/docs
 wait
 
 # publish reports in docs
-cp -R reports .tmp/build/docs/reports && node buildfiles/build-html.js index.html && (rm -rf build; cp -R .tmp/build build)
+cp -R reports .tmp/build/docs/reports && node buildfiles/scripts/build-html.js index.html && (rm -rf build; cp -R .tmp/build build)

@@ -10,7 +10,7 @@ const jsdom = new JSDOM('<body></body>', { url: import.meta.url })
 const document = jsdom.window.document
 const body = document.body
 
-const projectPath = new URL('../', import.meta.url).pathname
+const projectPath = new URL('../../', import.meta.url).pathname
 
 const readFile = (path) => fsReadFile(path, { encoding: 'utf8' })
 

@@ -16,11 +16,11 @@ rm -rf reports/.tmp
 rm -rf reports/coverage.bak
 
 # build coverage badge
-node buildfiles/build-badges.js
+node buildfiles/scripts/build-badges.js
 
 #replace base.css on coverage reports
-find reports/coverage/unit -name "base.css" | xargs -I {} cp -f buildfiles/coverage-report-base.css {}
-find reports/coverage/unit -name "prettify.css" | xargs -I {} cp -f buildfiles/coverage-report-prettify.css {}
+find reports/coverage/unit -name "base.css" | xargs -I {} cp -f buildfiles/assets/coverage-report-base.css {}
+find reports/coverage/unit -name "prettify.css" | xargs -I {} cp -f buildfiles/assets/coverage-report-prettify.css {}
 
 rm -rf build/docs/reports
 mkdir -p build/docs && cp -R reports build/docs/reports
