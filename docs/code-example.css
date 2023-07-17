@@ -20,8 +20,8 @@
     --str-color:#aa5d00;
     --oper-color:#008000;
     --func-color:#aa5d00;
-    --kword-color:#d91e18;
-    --regex-color:#d91e18;
+    --kword-color:#008000;
+    --regex-color:#aa5d00;
  }
  
  /*
@@ -47,6 +47,9 @@
 }
 
 
+ code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+ }
 
  code[class*="language-"],
  pre[class*="language-"] {
