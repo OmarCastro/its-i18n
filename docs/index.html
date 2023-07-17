@@ -87,23 +87,32 @@
 
         </section>
 
-        <section class="section section--getting-started">
-            <h2> Getting started </h2>
-            <h3> CDN </h3>
+        <section class="section section--getting-started" ss:markdown>
+            ## Getting started
+            ### CDN
 
-            <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://omarcastro.github.io/its-i18n/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
+            To use a CDN all you need is to add the following code in the HTML page:
 
-            <h3> Nodejs </h3>
+            <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.1.1/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
 
-            If you wish to import from nodejs and use a bundler, you can install the 'its-i18n' package
+            As noted, there is a query string `named` to set the component name, if it is not defined then the component will not be registered and you would need to import it and register manually, like with the following code: 
 
-            <pre><code class="language-shell keep-markup"></code>npm install its-i18n</pre>
+            <pre><code class="language-js keep-markup">import element from 'https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.1.1/dist/i18n.element.min.js'
 
-            Since bundlers may not support query strings in import, it would be better to import the component and define the component like the following code
+            customElements.define('<span class="component-name-edit" contenteditable="true">i18n-container</span>', element)</code></pre>
+                
+                
+            ### Nodejs
+
+            If you wish to import from nodejs and use a bundler, you can install the `its-i18n` package
+
+            <pre><code class="language-shell keep-markup">npm install its-i18n</code></pre>
+
+            Not all bundlers support query strings, it is recommended to import and register the component, like the following code:
 
             <pre><code class="language-js keep-markup">import element from 'its-i18n'
 
-customElements.define('<span class="component-name-edit" contenteditable="true">i18n-container</span>', element)</code></pre>
+            customElements.define('<span class="component-name-edit" contenteditable="true">i18n-container</span>', element)</code></pre>
 
         </section>
 
