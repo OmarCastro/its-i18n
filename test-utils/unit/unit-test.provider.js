@@ -6,21 +6,18 @@
  * on browser it uses a custom api
  */
 
-/** @type {(test: Readonly<Test>) => any} */
-let adapter
-
-const setTestAdapter = (newAdapter) => { adapter = newAdapter }
-
 // thee 2 lines are to prevent esbuild to bundle the await imports
 const importModule = (str) => import(str)
 let importStr
+
 const fn = async () => {
   if (globalThis.Deno != null) {
     // init unit tests for deno
 
     importStr = 'https://deno.land/x/expect/mod.ts'
     const { expect } = await importModule(importStr)
-    setTestAdapter(({ description, test }) => {
+
+    return (description, test) => {
       globalThis.Deno.test(`${description}`, async (t) => {
         await test({
           step: t.step,
@@ -28,33 +25,42 @@ const fn = async () => {
           readFrom: async (url) => await globalThis.Deno.readTextFile(url.pathname),
         })
       })
-    })
-    return
+    }
   }
+
   if (globalThis.window == null) {
     // init unit tests for Playwright
 
     importStr = '@playwright/test'
-    const { test, expect } = await importModule(importStr)
+    const { test: base, expect } = await importModule(importStr)
 
-    setTestAdapter(({ description, test: t }) => {
-      test(description, async () => {
-        await t({
-          step: test.step,
-          expect,
-          readFrom: async (url) => await importModule('node:fs/promises').then(({ readFile }) => readFile(url.pathname)),
-        })
-      })
+    /** @type {(description, test) => Promise<any>} */
+    const test = base.extend({
+      // eslint-disable-next-line no-empty-pattern
+      step: async ({}, use) => {
+        await use(test.step)
+      },
+      // eslint-disable-next-line no-empty-pattern
+      expect: async ({}, use) => {
+        await use(expect)
+      },
+
+      // eslint-disable-next-line no-empty-pattern
+      readFrom: async ({}, use) => {
+        await use(async (url) => await importModule('node:fs/promises').then(({ readFile }) => readFile(url.pathname)))
+      },
     })
+
+    return test
   } else {
     // init unit tests to be run in browser
 
     const { expect } = await import('expect')
 
-    setTestAdapter(({ description, test: t }) => {
+    return async (description, test) => {
       console.log('-' + description)
 
-      return t({
+      return test({
 
         step: async (description, test) => {
           console.log('--' + description)
@@ -63,20 +69,17 @@ const fn = async () => {
         expect,
         readFrom: async (url) => await fetch(url).then(req => req.text()),
       })
-    })
+    }
   }
 }
 
-await fn()
-
-/**
- * @param {Test} test to adapt
- */
-export const adapt = (test) => adapter(test)
+export const test = await fn()
 
 /**
  * @callback TestCall
+ * @param {string} description
  * @param {TestAPI} test
+ * @returns {Promise<any>}
  */
 
 /**
@@ -84,10 +87,4 @@ export const adapt = (test) => adapter(test)
  * @property {typeof import('expect').expect} expect
  * @property {(description: string, step: () => any) => any} step
  * @property {(path: URL) => Promise<string>} readFrom
- */
-
-/**
- * @typedef {object} Test
- * @property {string} description
- * @property {TestCall} test
  */
