@@ -71,7 +71,7 @@ test('getLanguageFromElement should ignore incorrectly defined html lang value',
 
 test('getLanguageFromElement return navigation.language on undefined lang', ({ expect }) => {
   // prepare
-  const { document } = window
+  const { document, navigator } = window
   document.body.innerHTML = html`<div class="level-1"></div>`
   const navigatorLanguage = navigator.language
   const level1Div = document.querySelector('.level-1')
@@ -89,7 +89,7 @@ test('getLanguageFromElement return navigation.language on undefined lang', ({ e
 
 test('getLanguageFromElement return navigation.language on invalid <html> lang', ({ expect }) => {
   // prepare
-  const { document } = window
+  const { document, navigator } = window
 
   document.body.innerHTML = html`<div class="level-1"></div>`
   const navigatorLanguage = navigator.language

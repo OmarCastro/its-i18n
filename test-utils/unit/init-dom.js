@@ -31,9 +31,7 @@ if ('Deno' in globalThis || globalThis.window == null) {
   globalThis.Element = windowObj.Element
   globalThis.Document = windowObj.Document
   globalThis.document = windowObj.document
-  globalThis.navigator = windowObj.navigator
   globalThis.DOMParser = windowObj.DOMParser
-  globalThis.XMLSerializer = windowObj.XMLSerializer
 } else {
   windowObj = globalThis.window
 }

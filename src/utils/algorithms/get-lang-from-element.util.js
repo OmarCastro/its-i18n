@@ -1,13 +1,27 @@
 import { traverseUpDomWithSlots } from './traverse-up-dom.js'
 
 /**
+ * @param {Element} element
+ * @returns {string} fallback language
+ */
+function getFallbackLanguage (element) {
+  const root = element.ownerDocument.defaultView ?? globalThis
+  if (!root.navigator) {
+    // OS/node/browser independent way of obtaining the default locale
+    return Intl.DateTimeFormat().resolvedOptions().locale
+  }
+  const langs = root.navigator.languages || [root.navigator.language]
+  return langs[0]
+}
+
+/**
  * @param {Element} elementWithLangAttr
  * @param {string} invalidLanguage
  * @returns {string} corrected language
  */
 function handleInvalidLanguage (elementWithLangAttr, invalidLanguage) {
   if (elementWithLangAttr === elementWithLangAttr.ownerDocument.documentElement) {
-    return navigator.language
+    return getFallbackLanguage(elementWithLangAttr)
   } else if (elementWithLangAttr.parentNode instanceof ShadowRoot) {
     return getLanguageFromElement(elementWithLangAttr.parentNode.host)
   }
@@ -39,5 +53,5 @@ export function getLanguageFromElement (element) {
     }
   }
 
-  return navigator.language
+  return getFallbackLanguage(element)
 }
