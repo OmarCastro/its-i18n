@@ -10,6 +10,9 @@
 const importModule = (str) => import(str)
 let importStr
 
+/**
+ * @returns {Test}
+ */
 const fn = async () => {
   if (globalThis.Deno != null) {
     // init unit tests for deno
@@ -17,11 +20,15 @@ const fn = async () => {
     importStr = 'https://deno.land/x/expect/mod.ts'
     const { expect } = await importModule(importStr)
 
+    importStr = './init-dom'
+    const { window } = await importModule(importStr)
+
     return (description, test) => {
       globalThis.Deno.test(`${description}`, async (t) => {
         await test({
           step: t.step,
           expect,
+          dom: window,
           readFrom: async (url) => await globalThis.Deno.readTextFile(url.pathname),
         })
       })
@@ -34,11 +41,19 @@ const fn = async () => {
     importStr = '@playwright/test'
     const { test: base, expect } = await importModule(importStr)
 
+    importStr = './init-dom'
+    const { window } = await importModule(importStr)
+
     /** @type {(description, test) => Promise<any>} */
     const test = base.extend({
       // eslint-disable-next-line no-empty-pattern
       step: async ({}, use) => {
         await use(test.step)
+      },
+
+      // eslint-disable-next-line no-empty-pattern
+      dom: async ({}, use) => {
+        await use(window)
       },
       // eslint-disable-next-line no-empty-pattern
       expect: async ({}, use) => {
@@ -66,6 +81,7 @@ const fn = async () => {
           console.log('--' + description)
           await test()
         },
+        dom: window,
         expect,
         readFrom: async (url) => await fetch(url).then(req => req.text()),
       })
@@ -76,9 +92,14 @@ const fn = async () => {
 export const test = await fn()
 
 /**
- * @callback TestCall
+ * @callback Test
  * @param {string} description
- * @param {TestAPI} test
+ * @param {TestCall} test
+ */
+
+/**
+ * @callback TestCall
+ * @param {TestAPI} callback
  * @returns {Promise<any>}
  */
 
@@ -86,5 +107,6 @@ export const test = await fn()
  * @typedef {object} TestAPI
  * @property {typeof import('expect').expect} expect
  * @property {(description: string, step: () => any) => any} step
+ * @property {Window} dom
  * @property {(path: URL) => Promise<string>} readFrom
  */
