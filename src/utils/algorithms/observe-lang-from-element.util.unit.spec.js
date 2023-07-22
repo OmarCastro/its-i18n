@@ -1,12 +1,12 @@
 /* eslint-disable camelcase */
 import { test } from '../../../test-utils/unit/test.js'
-import { document } from '../../../test-utils/unit/init-dom.js'
 import { getLanguageFromElement } from './get-lang-from-element.util.js'
 import { eventName, observeLangFromElement, rootEventName, unobserveLangFromElement } from './observe-lang-from-element.util.js'
 
 const html = String.raw
 
-test('observeLangFromElement should trigger correctly when lang changed', async ({ expect }) => {
+test('observeLangFromElement should trigger correctly when lang changed', async ({ expect, dom }) => {
+  const { document } = dom
   // prepare
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
@@ -39,7 +39,9 @@ test('observeLangFromElement should trigger correctly when lang changed', async 
   })
 })
 
-test('observeLangFromElement should trigger another event on node root', async ({ expect }) => {
+test('observeLangFromElement should trigger another event on node root', async ({ expect, dom }) => {
+  const { document } = dom
+
   // prepare
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
@@ -76,8 +78,10 @@ test('observeLangFromElement should trigger another event on node root', async (
   })
 })
 
-test('observeLangFromElement should trigger multiple observing elements when ancestor lang changed', async ({ expect }) => {
+test('observeLangFromElement should trigger multiple observing elements when ancestor lang changed', async ({ expect, dom }) => {
   // prepare
+  const { document } = dom
+
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
             <div class="level-2">
@@ -140,8 +144,10 @@ test('observeLangFromElement should trigger multiple observing elements when anc
   })
 })
 
-test('observeLangFromElement should trigger when lang changed in the middle of the ascension tree', async ({ expect }) => {
+test('observeLangFromElement should trigger when lang changed in the middle of the ascension tree', async ({ expect, dom }) => {
   // prepare
+  const { document } = dom
+
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
             <div class="level-2">
@@ -173,8 +179,10 @@ test('observeLangFromElement should trigger when lang changed in the middle of t
   })
 })
 
-test('observeLangFromElement should not trigger event when a new lang was added in the middle of the ascension tree, but is equal', async ({ expect }) => {
+test('observeLangFromElement should not trigger event when a new lang was added in the middle of the ascension tree, but is equal', async ({ expect, dom }) => {
   // prepare
+  const { document } = dom
+
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
             <div class="level-2">
@@ -215,8 +223,10 @@ test('observeLangFromElement should not trigger event when a new lang was added 
   })
 })
 
-test('observeLangFromElement should trigger on shadowDom element when lang changed on lightdom', async ({ expect }) => {
+test('observeLangFromElement should trigger on shadowDom element when lang changed on lightdom', async ({ expect, dom }) => {
   // prepare
+  const { document } = dom
+
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
             <div class="level-2">

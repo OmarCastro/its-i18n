@@ -42,7 +42,7 @@ const fn = async () => {
     const { test: base, expect } = await importModule(importStr)
 
     importStr = './init-dom'
-    const { window } = await importModule(importStr)
+    const { window, resetDom } = await importModule(importStr)
 
     /** @type {(description, test) => Promise<any>} */
     const test = base.extend({
@@ -53,6 +53,7 @@ const fn = async () => {
 
       // eslint-disable-next-line no-empty-pattern
       dom: async ({}, use) => {
+        resetDom()
         await use(window)
       },
       // eslint-disable-next-line no-empty-pattern
@@ -100,7 +101,6 @@ export const test = await fn()
 /**
  * @callback TestCall
  * @param {TestAPI} callback
- * @returns {Promise<any>}
  */
 
 /**

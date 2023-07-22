@@ -1,12 +1,11 @@
-import { window } from '../../test-utils/unit/init-dom.js'
 import { test } from '../../test-utils/unit/test.js'
 import { loadI18n } from './html-loader.js'
 import { provide } from '../utils/i18n-importer/provider.js'
 
 const html = String.raw
 
-test('an HTML page with i18n-locale-map links, loadI18n should return a store', async ({ step, expect, readFrom }) => {
-  const { document } = window
+test('an HTML page with i18n-locale-map links, loadI18n should return a store', async ({ dom, step, expect, readFrom }) => {
+  const { document } = dom
   const location = import.meta.url
 
   document.documentElement.innerHTML = html`
@@ -74,8 +73,8 @@ test('an HTML page with i18n-locale-map links, loadI18n should return a store', 
   })
 })
 
-test('an HTML page with i18n-translation-map links, loadI18n should return a store', async ({ step, expect }) => {
-  const { document, location } = window
+test('an HTML page with i18n-translation-map links, loadI18n should return a store', async ({ dom, step, expect }) => {
+  const { document, location } = dom
 
   document.documentElement.innerHTML = html`
     <head>

@@ -1,14 +1,13 @@
 import { test } from '../../../test-utils/unit/test.js'
-import { document } from '../../../test-utils/unit/init-dom.js'
 import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.js'
 import { i18nTanslationStore } from '../store/translation-store.js'
 
 const html = String.raw
 
-test('Given a simple document without any store set on any element, getStoresInfoFromElement must return a noMoreStoresFound result', ({ expect }) => {
+test('Given a simple document without any store set on any element, getStoresInfoFromElement must return a noMoreStoresFound result', ({ dom, expect }) => {
   // prepare
+  const { document } = dom
   unsetStoreOnElement(document.documentElement)
-
   document.body.innerHTML = html`
       <div class="level-1" lang="pt">
           <div class="level-2">
@@ -33,8 +32,10 @@ test('Given a simple document without any store set on any element, getStoresInf
   })
 })
 
-test('Given a document with store set, getStoresInfoFromElement ', async ({ step, expect }) => {
+test('Given a document with store set, getStoresInfoFromElement ', async ({ dom, step, expect }) => {
   // prepare
+  const { document } = dom
+
   unsetStoreOnElement(document.documentElement)
 
   document.body.innerHTML = html`

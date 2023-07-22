@@ -1,11 +1,10 @@
-import { window } from '../../../test-utils/unit/init-dom.js'
 import { getLanguageFromElement } from './get-lang-from-element.util.js'
 import { test } from '../../../test-utils/unit/test.js'
 
 const html = String.raw
 
-test('getLanguageFromElement should get correctly defined lang value', ({ expect }) => {
-  const { document } = window
+test('getLanguageFromElement should get correctly defined lang value', ({ expect, dom }) => {
+  const { document } = dom
 
   // prepare
   document.body.innerHTML = html`
@@ -37,9 +36,9 @@ test('getLanguageFromElement should get correctly defined lang value', ({ expect
   })
 })
 
-test('getLanguageFromElement should ignore incorrectly defined html lang value', ({ expect }) => {
+test('getLanguageFromElement should ignore incorrectly defined html lang value', ({ expect, dom }) => {
   // prepare
-  const { document } = window
+  const { document } = dom
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
             <div class="level-2">
@@ -69,9 +68,9 @@ test('getLanguageFromElement should ignore incorrectly defined html lang value',
   })
 })
 
-test('getLanguageFromElement return navigation.language on undefined lang', ({ expect }) => {
+test('getLanguageFromElement return navigation.language on undefined lang', ({ expect, dom }) => {
   // prepare
-  const { document, navigator } = window
+  const { document, navigator } = dom
   document.body.innerHTML = html`<div class="level-1"></div>`
   const navigatorLanguage = navigator.language
   const level1Div = document.querySelector('.level-1')
@@ -87,9 +86,9 @@ test('getLanguageFromElement return navigation.language on undefined lang', ({ e
   expect(level1DivLang).toEqual(navigatorLanguage)
 })
 
-test('getLanguageFromElement return navigation.language on invalid <html> lang', ({ expect }) => {
+test('getLanguageFromElement return navigation.language on invalid <html> lang', ({ expect, dom }) => {
   // prepare
-  const { document, navigator } = window
+  const { document, navigator } = dom
 
   document.body.innerHTML = html`<div class="level-1"></div>`
   const navigatorLanguage = navigator.language
@@ -106,9 +105,9 @@ test('getLanguageFromElement return navigation.language on invalid <html> lang',
   expect(level1DivLang).toEqual(navigatorLanguage)
 })
 
-test('getLanguageFromElement should get lang value on element inside shadow DOM', ({ expect }) => {
+test('getLanguageFromElement should get lang value on element inside shadow DOM', ({ expect, dom }) => {
   // prepare
-  const { document } = window
+  const { document } = dom
 
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
@@ -152,9 +151,9 @@ test('getLanguageFromElement should get lang value on element inside shadow DOM'
   })
 })
 
-test('getLanguageFromElement should get lang from shadow DOM, if defined, on slotted element', ({ expect }) => {
+test('getLanguageFromElement should get lang from shadow DOM, if defined, on slotted element', ({ expect, dom }) => {
   // prepare
-  const { document } = window
+  const { document } = dom
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
             <div class="level-2">
@@ -195,9 +194,9 @@ test('getLanguageFromElement should get lang from shadow DOM, if defined, on slo
   })
 })
 
-test('getLanguageFromElement should ignore invalid lang from shadow DOM, if defined, on slotted element', ({ expect }) => {
+test('getLanguageFromElement should ignore invalid lang from shadow DOM, if defined, on slotted element', ({ expect, dom }) => {
   // prepare
-  const { document } = window
+  const { document } = dom
 
   document.body.innerHTML = html`
         <div class="level-1" lang="pt">
