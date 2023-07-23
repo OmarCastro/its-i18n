@@ -20,6 +20,14 @@ export const unsetStoreOnElement = (element) => {
 }
 
 /**
+ * Checks if there is a translation store set on element
+ * @param {Element} element - target element
+ */
+export const isStoreSetOnElement = function (element) {
+  return map.has(element)
+}
+
+/**
  * Assigns a {@link TranslationStore} to an element, overwrites previous if already assigned
  * @param {Element} element - target element
  * @param {TranslationStore} store - store to assign
