@@ -6,44 +6,34 @@ import { queryFromTranslations } from '../utils/translation-query/translation-qu
 import { getLanguageFromElement } from '../utils/algorithms/get-lang-from-element.util.js'
 
 /**
- * @overload
- * @param {string} key
- * @returns {Promise<string>}
- *//**
- * @overload
- * @param {string} key
- * @param {DOMContext} context
- * @returns {Promise<string>}
- *//**
- *//**
- * @overload
- * @param {string} key
- * @param {LocaleContext} context
- * @returns {Promise<string>}
- *//**
+ * Translates i18n key
  *
- *
- * @param {string} key
- * @param {DOMContext | LocaleContext} [context]
+ * @param {string} key - target key
+ * @param {Context} [context] - context for tranlations
+ * @returns {Promise<string>}
  */
 export async function i18n (key, context) {
   if (!context) {
     return await i18nFromBrowserLanguage(key)
   }
-  if ('element' in context) {
+  if ('element' in context && context.element) {
     const { locale, element } = context
     const localeStr = locale || getLanguageFromElement(element)
     return await i18nFromElementAndLocale(key, element, localeStr)
   }
   const { locale } = context
   const localeStr = locale || getLanguageFromElement(document.documentElement)
+  if ('store' in context && context.store) {
+    return await i18nFromStoreAndLocale(key, context.store, localeStr)
+  }
   return await i18nFromElementAndLocale(key, document.documentElement, localeStr)
 }
+
 /**
  * @param {string} key
  */
 async function i18nFromBrowserLanguage (key) {
-  return await i18nFromElementAndLocale(key, document.documentElement, navigator.language)
+  return await i18nFromElementAndLocale(key, document.documentElement, getLanguageFromElement(document.documentElement))
 }
 
 /**
@@ -66,12 +56,33 @@ async function i18nFromElementAndLocale (key, element, localeString) {
 }
 
 /**
+ *
+ * @param {string} key
+ * @param {import("../utils/store/translation-store.js").TranslationStore} store
+ * @param {string | Intl.Locale} localeString
+ * @returns
+ */
+async function i18nFromStoreAndLocale (key, store, localeString) {
+  const locale = new Intl.Locale(localeString)
+  const result = queryFromTranslations(key, await store.translationsFromLanguage(locale))
+  return result.found ? result.translate(locale) : key
+}
+
+/** @typedef {DOMContext| StoreContext | LocaleContext} Context */
+
+/**
  * @typedef {object} DOMContext
  * @property {Element} element
  * @property {string | Intl.Locale} [locale]
  */
 
 /**
+ * @typedef {object} StoreContext
+ * @property {import("../utils/store/translation-store.js").TranslationStore} store
+ * @property {string | Intl.Locale} [locale]
+ */
+
+/**
  * @typedef {object} LocaleContext
- * @property {string | Intl.Locale} locale
+ * @property {string | Intl.Locale} [locale]
  */
