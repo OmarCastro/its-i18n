@@ -1,7 +1,7 @@
 import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.js'
 import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.js'
 import { isElementTranslatable } from '../../utils/algorithms/get-translate-from-element.util.js'
-import { getStoresInfoFromElement, setStoreFromElement } from '../../utils/store-map/store-map.js'
+import { getStoresInfoFromElement, setStoreFromElement, isStoreSetOnElement } from '../../utils/store-map/store-map.js'
 import { queryFromTranslations } from '../../utils/translation-query/translation-query.util.js'
 import { sanitizeI18nHtml } from '../../utils/html-sanitizer/html-sanitizer.js'
 import { timeTick } from '../../utils/tick-time/tick-time.js'
@@ -19,8 +19,7 @@ export class I18nContainerElement extends HTMLElement {
     observer.observe(this, mutationProperties)
 
     const document = this.ownerDocument
-    const stores = Array.from(getStoresInfoFromElement(document.documentElement))
-    if (stores.length >= 2) {
+    if (isStoreSetOnElement(document.documentElement)) {
       return
     }
     const window = document.defaultView
