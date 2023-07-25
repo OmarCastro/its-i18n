@@ -1,9 +1,10 @@
 /**
  * This JS API is to allow I18n on canvas elements because all the logic goes to JS
  */
-import { getStoresInfoFromElement } from '../utils/store-map/store-map.js'
+import { getStoresInfoFromElement, setStoreFromElement, isStoreSetOnElement } from '../utils/store-map/store-map.js'
 import { queryFromTranslations } from '../utils/translation-query/translation-query.util.js'
 import { getLanguageFromElement } from '../utils/algorithms/get-lang-from-element.util.js'
+import { loadI18n } from '../html-loader/html-loader.js'
 
 /**
  * Translates i18n key
@@ -45,6 +46,12 @@ async function i18nFromBrowserLanguage (key) {
  */
 async function i18nFromElementAndLocale (key, element, localeString) {
   const locale = new Intl.Locale(localeString)
+  if (element?.ownerDocument?.documentElement && !isStoreSetOnElement(element.ownerDocument.documentElement)) {
+    const window = document.defaultView
+    if (!window) { return key }
+    const store = await loadI18n(window)
+    setStoreFromElement(document.documentElement, store)
+  }
 
   for (const storeInfo of getStoresInfoFromElement(element)) {
     const result = queryFromTranslations(key, await storeInfo.store.translationsFromLanguage(locale))
