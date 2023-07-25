@@ -39,7 +39,7 @@ const fn = async () => {
     // init unit tests for Playwright
 
     importStr = '@playwright/test'
-    const { test: base, expect } = await importModule(importStr)
+    const { test: base, expect } = await import('@playwright/test')
 
     importStr = './init-dom'
     const { window, resetDom } = await importModule(importStr)
@@ -52,7 +52,7 @@ const fn = async () => {
       },
 
       // eslint-disable-next-line no-empty-pattern
-      dom: async ({}, use) => {
+      dom: async ({}, use, testinfo) => {
         resetDom()
         await use(window)
       },
