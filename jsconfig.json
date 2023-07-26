@@ -2,15 +2,37 @@
     "compilerOptions": {
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "target": "ES2022",
+        "target": "ESNext",
         "jsx": "react",
         "checkJs": true,
         "strictNullChecks": true,
         "strictFunctionTypes": true,
-        "allowImportingTsExtensions": true
+        "allowImportingTsExtensions": true,
+        "allowJs": true,
+        "declaration": true,
+        //"emitDeclarationOnly": true,
+        "declarationMap": true,
+        //"noEmit": true,
+        "strict": true,
+        "noImplicitThis": false,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,  
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ESNext",
+          ],
+        
+    
     },
+    "include": [
+        "src"
+    ],
     "exclude": [
-        "node_modules",
-        "**/node_modules/*"
+        "**/*.spec.ts",
+        "**/*.spec.js",
+        "**/*.test.ts",
+        "**/*.test.js",
     ]
 }
