@@ -29,7 +29,6 @@ const fn = async () => {
           step: t.step,
           expect,
           dom: window,
-          readFrom: async (url) => await globalThis.Deno.readTextFile(url.pathname),
         })
       })
     }
@@ -60,11 +59,6 @@ const fn = async () => {
       expect: async ({}, use) => {
         await use(expect)
       },
-
-      // eslint-disable-next-line no-empty-pattern
-      readFrom: async ({}, use) => {
-        await use(async (url) => await importModule('node:fs/promises').then(({ readFile }) => readFile(url.pathname)))
-      },
     })
 
     return test
@@ -84,7 +78,6 @@ const fn = async () => {
         },
         dom: window,
         expect,
-        readFrom: async (url) => await fetch(url).then(req => req.text()),
       })
     }
   }
@@ -108,5 +101,4 @@ export const test = await fn()
  * @property {typeof import('expect').expect} expect
  * @property {(description: string, step: () => any) => any} step
  * @property {Window} dom
- * @property {(path: URL) => Promise<string>} readFrom
  */
