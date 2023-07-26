@@ -26,17 +26,17 @@ function getPromiseFromEvent (item, event) {
 
 const getPromiseFrom18nApplyEvent = (item) => getPromiseFromEvent(item, 'i18n-apply')
 
-test('Given an HTML page with i18n-translation-map links and es lang on body, x-i18n should apply spanish i18n to its chidren correctly', async ({ dom, expect, readFrom }) => {
+test('Given an HTML page with i18n-translation-map links and es lang on body, x-i18n should apply spanish i18n to its chidren correctly', async ({ dom, expect }) => {
   await defineWebComponent()
 
   const { document } = dom
   const location = import.meta.url
 
-  provide(i18nImporterImplWith({ readFrom }))
+  provide(i18nImporterImplFromLocation(new URL('.',import.meta.url).href))
 
   document.documentElement.innerHTML = html`
     <head>
-      <link rel="i18n-locale-map" href="i18n-container.element.test.ts--filesystem/i18n-definition-map.json">
+      <link rel="i18n-locale-map" href="i18n-definition-map.json">
     </head>
     <body lang="es"></body>
   `
@@ -59,17 +59,17 @@ test('Given an HTML page with i18n-translation-map links and es lang on body, x-
   await expect(target.textContent).toEqual('conté 4 ovejas')
 })
 
-test('Given an HTML page with i18n-translation-map links and "pt" lang on body and "en" lang on an elment, x-i18n should apply portuguese i18n to its chidren except the one with english lang', async ({ dom, expect, readFrom }) => {
+test('Given an HTML page with i18n-translation-map links and "pt" lang on body and "en" lang on an elment, x-i18n should apply portuguese i18n to its chidren except the one with english lang', async ({ dom, expect }) => {
   await defineWebComponent()
 
   const { document } = dom
   const location = import.meta.url
 
-  provide(i18nImporterImplWith({ readFrom }))
+  provide(i18nImporterImplFromLocation(new URL('.',import.meta.url).href))
 
   document.documentElement.innerHTML = html`
     <head>
-      <link rel="i18n-locale-map" href="i18n-container.element.test.ts--filesystem/i18n-definition-map.json">
+      <link rel="i18n-locale-map" href="i18n-definition-map.json">
     </head>
     <body lang="pt"></body>
   `
@@ -95,17 +95,17 @@ test('Given an HTML page with i18n-translation-map links and "pt" lang on body a
   await expect(targetEn.getAttribute('data-html')).toEqual('I counted 30 sheeps')
 })
 
-test('Given an element with conflicting data-i18n-* attributes, x-i18n should apply the correct attribut based on its priority', async ({ dom, step, expect, readFrom }) => {
+test('Given an element with conflicting data-i18n-* attributes, x-i18n should apply the correct attribut based on its priority', async ({ dom, step, expect }) => {
   await defineWebComponent()
 
   const { document } = dom
   const location = import.meta.url
 
-  provide(i18nImporterImplWith({ readFrom }))
+  provide(i18nImporterImplFromLocation(new URL('.',import.meta.url).href))
 
   document.documentElement.innerHTML = html`
     <head>
-      <link rel="i18n-locale-map" href="i18n-container.element.test.ts--filesystem/i18n-definition-map.json">
+      <link rel="i18n-locale-map" href="i18n-definition-map.json">
     </head>
     <body lang="en"></body>
   `
@@ -146,9 +146,21 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
   })
 })
 
-function i18nImporterImplWith ({ readFrom }) {
-  return {
-    importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-    importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
+const i18nImporterImplFromLocation = (locHref) => {
+  function importFile(url, base){
+    const href = new URL(url, base).href
+    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
+    const file = href.substring(locHref.length)
+    if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
+    return filesystem[file]
   }
+  return { importI18nJson: importFile, importTranslations: importFile }
+}
+
+const filesystem = {
+  get 'i18n-definition-map.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/i18n-definition-map.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.en.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.en.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.es.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.es.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.it.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.it.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.pt.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.pt.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
 }
