@@ -4,20 +4,23 @@ import { provide } from '../utils/i18n-importer/provider.js'
 
 const html = String.raw
 
-test('an HTML page with i18n-locale-map links, loadI18n should return a store', async ({ dom, step, expect, readFrom }) => {
+test('an HTML page with i18n-locale-map links, loadI18n should return a store', async ({ dom, step, expect }) => {
   const { document } = dom
   const location = import.meta.url
 
   document.documentElement.innerHTML = html`
     <head>
-      <link rel="i18n-locale-map" href="html-loader.test.ts--filesystem/i18n-definition-map.json">
+      <link rel="i18n-locale-map" href="i18n-definition-map.json">
     </head>
     <body>
       lorem ipsum
     <body>
   `
 
-  provide(i18nImporterImplWith({ readFrom }))
+
+
+  const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
+  provide(impl)
 
   const store = await loadI18n({ document, location })
 
@@ -181,9 +184,24 @@ test('an HTML page with i18n-translation-map links, loadI18n should return a sto
   })
 })
 
-function i18nImporterImplWith ({ readFrom }) {
-  return {
-    importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-    importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
+
+
+const i18nImporterImplFromLocation = (locHref) => {
+  function importFile(url, base){
+    const href = new URL(url, base).href
+    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
+    const file = href.substring(locHref.length)
+    if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
+    return filesystem[file]
   }
+  return { importI18nJson: importFile, importTranslations: importFile }
+}
+
+const filesystem = {
+  get 'i18n-definition-map.json' () { return import('./html-loader.unit.spec.js--filesystem/i18n-definition-map.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'definition-map-in-folder/i18n-definition-map.json' () { return import('./html-loader.unit.spec.js--filesystem/definition-map-in-folder/i18n-definition-map.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.en.json' () { return import('./html-loader.unit.spec.js--filesystem/languages.en.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.es.json' () { return import('./html-loader.unit.spec.js--filesystem/languages.es.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.it.json' () { return import('./html-loader.unit.spec.js--filesystem/languages.it.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.pt.json' () { return import('./html-loader.unit.spec.js--filesystem/languages.pt.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
 }
