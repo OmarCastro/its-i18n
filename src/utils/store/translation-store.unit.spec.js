@@ -99,7 +99,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
   console.error = originalConsoleError
 })
 
-test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect, readFrom }) => {
+test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect }) => {
   const consoleCalls = { error: [], warn: [] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
@@ -118,11 +118,11 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
   }
 
   await step('from "import/i18n.json" should load wihout problems', async () => {
-    const impl = i18nImporterImplWith({ readFrom })
+    const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
     provide(impl)
 
     const base = import.meta.url
-    const location = './translation-store.test.ts--filesystem/import/i18n.json'
+    const location = './import/i18n.json'
     const json = await impl.importI18nJson(location, base)
 
     const store = i18nTanslationStore()
@@ -139,10 +139,10 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
   })
 
   await step('from "import-outer/base/i18n.json" should load wihout problems', async () => {
-    const impl = i18nImporterImplWith({ readFrom })
+    const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
     provide(impl)
 
-    const basePathFolder = './translation-store.test.ts--filesystem/import-outer/base'
+    const basePathFolder = './import-outer/base'
     const base = import.meta.url
     const location = `${basePathFolder}/i18n.json`
     const json = await impl.importI18nJson(location, base)
@@ -164,20 +164,22 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
   console.error = originalConsoleError
 })
 
-test('Given a storeData loaded from "import/i18n.json", when getting translationsFromLanguage ', async ({ step, expect, readFrom }) => {
+test('Given a storeData loaded from "import/i18n.json", when getting translationsFromLanguage ', async ({ step, expect }) => {
   const importLanguageCalls = []
-  const impl = {
-    importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
+  const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
+
+  const mockImpl = {
+    ...impl,
     importTranslations: async (url, base) => {
       importLanguageCalls.push({ url, base })
-      return JSON.parse(await readFrom(new URL(url, base)))
+      return impl.importTranslations(url, base)
     },
   }
 
-  provide(impl)
+  provide(mockImpl)
 
   const base = import.meta.url
-  const location = './translation-store.test.ts--filesystem/import/i18n.json'
+  const location = './import/i18n.json'
   const json = await impl.importI18nJson(location, base)
 
   const store = i18nTanslationStore()
@@ -315,9 +317,25 @@ test('Given a completed storeData with specific locales, when getting translatio
   })
 })
 
-function i18nImporterImplWith ({ readFrom }) {
-  return {
-    importI18nJson: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
-    importTranslations: async (url, base) => JSON.parse(await readFrom(new URL(url, base))),
+const i18nImporterImplFromLocation = (locHref) => {
+  function importFile(url, base){
+    const href = new URL(url, base).href
+    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
+    const file = href.substring(locHref.length)
+    if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
+    return filesystem[file]
   }
+  return { importI18nJson: importFile, importTranslations: importFile }
+}
+
+const filesystem = {
+  get 'import/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/i18n.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.en.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.es.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.pt.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+
+  get 'import-outer/base/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/base/i18n.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/languages/en/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.en.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/languages/en/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.es.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/languages/en/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.pt.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
 }
