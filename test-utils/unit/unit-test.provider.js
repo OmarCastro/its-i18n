@@ -1,3 +1,5 @@
+/* eslint-disable no-empty-pattern */
+// @ts-nocheck
 /**
  * this file adapts the test to their own environment
  *
@@ -7,11 +9,14 @@
  */
 
 // thee 2 lines are to prevent esbuild to bundle the await imports
+/**
+ * @param {string} str
+ */
 const importModule = (str) => import(str)
 let importStr
 
 /**
- * @returns {Test}
+ * @returns {Promise<Test>}
  */
 const fn = async () => {
   if (globalThis.Deno != null) {
@@ -38,24 +43,20 @@ const fn = async () => {
     // init unit tests for Playwright
 
     importStr = '@playwright/test'
-    const { test: base, expect } = await import('@playwright/test')
+    const { test: base, expect } = await import(importStr)
 
     importStr = './init-dom'
     const { window, resetDom } = await importModule(importStr)
 
-    /** @type {(description, test) => Promise<any>} */
+    /** @type {any} */
     const test = base.extend({
-      // eslint-disable-next-line no-empty-pattern
       step: async ({}, use) => {
         await use(test.step)
       },
-
-      // eslint-disable-next-line no-empty-pattern
-      dom: async ({}, use, testinfo) => {
+      dom: async ({}, use) => {
         resetDom()
         await use(window)
       },
-      // eslint-disable-next-line no-empty-pattern
       expect: async ({}, use) => {
         await use(expect)
       },
@@ -99,6 +100,13 @@ export const test = await fn()
 /**
  * @typedef {object} TestAPI
  * @property {typeof import('expect').expect} expect
- * @property {(description: string, step: () => any) => any} step
+ * @property {TestAPICall} step
  * @property {Window} dom
+ */
+
+/**
+ * @callback TestAPICall
+ * @param {string} description
+ * @param {() => any} step
+ * @returns {Promise<any>}
  */
