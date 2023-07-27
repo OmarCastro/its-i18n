@@ -15,6 +15,7 @@ if ('Deno' in globalThis || globalThis.window == null) {
       referrer: 'https://example.org/',
       contentType: 'text/html',
       storageQuota: 10000000,
+      pretendToBeVisual: true,
     },
   )
 
@@ -28,6 +29,10 @@ if ('Deno' in globalThis || globalThis.window == null) {
   globalThis.Document = windowObj.Document
   globalThis.window = windowObj
   globalThis.DOMParser = windowObj.DOMParser
+  globalThis.requestAnimationFrame = windowObj.requestAnimationFrame
+  globalThis.cancelAnimationFrame = windowObj.cancelAnimationFrame
+  globalThis.requestIdleCallback = windowObj.requestIdleCallback
+  globalThis.cancelIdleCallback = windowObj.cancelIdleCallback
   domResetFunction = () => {
     const { documentElement } = windowObj.document
     documentElement.innerHTML = '<head></head><body></body>'
