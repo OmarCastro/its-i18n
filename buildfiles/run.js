@@ -6,6 +6,10 @@ import * as esbuild from 'esbuild'
 import { promisify } from 'node:util'
 const exec = promisify((await import('node:child_process')).exec)
 
+const projectPathURL = new URL('../', import.meta.url)
+const pathFromProject = (path) => new URL(path, projectPathURL).pathname
+process.chdir(pathFromProject('.'))
+
 const args = process.argv.slice(2)
 
 switch (args[0]) {
@@ -20,14 +24,20 @@ async function execBuild () {
 
   logStage('bundle')
 
-  const esbuild1 = esbuild.build({
-    entryPoints: ['src/entrypoint/browser.js'],
-    outfile: '.tmp/build/dist/i18n.element.min.js',
+  const commonBuildParams = {
+    target: ['es2022'],
     bundle: true,
     minify: true,
     sourcemap: true,
+    absWorkingDir: pathFromProject('.'),
+
+  }
+
+  const esbuild1 = esbuild.build({
+    ...commonBuildParams,
+    entryPoints: ['src/entrypoint/browser.js'],
+    outfile: '.tmp/build/dist/i18n.element.min.js',
     format: 'esm',
-    target: ['es2022'],
     loader: {
       '.element.html': 'text',
       '.element.css': 'text',
@@ -35,15 +45,12 @@ async function execBuild () {
   })
 
   const esbuild2 = esbuild.build({
+    ...commonBuildParams,
     entryPoints: ['src/entrypoint/browser.js'],
     outdir: '.tmp/build/docs',
-    bundle: true,
-    minify: true,
-    sourcemap: true,
     splitting: true,
     chunkNames: 'chunk/[name].[hash]',
     format: 'esm',
-    target: ['es2022'],
     loader: {
       '.element.html': 'text',
       '.element.css': 'text',
@@ -51,12 +58,9 @@ async function execBuild () {
   })
 
   const esbuild3 = esbuild.build({
+    ...commonBuildParams,
     entryPoints: ['docs/doc.js'],
     outfile: '.tmp/build/docs/doc.css',
-    bundle: true,
-    minify: true,
-    sourcemap: true,
-    target: ['es2022'],
   })
 
   await Promise.all([esbuild1, esbuild2, esbuild3])
