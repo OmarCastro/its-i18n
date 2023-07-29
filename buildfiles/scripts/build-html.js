@@ -5,19 +5,13 @@ import { imageSize } from 'image-size'
 import { JSDOM } from 'jsdom'
 import { marked } from 'marked'
 
-const projectPath = new URL('../../', import.meta.url)
-const docsPath = new URL('docs', projectPath).pathname
-const docsOutputPath = new URL('.tmp/build/docs', projectPath).pathname
-
-const fs = await import('fs')
-
-const data = fs.readFileSync(`${docsPath}/${process.argv[2]}`, 'utf8')
-const dom = new JSDOM(data, {
+const dom = new JSDOM('', {
   url: import.meta.url,
 })
 /** @type {Window} */
 const window = dom.window
 const document = window.document
+const DOMParser = window.DOMParser
 
 globalThis.window = dom.window
 globalThis.document = document
@@ -30,6 +24,17 @@ await import('prismjs/plugins/keep-markup/prism-keep-markup.js')
 // @ts-ignore
 await import('prismjs/components/prism-json.js')
 await import('prismjs/components/prism-bash.js')
+
+const projectPath = new URL('../../', import.meta.url)
+const docsPath = new URL('docs', projectPath).pathname
+const docsOutputPath = new URL('.tmp/build/docs', projectPath).pathname
+
+const fs = await import('fs')
+
+const data = fs.readFileSync(`${docsPath}/${process.argv[2]}`, 'utf8')
+
+const parsed = new DOMParser().parseFromString(data, 'text/html')
+document.replaceChild(parsed.documentElement, document.documentElement)
 
 const exampleCode = (strings, ...expr) => {
   let statement = strings[0]
