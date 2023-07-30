@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 import process from 'node:process'
 import fs from 'node:fs/promises'
-import * as esbuild from 'esbuild'
+import { existsSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { exec, spawn } from 'node:child_process'
 const execPromise = promisify(exec)
@@ -13,15 +13,15 @@ process.chdir(pathFromProject('.'))
 
 const args = process.argv.slice(2)
 
+await checkNodeModulesFolder()
+
 switch (args[0]) {
   case 'build': await execBuild(); process.exit(0); break
   case 'test': await execTests(); process.exit(0); break
 }
 
 async function execTests () {
-  await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test', {
-    cwd: pathFromProject('.'),
-  })
+  await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
 }
 
 async function execBuild () {
@@ -31,6 +31,8 @@ async function execBuild () {
   await mkdir_p('.tmp/build/dist', '.tmp/build/docs')
 
   logStage('bundle')
+
+  const esbuild = await import('esbuild')
 
   const commonBuildParams = {
     target: ['es2022'],
@@ -85,6 +87,7 @@ async function execBuild () {
 
   await rm_rf('build')
   await cp_R('.tmp/build', 'build')
+  await cp_R('build/dist', 'build/docs/dist')
 
   logEndStage()
 
@@ -135,6 +138,12 @@ function logEndStage () {
 function logStartStage (jobname, stage) {
   logStage.currentJobName = jobname
   process.stdout.write(`[${jobname}] ${stage}...`)
+}
+
+async function checkNodeModulesFolder () {
+  if (existsSync(pathFromProject('node_modules'))) { return }
+  console.log('node_modules absent running "npm ci"...')
+  await cmdSpawn('npm ci')
 }
 
 function cmdSpawn (command, options) {
