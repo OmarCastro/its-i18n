@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 import process from 'node:process'
 import fs from 'node:fs/promises'
+import { resolve, basename } from 'node:path'
 import { existsSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { exec, spawn } from 'node:child_process'
@@ -22,6 +23,21 @@ switch (args[0]) {
 
 async function execTests () {
   await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
+  await mv('reports/coverage', 'reports/coverage.bak')
+  await mv('reports/.tmp/coverage', 'reports/coverage')
+  const rmTmp = rm_rf('reports/.tmp')
+  const rmBak = rm_rf('reports/coverage.bak')
+
+  const badges = await cmdSpawn('node buildfiles/scripts/build-badges.js')
+
+  const files = Array.from(await getFiles('reports/coverage/unit'))
+  const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('buildfiles/assets/coverage-report-base.css', path))
+  const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('buildfiles/assets/coverage-report-prettify.css', path))
+  await Promise.all([rmTmp, rmBak, badges, ...cpBase, ...cpPrettify])
+
+  await rm_rf('build/docs/reports')
+  await mkdir_p('build/docs')
+  await cp_R('reports', 'build/docs/reports')
 }
 
 async function execBuild () {
@@ -127,6 +143,10 @@ async function cp_R (src, dest) {
   await fs.cp(src, dest, { recursive: true })
 }
 
+async function mv (src, dest) {
+  await fs.rename(src, dest)
+}
+
 function logStage (stage) {
   logEndStage(); logStartStage(logStage.currentJobName, stage)
 }
@@ -159,4 +179,16 @@ function cmdSpawn (command, options) {
       resolve(code)
     })
   })
+}
+
+async function * getFiles (dir) {
+  const dirents = await fs.readdir(dir, { withFileTypes: true })
+  for (const dirent of dirents) {
+    const res = resolve(dir, dirent.name)
+    if (dirent.isDirectory()) {
+      yield * getFiles(res)
+    } else {
+      yield res
+    }
+  }
 }
