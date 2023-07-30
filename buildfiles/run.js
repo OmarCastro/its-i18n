@@ -4,7 +4,8 @@ import process from 'node:process'
 import fs from 'node:fs/promises'
 import * as esbuild from 'esbuild'
 import { promisify } from 'node:util'
-const exec = promisify((await import('node:child_process')).exec)
+import { exec, spawn } from 'node:child_process'
+const execPromise = promisify(exec)
 
 const projectPathURL = new URL('../', import.meta.url)
 const pathFromProject = (path) => new URL(path, projectPathURL).pathname
@@ -13,7 +14,14 @@ process.chdir(pathFromProject('.'))
 const args = process.argv.slice(2)
 
 switch (args[0]) {
-  case 'build': await execBuild(); process.exit(0)
+  case 'build': await execBuild(); process.exit(0); break
+  case 'test': await execTests(); process.exit(0); break
+}
+
+async function execTests () {
+  await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test', {
+    cwd: pathFromProject('.'),
+  })
 }
 
 async function execBuild () {
@@ -71,7 +79,7 @@ async function execBuild () {
 
   logStage('build html')
 
-  await exec(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`)
+  await execPromise(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`)
 
   logStage('move to final dir')
 
@@ -127,4 +135,19 @@ function logEndStage () {
 function logStartStage (jobname, stage) {
   logStage.currentJobName = jobname
   process.stdout.write(`[${jobname}] ${stage}...`)
+}
+
+function cmdSpawn (command, options) {
+  const p = spawn('/bin/sh', ['-c', command], options)
+  return new Promise((resolve) => {
+    p.stdout.on('data', (x) => {
+      process.stdout.write(x.toString())
+    })
+    p.stderr.on('data', (x) => {
+      process.stderr.write(x.toString())
+    })
+    p.on('exit', (code) => {
+      resolve(code)
+    })
+  })
 }
