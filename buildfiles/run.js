@@ -26,7 +26,7 @@ const tasks = {
     cb: async () => { await execGithubBuildWorkflow(); process.exit(0) },
   },
   'build:github-action': {
-    description: 'runs build github action',
+    description: 'runs build for github action',
     cb: async () => { await execGithubBuildWorkflow(); process.exit(0) },
   },
   test: {
