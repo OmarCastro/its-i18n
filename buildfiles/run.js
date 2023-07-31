@@ -14,12 +14,51 @@ process.chdir(pathFromProject('.'))
 
 const args = process.argv.slice(2)
 
-await checkNodeModulesFolder()
+const helpTask = {
+  description: 'show this help',
+  cb: async () => { console.log(helpText()); process.exit(0) },
 
-switch (args[0]) {
-  case 'build': await execBuild(); process.exit(0); break
-  case 'test': await execTests(); process.exit(0); break
 }
+
+const tasks = {
+  build: {
+    description: 'builds the project',
+    cb: async () => { await execGithubBuildWorkflow(); process.exit(0) },
+  },
+  'build:github-action': {
+    description: 'runs build github action',
+    cb: async () => { await execGithubBuildWorkflow(); process.exit(0) },
+  },
+  test: {
+    description: 'builds the project',
+    cb: async () => { await execTests(); process.exit(0) },
+  },
+  help: helpTask,
+  '--help': helpTask,
+  '-h': helpTask,
+}
+
+async function main () {
+  if (args.length <= 0) {
+    console.log(helpText())
+    return process.exit(0)
+  }
+
+  const taskName = args[0]
+
+  if (!Object.hasOwn(tasks, taskName)) {
+    console.error(`unknown task ${taskName}
+    
+  ${helpText()}`)
+    return process.exit(1)
+  }
+
+  await checkNodeModulesFolder()
+  await tasks[taskName].cb()
+  return process.exit(0)
+}
+
+await main()
 
 async function execTests () {
   await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
@@ -56,7 +95,7 @@ async function execBuild () {
     minify: true,
     sourcemap: true,
     absWorkingDir: pathFromProject('.'),
-
+    logLevel: 'info',
   }
 
   const esbuild1 = esbuild.build({
@@ -106,24 +145,21 @@ async function execBuild () {
   await cp_R('build/dist', 'build/docs/dist')
 
   logEndStage()
+}
 
-  /*
+async function execGithubBuildWorkflow () {
+  await execTests()
+  await execBuild()
+}
 
-    rm -rf .tmp/build
+function helpText () {
+  const maxTaskLength = Math.max(...['help, --help, -h', ...Object.keys(tasks)].map(text => text.length))
+  const tasksToShow = Object.entries(tasks).filter(([_, value]) => value !== helpTask)
+  return `Usage: run <task>
 
-# build dist & doumentation
-mkdir -p .tmp/build/dist .tmp/build/docs
-
-# build dist
-npx esbuild "src/entrypoint/browser.js" --bundle --minify --sourcemap --outfile=.tmp/build/dist/i18n.element.min.js --format=esm --target=es2022 --loader:.element.html=text --loader:.element.css=text &
-npx esbuild docs/doc.js --bundle --minify --sourcemap --splitting --chunk-names="chunk/[name].[hash]" --outdir=.tmp/build/docs --format=esm --target=es2022 &
-npx esbuild docs/doc.css --bundle --minify --sourcemap --outfile=.tmp/build/docs/doc.css --target=es2022 &
-wait
-
-# publish reports in docs
-cp -R reports .tmp/build/docs/reports && node buildfiles/scripts/build-html.js index.html && (rm -rf build; cp -R .tmp/build build)
-
-    */
+Tasks: 
+  ${tasksToShow.map(([key, value]) => `${key.padEnd(maxTaskLength, ' ')}  ${value.description}`).join('\n  ')}
+  ${'help, --help, -h'.padEnd(maxTaskLength, ' ')}  ${helpTask.description}`
 }
 
 /** @param {string[]} paths  */
