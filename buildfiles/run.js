@@ -62,12 +62,14 @@ await main()
 
 async function execTests () {
   await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
-  await mv('reports/coverage', 'reports/coverage.bak')
+  if (existsSync('reports/coverage')) {
+    await mv('reports/coverage', 'reports/coverage.bak')
+  }
   await mv('reports/.tmp/coverage', 'reports/coverage')
   const rmTmp = rm_rf('reports/.tmp')
   const rmBak = rm_rf('reports/coverage.bak')
 
-  const badges = await cmdSpawn('node buildfiles/scripts/build-badges.js')
+  const badges = cmdSpawn('node buildfiles/scripts/build-badges.js')
 
   const files = Array.from(await getFiles('reports/coverage/unit'))
   const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('buildfiles/assets/coverage-report-base.css', path))
