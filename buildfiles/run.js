@@ -33,6 +33,10 @@ const tasks = {
     description: 'builds the project',
     cb: async () => { await execTests(); process.exit(0) },
   },
+  lint: {
+    description: 'validates the code',
+    cb: async () => { await execlintCode(); process.exit(0) },
+  },
   help: helpTask,
   '--help': helpTask,
   '-h': helpTask,
@@ -146,6 +150,14 @@ async function execBuild () {
   await cp_R('.tmp/build', 'build')
   await cp_R('build/dist', 'build/docs/dist')
 
+  logEndStage()
+}
+
+async function execlintCode () {
+  logStartStage('lint', 'lint using eslint')
+  await cmdSpawn('npx eslint . --fix')
+  logStage('typecheck with typescript')
+  await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
 }
 
