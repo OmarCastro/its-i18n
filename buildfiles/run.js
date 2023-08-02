@@ -123,7 +123,7 @@ async function execBuild () {
 
   const esbuild2 = esbuild.build({
     ...commonBuildParams,
-    entryPoints: ['src/entrypoint/browser.js'],
+    entryPoints: ['docs/doc.js'],
     outdir: '.tmp/build/docs',
     splitting: true,
     chunkNames: 'chunk/[name].[hash]',
@@ -136,7 +136,7 @@ async function execBuild () {
 
   const esbuild3 = esbuild.build({
     ...commonBuildParams,
-    entryPoints: ['docs/doc.js'],
+    entryPoints: ['docs/doc.css'],
     outfile: '.tmp/build/docs/doc.css',
   })
 
