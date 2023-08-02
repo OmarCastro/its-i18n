@@ -37,6 +37,10 @@ const tasks = {
     description: 'validates the code',
     cb: async () => { await execlintCode(); process.exit(0) },
   },
+  'dev-server': {
+    description: 'launch dev server',
+    cb: async () => { await openDevServer(); await wait(2 ** 30) },
+  },
   help: helpTask,
   '--help': helpTask,
   '-h': helpTask,
@@ -51,9 +55,7 @@ async function main () {
   const taskName = args[0]
 
   if (!Object.hasOwn(tasks, taskName)) {
-    console.error(`unknown task ${taskName}
-    
-  ${helpText()}`)
+    console.error(`unknown task ${taskName}\n\n${helpText()}`)
     return process.exit(1)
   }
 
@@ -63,6 +65,10 @@ async function main () {
 }
 
 await main()
+
+async function execDevEnvironment () {
+
+}
 
 async function execTests () {
   await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
@@ -228,6 +234,41 @@ function cmdSpawn (command, options) {
     p.on('exit', (code) => {
       resolve(code)
     })
+  })
+}
+
+async function openDevServer () {
+  const { default: pem } = await import('pem')
+  const { default: liveServer } = await import('live-server')
+  await new Promise((resolve) => {
+    pem.createCertificate({ days: 1, selfSigned: true }, function (err, keys) {
+      if (err) {
+        throw err
+      }
+      const params = {
+        port: 8181, // Set the server port. Defaults to 8080.
+        host: 'localhost', // Set the address to bind to. Defaults to 0.0.0.0 or process.env.IP.
+        open: '/build/docs', // Set root directory that's being served. Defaults to cwd.
+        ignore: 'scss,my/templates', // comma-separated string for paths to ignore
+        file: 'index.html', // When set, serve this file (server root relative) for every 404 (useful for single-page applications)
+        wait: 1000, // Waits for all changes, before reloading. Defaults to 0 sec.
+        mount: [['/components', './node_modules']], // Mount a directory to a route.
+        logLevel: 2, // 0 = errors only, 1 = some, 2 = lots
+        middleware: [function (req, res, next) { next() }], // Takes an array of Connect-compatible middleware that are injected into the server middleware stack
+        https: {
+          key: keys.clientKey,
+          cert: keys.certificate,
+        },
+      }
+      liveServer.start(params)
+      resolve()
+    })
+  })
+}
+
+function wait (ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
   })
 }
 

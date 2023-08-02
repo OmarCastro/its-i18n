@@ -4,14 +4,14 @@
   "description": "An i18n web component",
   "main": "src/entrypoint/node.js",
   "type": "module",
-  "files" : [
+  "files": [
     "README.md",
     "CHANGELOG.md",
     "src",
     "build/dist",
     "test-utils/",
     "jsconfig.json"
- ],
+  ],
   "directories": {
     "doc": "docs"
   },
@@ -46,6 +46,7 @@
     "jsdom": "^22.1.0",
     "live-server": "^1.2.2",
     "marked": "^5.1.1",
+    "pem": "^1.14.8",
     "prismjs": "^1.29.0",
     "typescript": "^5.1.6"
   }
