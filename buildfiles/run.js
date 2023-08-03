@@ -6,6 +6,7 @@ import { resolve, basename } from 'node:path'
 import { existsSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { exec, spawn } from 'node:child_process'
+import { waitOneOfDirChanges } from './scripts/wait-dir-changes.js'
 const execPromise = promisify(exec)
 
 const projectPathURL = new URL('../', import.meta.url)
@@ -37,6 +38,10 @@ const tasks = {
     description: 'validates the code',
     cb: async () => { await execlintCode(); process.exit(0) },
   },
+  dev: {
+    description: 'setup dev environment',
+    cb: async () => { await execDevEnvironment(); process.exit(0) },
+  },
   'dev-server': {
     description: 'launch dev server',
     cb: async () => { await openDevServer(); await wait(2 ** 30) },
@@ -67,7 +72,17 @@ async function main () {
 await main()
 
 async function execDevEnvironment () {
-
+  await openDevServer()
+  await Promise.all([execlintCode(), execTests()])
+  await execBuild()
+  while (true) {
+    await waitOneOfDirChanges(
+      new URL('src', projectPathURL),
+      new URL('docs', projectPathURL),
+    )
+    await Promise.all([execBuild(), execTests()])
+    await execlintCode()
+  }
 }
 
 async function execTests () {
@@ -238,32 +253,42 @@ function cmdSpawn (command, options) {
 }
 
 async function openDevServer () {
-  const { default: pem } = await import('pem')
+  const { default: mkcert } = await import('mkcert')
   const { default: liveServer } = await import('live-server')
-  await new Promise((resolve) => {
-    pem.createCertificate({ days: 1, selfSigned: true }, function (err, keys) {
-      if (err) {
-        throw err
-      }
-      const params = {
-        port: 8181, // Set the server port. Defaults to 8080.
-        host: 'localhost', // Set the address to bind to. Defaults to 0.0.0.0 or process.env.IP.
-        open: '/build/docs', // Set root directory that's being served. Defaults to cwd.
-        ignore: 'scss,my/templates', // comma-separated string for paths to ignore
-        file: 'index.html', // When set, serve this file (server root relative) for every 404 (useful for single-page applications)
-        wait: 1000, // Waits for all changes, before reloading. Defaults to 0 sec.
-        mount: [['/components', './node_modules']], // Mount a directory to a route.
-        logLevel: 2, // 0 = errors only, 1 = some, 2 = lots
-        middleware: [function (req, res, next) { next() }], // Takes an array of Connect-compatible middleware that are injected into the server middleware stack
-        https: {
-          key: keys.clientKey,
-          cert: keys.certificate,
-        },
-      }
-      liveServer.start(params)
-      resolve()
-    })
+
+  const ca = await mkcert.createCA({
+    organization: 'Hello CA',
+    countryCode: 'NP',
+    state: 'Bagmati',
+    locality: 'Kathmandu',
+    validityDays: 365,
   })
+
+  const cert = await mkcert.createCert({
+    domains: ['127.0.0.1', 'localhost'],
+    validityDays: 365,
+    caKey: ca.key,
+    caCert: ca.cert,
+  })
+
+  const params = {
+    port: 8181, // Set the server port. Defaults to 8080.
+    host: '127.0.0.1', // Set the address to bind to. Defaults to 0.0.0.0 or process.env.IP.
+    open: '/build/docs', // Set root directory that's being served. Defaults to cwd.
+    watch: ['build'],
+    ignore: 'scss,my/templates', // comma-separated string for paths to ignore
+    file: 'index.html', // When set, serve this file (server root relative) for every 404 (useful for single-page applications)
+    wait: 1000, // Waits for all changes, before reloading. Defaults to 0 sec.
+    mount: [['/components', './node_modules']], // Mount a directory to a route.
+    logLevel: 2, // 0 = errors only, 1 = some, 2 = lots
+    middleware: [function (req, res, next) { next() }], // Takes an array of Connect-compatible middleware that are injected into the server middleware stack
+    https: {
+      cert: `${cert.cert}\n${ca.cert}`,
+      key: cert.key,
+    },
+  }
+
+  liveServer.start(params)
 }
 
 function wait (ms) {
