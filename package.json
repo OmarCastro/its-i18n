@@ -46,7 +46,7 @@
     "jsdom": "^22.1.0",
     "live-server": "^1.2.2",
     "marked": "^5.1.1",
-    "pem": "^1.14.8",
+    "mkcert": "^1.5.1",
     "prismjs": "^1.29.0",
     "typescript": "^5.1.6"
   }
