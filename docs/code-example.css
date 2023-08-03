@@ -7,7 +7,7 @@
 /*
  Light Theme
  */
- pre, .cm-editor, .cm-view{
+ .example__view, pre, .cm-editor, .cm-view{
     --code-color: #545454;
     --code-bg: #fefefe;
     --code-bg-highlight: #00000020;
@@ -28,7 +28,7 @@
  Dark Theme
  */
  @media (prefers-color-scheme: dark) {
-    pre, .cm-editor, .cm-view{
+  .example__view, pre, .cm-editor, .cm-view{
         --code-color: #f8f8f2;
         --code-bg-highlight: #ffffff20;
         --code-bg: #2b2b2b;
