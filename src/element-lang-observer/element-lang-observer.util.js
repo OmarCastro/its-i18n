@@ -37,7 +37,9 @@ export class ElementLangObserver {
    * @param {Element} element
    */
   observe (element) {
-    observeLangFromElement(element)
+    if (!isBeingObseved(element)) {
+      observeLangFromElement(element)
+    }
     this[data].observingElements.add(element)
   }
 
@@ -47,7 +49,7 @@ export class ElementLangObserver {
    */
   unobserve (element) {
     this[data].observingElements.delete(element)
-    if ([...observers].every(observer => !observer[data].observingElements.has(element))) {
+    if (!isBeingObseved(element)) {
       unobserveLangFromElement(element)
     }
   }
@@ -55,6 +57,19 @@ export class ElementLangObserver {
   static rootNodeObserver () {
     return rootNodeObserver
   }
+}
+
+/**
+ * Checks if any observer is observing the element
+ * @param {Element} element
+ */
+function isBeingObseved (element) {
+  for (const { [data]: { observingElements } } of observers) {
+    if (observingElements.has(element)) {
+      return true
+    }
+  }
+  return false
 }
 
 /**
