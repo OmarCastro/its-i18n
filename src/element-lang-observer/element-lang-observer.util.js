@@ -6,17 +6,13 @@ const rootNodes = new IterableWeakMap()
 
 const data = Symbol('ElementLangObserverData')
 
-/** @type {WeakMap<Element, string>} */
-const observingElementsCurrentLanguage = new WeakMap()
-
-/** @type {IterableWeakSet<ElementLangObserver>} */
-const observers = new IterableWeakSet()
+/** @type {WeakMap<Element, {currentLang: string, observers: Set<ElementLangObserver>}>} */
+const observingElementsInfo = new WeakMap()
 
 const rootNodeObserver = {
 
 }
 
-export const eventName = 'lang-changed'
 export const rootEventName = 'lang-change-dispatched'
 
 export class ElementLangObserver {
@@ -27,9 +23,7 @@ export class ElementLangObserver {
   constructor (callback) {
     this[data] = {
       callback,
-      observingElements: new IterableWeakSet(),
     }
-    observers.add(this)
   }
 
   /**
@@ -37,10 +31,7 @@ export class ElementLangObserver {
    * @param {Element} element
    */
   observe (element) {
-    if (!isBeingObseved(element)) {
-      observeLangFromElement(element)
-    }
-    this[data].observingElements.add(element)
+    observeLangFromElement(element, this)
   }
 
   /**
@@ -48,28 +39,12 @@ export class ElementLangObserver {
    * @param {Element} element
    */
   unobserve (element) {
-    this[data].observingElements.delete(element)
-    if (!isBeingObseved(element)) {
-      unobserveLangFromElement(element)
-    }
+    unobserveLangFromElement(element, this)
   }
 
   static rootNodeObserver () {
     return rootNodeObserver
   }
-}
-
-/**
- * Checks if any observer is observing the element
- * @param {Element} element
- */
-function isBeingObseved (element) {
-  for (const { [data]: { observingElements } } of observers) {
-    if (observingElements.has(element)) {
-      return true
-    }
-  }
-  return false
 }
 
 /**
@@ -87,31 +62,34 @@ const mutationProperties = Object.freeze({
  */
 function langMutationObserverCallback (records) {
   const triggeredNodes = new Set()
+  const validatedNodes = new Set()
   const rootNodesToTrigger = new Set()
   for (const record of records) {
     const rootNode = record.target.getRootNode()
     rootNodesToTrigger.add(rootNode)
     const observingElements = rootNodes.get(rootNode)?.observingElements
     observingElements && observingElements.forEach((node) => {
-      if (triggeredNodes.has(node)) {
+      if (validatedNodes.has(node)) {
         return
       }
-      const oldLang = observingElementsCurrentLanguage.get(node)
+      validatedNodes.add(node)
+      const info = observingElementsInfo.get(node)
+      if (!info) {
+        return
+      }
+      const oldLang = info.currentLang
       const newLang = getLanguageFromElement(node)
       if (newLang === oldLang) {
         return
       }
-      observingElementsCurrentLanguage.set(node, newLang)
-      observers.forEach(observer => {
-        const { callback: trigger, observingElements } = observer[data]
-        if (observingElements.has(node)) {
-          trigger({
-            target: node,
-            causingElement: record.target,
-            previousLanguage: oldLang,
-            language: newLang,
-          })
-        }
+      info.currentLang = newLang
+      info.observers.forEach(observer => {
+        observer[data].callback({
+          target: node,
+          causingElement: record.target,
+          previousLanguage: oldLang,
+          language: newLang,
+        })
       })
       triggeredNodes.add(node)
     })
@@ -159,18 +137,38 @@ function traverseRootNode (rootNode, element) {
 /**
  *
  * @param {Element} element
+ * @param {ElementLangObserver} observer
  */
-export function observeLangFromElement (element) {
+export function observeLangFromElement (element, observer) {
+  const oldVal = observingElementsInfo.get(element)
+  if (oldVal) {
+    oldVal.observers.add(observer)
+    return
+  }
+  observingElementsInfo.set(element, {
+    currentLang: getLanguageFromElement(element),
+    observers: new Set([observer]),
+  })
   const rootNode = element.getRootNode()
-  observingElementsCurrentLanguage.set(element, getLanguageFromElement(element))
   traverseRootNode(rootNode, element)
 }
 
 /**
  *
  * @param {Element} element
+ * @param {ElementLangObserver} observer
  */
-export function unobserveLangFromElement (element) {
+export function unobserveLangFromElement (element, observer) {
+  const observers = observingElementsInfo.get(element)?.observers
+  if (!observers) {
+    return
+  }
+  observers.delete(observer)
+  if (observers.size > 0) {
+    return
+  }
+
+  observingElementsInfo.delete(element)
   for (const [rootNode, info] of rootNodes.entries()) {
     const { observingElements, observer } = info
     observingElements.delete(element)
