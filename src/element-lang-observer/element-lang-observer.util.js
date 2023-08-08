@@ -9,8 +9,20 @@ const data = Symbol('ElementLangObserverData')
 /** @type {WeakMap<Element, {currentLang: string, observers: Set<ElementLangObserver>}>} */
 const observingElementsInfo = new WeakMap()
 
-const rootNodeObserver = {
-
+export const domRootsDispatcher = {
+  /**
+   *
+   * @param {Element | Document} target,
+   * @param {EventListenerOrEventListenerObject} callback
+   * @param {boolean | AddEventListenerOptions} options
+   * @returns
+   */
+  onDispatchOnRoot: (target, callback, options) => {
+    target.addEventListener(rootEventName, callback, options)
+    return {
+      removeListener: () => target.removeEventListener(rootEventName, callback, options),
+    }
+  },
 }
 
 export const rootEventName = 'lang-change-dispatched'
@@ -40,10 +52,6 @@ export class ElementLangObserver {
    */
   unobserve (element) {
     unobserveLangFromElement(element, this)
-  }
-
-  static rootNodeObserver () {
-    return rootNodeObserver
   }
 }
 
