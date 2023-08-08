@@ -9,7 +9,7 @@ const data = Symbol('ElementLangObserverData')
 /** @type {WeakMap<Element, {currentLang: string, observers: Set<ElementLangObserver>}>} */
 const observingElementsInfo = new WeakMap()
 
-export const domRootsDispatcher = {
+export const domRootLangDispatchListener = {
   /**
    *
    * @param {Element | Document} target,

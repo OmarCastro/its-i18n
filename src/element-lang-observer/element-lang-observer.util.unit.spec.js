@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { test } from '../../test-utils/unit/test.js'
 import { getLanguageFromElement } from '../utils/algorithms/get-lang-from-element.util.js'
-import { rootEventName, ElementLangObserver } from './element-lang-observer.util.js'
+import { domRootLangDispatchListener, ElementLangObserver } from './element-lang-observer.util.js'
 
 const html = String.raw
 
@@ -61,7 +61,7 @@ test('observeLangFromElement should trigger another event on node root', async (
 
   const level4DivLang = getLanguageFromElement(level4Div)
   await new Promise((resolve) => {
-    document.addEventListener(rootEventName, () => {
+    domRootLangDispatchListener.onDispatchOnRoot(document, () => {
       rootEvent.triggered = true
       resolve()
     }, { once: true })
@@ -114,9 +114,7 @@ test('observeLangFromElement should trigger multiple observing elements when anc
   new ElementLangObserver(() => { triggeredEvents.level5_2 = true }).observe(level5_2Div)
 
   await new Promise((resolve) => {
-    document.addEventListener(rootEventName, () => {
-      resolve()
-    }, { once: true })
+    domRootLangDispatchListener.onDispatchOnRoot(document, resolve, { once: true })
     level3Div.setAttribute('lang', 'es')
   })
 
@@ -184,10 +182,12 @@ test('observeLangFromElement should not trigger event when a new lang was added 
   new ElementLangObserver(() => { triggeredEvents.level4DivLangEvent = true }).observe(level4Div)
 
   await new Promise((resolve) => {
-    document.addEventListener(rootEventName, () => {
+    const listener = domRootLangDispatchListener.onDispatchOnRoot(document, () => {
       triggeredEvents.rootEvent = true
+      listener.removeListener()
       resolve()
-    }, { once: true })
+    })
+
     level3Div.setAttribute('lang', 'pt')
   })
   const level4DivNewLang = getLanguageFromElement(level4Div)
