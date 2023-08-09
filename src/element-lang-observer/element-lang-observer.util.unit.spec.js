@@ -5,7 +5,7 @@ import { domRootLangDispatchListener, ElementLangObserver } from './element-lang
 
 const html = String.raw
 
-test('observeLangFromElement should trigger correctly when lang changed', async ({ expect, dom }) => {
+test('ElementLangObserver should trigger correctly when lang changed', async ({ expect, dom }) => {
   const { document } = dom
   // prepare
   document.body.innerHTML = html`
@@ -37,7 +37,7 @@ test('observeLangFromElement should trigger correctly when lang changed', async 
   })
 })
 
-test('observeLangFromElement should trigger another event on node root', async ({ expect, dom }) => {
+test('ElementLangObserver should trigger another event on node root', async ({ expect, dom }) => {
   const { document } = dom
 
   // prepare
@@ -79,7 +79,7 @@ test('observeLangFromElement should trigger another event on node root', async (
 
 })
 
-test('observeLangFromElement should trigger multiple observing elements when ancestor lang changed', async ({ expect, dom }) => {
+test('ElementLangObserver should trigger multiple observing elements when ancestor lang changed', async ({ expect, dom }) => {
   // prepare
   const { document } = dom
 
@@ -127,7 +127,7 @@ test('observeLangFromElement should trigger multiple observing elements when anc
   })
 })
 
-test('observeLangFromElement should trigger when lang changed in the middle of the ascension tree', async ({ expect, dom }) => {
+test('ElementLangObserver should trigger when lang changed in the middle of the ascension tree', async ({ expect, dom }) => {
   // prepare
   const { document } = dom
 
@@ -158,7 +158,7 @@ test('observeLangFromElement should trigger when lang changed in the middle of t
   })
 })
 
-test('observeLangFromElement should not trigger event when a new lang was added in the middle of the ascension tree, but is equal', async ({ expect, dom }) => {
+test('ElementLangObserver should not trigger event when a new lang was added in the middle of the ascension tree, but is equal', async ({ expect, dom }) => {
   // prepare
   const { document } = dom
 
@@ -200,7 +200,7 @@ test('observeLangFromElement should not trigger event when a new lang was added 
   })
 })
 
-test('observeLangFromElement should trigger on shadowDom element when lang changed on lightdom', async ({ expect, dom }) => {
+test('ElementLangObserver should trigger on shadowDom element when lang changed on lightdom', async ({ expect, dom }) => {
   // prepare
   const { document } = dom
 

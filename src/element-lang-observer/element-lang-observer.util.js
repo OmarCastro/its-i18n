@@ -30,7 +30,7 @@ export const rootEventName = 'lang-change-dispatched'
 export class ElementLangObserver {
   /**
    *
-   * @param {Function} callback
+   * @param {ElementLangObserverHandler} callback
    */
   constructor (callback) {
     this[data] = {
@@ -92,12 +92,12 @@ function langMutationObserverCallback (records) {
       }
       info.currentLang = newLang
       info.observers.forEach(observer => {
-        observer[data].callback({
+        observer[data].callback([{
           target: node,
           causingElement: record.target,
           previousLanguage: oldLang,
           language: newLang,
-        })
+        }])
       })
       triggeredNodes.add(node)
     })
@@ -192,4 +192,18 @@ export function unobserveLangFromElement (element, observer) {
  * @property {IterableWeakSet<Element>} observingElements - the elements that will react when `targetNode` detects a language change
  * @property {MutationObserver} observer - mutationObserver applied to `targetNode`
  * @property {WeakRef<Node>} targetNode - rootNode of the current DOM (<html> or ShadowRoot)
+ */
+
+/**
+ * @callback ElementLangObserverHandler
+ * @param {ElementLangObserverRecord[]} records
+ * @returns {void}
+ */
+
+/**
+ * @typedef {object} ElementLangObserverRecord
+ * @property {Element} target - observer target
+ * @property {Node} causingElement - element that changed language
+ * @property {string} previousLanguage - previous lang value
+ * @property {string} language - new lang value
  */

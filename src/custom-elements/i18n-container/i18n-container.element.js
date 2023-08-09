@@ -1,4 +1,4 @@
-import { eventName, observeLangFromElement } from '../../utils/algorithms/observe-lang-from-element.util.js'
+import { ElementLangObserver } from '../../element-lang-observer/element-lang-observer.util.js'
 import { getLanguageFromElement } from '../../utils/algorithms/get-lang-from-element.util.js'
 import { isElementTranslatable } from '../../utils/algorithms/get-translate-from-element.util.js'
 import { getStoresInfoFromElement, setStoreFromElement, isStoreSetOnElement } from '../../utils/store-map/store-map.js'
@@ -14,9 +14,8 @@ const pendingElements = new WeakSet()
 export class I18nContainerElement extends HTMLElement {
   constructor () {
     super()
-    observeLangFromElement(this)
-    this.addEventListener(eventName, () => this.updateNodes())
-    observer.observe(this, mutationProperties)
+    langObserver.observe(this)
+    mutationObserver.observe(this, mutationProperties)
 
     const document = this.ownerDocument
     if (isStoreSetOnElement(document.documentElement)) {
@@ -289,7 +288,14 @@ timeTick().addCallback(({ untick, targets }) => {
   updateI18nOnElements(validTargets)
 })
 
-const observer = new MutationObserver(observerCallback)
+const mutationObserver = new MutationObserver(observerCallback)
+const langObserver = new ElementLangObserver(records => {
+  records.forEach(record => {
+    if (record.target instanceof I18nContainerElement) {
+      record.target.updateNodes()
+    }
+  })
+})
 
 /** @type {MutationObserverInit} */
 const mutationProperties = Object.freeze({ attributes: true, subtree: true })
