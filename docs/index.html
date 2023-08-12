@@ -153,7 +153,7 @@
 
             <pre><code class="language-js keep-markup">import { translate } from 'its-i18n'
 
-            translate("hello world")</code></pre>
+            await translate("hello world")</code></pre>
 
         </section>
         <section class="section section--examples">
@@ -623,6 +623,55 @@
                    
                         <p class="date" data-i18n="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}" data-i18n-tick-time></p>
                     </{{elementName}}>
+                </script>
+            </div>
+        </div>
+
+        <h3> Canvas </h3>
+
+
+        <div class="example example--relative-time">
+            <div class="example__view">
+                <canvas class="canvas-example"></canvas>
+            </div>
+            <div class="example__json">
+                <div class="example__tabs">
+                    <input type="radio" class="tab" name="example--tick-time" aria-label="pt.json" checked>
+                    <input type="radio" class="tab" name="example--tick-time" aria-label="en.json">
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                                "time since unix": "Unix Epoch aconteceu {'0' | relative time duration to seconds}",
+                                "relative time to unix: {unix timestamp}": "tempo relativo em unix: {0}, {0 | relative time duration to seconds}",
+                                "relative time to iso: {iso 8601}": "tempo relativo em IS0 8601: {0}, {0 | relative time duration to seconds}",
+                                "relative time to both: {date}": "tempo relativo em ambos: {0}, {0 | relative time duration to seconds}"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                                "time since unix": "Unix Epoch happened {'0' | relative time duration to seconds}",
+                                "relative time to unix: {unix timestamp}": "relative time to unix: {0}, {0 | relative time duration to seconds}",
+                                "relative time to iso: {iso 8601}": "relative time to IS0 8601: {0}, {0 | relative time duration to seconds}",
+                                "relative time to both {date}": "relative time to both: {0}, {0 | relative time duration to seconds}"
+                            }
+                        </script>
+                    </div>
+                  </div>
+            </div>
+            <div class="example__js">
+                <script type="text/plain" class="json-example">
+                    import { translate } from 'its-i18n'
+
+                    const canvas = document.querySelector('canvas.canvas-example')
+
+                    await translate("hello world")
+                </script>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                    <canvas class="canvas-example"></canvas>
                 </script>
             </div>
         </div>
