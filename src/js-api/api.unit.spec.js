@@ -1,6 +1,6 @@
 import { test } from '../../test-utils/unit/test.js'
 import { provide } from '../utils/i18n-importer/provider.js'
-import { i18n } from './api.js'
+import { translate } from './api.js'
 import { unsetStoreOnElement } from '../utils/store-map/store-map.js'
 
 const html = String.raw
@@ -21,12 +21,12 @@ test('an HTML page with i18n-locale-map links, i18n should get values from the p
   provide(i18nImporterImplFromLocation(location.href))
 
   await step('where "en" locale translations are loaded correctly ', async () => {
-    expect(await i18n('hello world')).toEqual('hello world')
+    expect(await translate('hello world')).toEqual('hello world')
   })
 
   await step('where "en-US" locale translations, while not being loaded, still gets from "en" locale ', async () => {
     document.documentElement.setAttribute('lang', 'es')
-    expect(await i18n('hello world')).toEqual('hola mundo')
+    expect(await translate('hello world')).toEqual('hola mundo')
   })
 
   delete globalThis.document

@@ -13,7 +13,7 @@ import { loadI18n } from '../html-loader/html-loader.js'
  * @param {Context} [context] - context for tranlations
  * @returns {Promise<string>}
  */
-export async function i18n (key, context) {
+export async function translate (key, context) {
   if (!context) {
     return await i18nFromBrowserLanguage(key)
   }

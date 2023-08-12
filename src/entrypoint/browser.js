@@ -1,6 +1,6 @@
 import '../utils/i18n-importer/implementation.js'
 import { I18nContainerElement as Element } from '../custom-elements/i18n-container/i18n-container.element.js'
-import { i18n } from '../js-api/api.js'
+export { translate } from '../js-api/api.js'
 
 const url = new URL(import.meta.url)
 const elementName = url.searchParams.get('named')
@@ -12,6 +12,5 @@ if (elementName) {
   }
 }
 
-export const translate = i18n
 export const I18nContainerElement = Element
 export default I18nContainerElement
