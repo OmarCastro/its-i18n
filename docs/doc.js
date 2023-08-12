@@ -1,6 +1,7 @@
 import { setStoreFromElement } from '../src/utils/store-map/store-map.js'
 import { i18nTanslationStore } from '../src/utils/store/translation-store.js'
 import '../src/utils/i18n-importer/implementation.js'
+import { translate } from '../src/js-api/api.js'
 import('../src/custom-elements/i18n-container/i18n-container.element').then(({ default: I18nElement }) => customElements.define('i18n-container', I18nElement))
 
 /** @typedef {import("../src/custom-elements/i18n-container/i18n-container.element").default} I18nElement */
@@ -103,3 +104,17 @@ function reactElementNameChange (event) {
 }
 
 document.body.addEventListener('input', (event) => { reactElementNameChange(event) })
+
+/** @type {HTMLCanvasElement} */
+const canvas = document.querySelector('canvas.canvas-example')
+
+async function paintHelloWorldCanvas () {
+  const context = canvas.getContext('2d')
+  context.clearRect(0, 0, canvas.width, canvas.height)
+  const text = await translate('hello world')
+  console.log(text)
+  context.font = '30px Arial'
+  context.fillText(text, 10, 50)
+}
+
+paintHelloWorldCanvas()
