@@ -2,6 +2,8 @@ import { setStoreFromElement } from '../src/utils/store-map/store-map.js'
 import { i18nTanslationStore } from '../src/utils/store/translation-store.js'
 import '../src/utils/i18n-importer/implementation.js'
 import { translate } from '../src/js-api/api.js'
+import { ElementLangObserver } from '../src/element-lang-observer/element-lang-observer.util.js'
+
 import('../src/custom-elements/i18n-container/i18n-container.element').then(({ default: I18nElement }) => customElements.define('i18n-container', I18nElement))
 
 /** @typedef {import("../src/custom-elements/i18n-container/i18n-container.element").default} I18nElement */
@@ -12,11 +14,12 @@ function updateStore (exampleObject, exampleContainer) {
     location: window.location.href,
     languages: Object.fromEntries(Object.entries(exampleObject).map(([lang, translations]) => [lang, { translations }])),
   })
-  console.log(store)
   setStoreFromElement(exampleContainer, store)
   /** @type {I18nElement | null}  */
   const node = exampleContainer.querySelector('i18n-container')
   node && node.updateNodes && node.updateNodes()
+  const canvas = exampleContainer.querySelector('canvas')
+  canvas && paintHelloWorldOnCanvas(canvas)
 }
 
 /**
@@ -91,6 +94,11 @@ document.querySelectorAll('.example').forEach(element => {
       const node = element.querySelector(selector)
       node && node.setAttribute('data-i18n', event.target.textContent)
     }
+    if (event.target.matches('.data-i18n--title-edit')) {
+      const selector = event.target.getAttribute('data-bind-selector') || '[data-i18n--title]'
+      const node = element.querySelector(selector)
+      node && node.setAttribute('data-i18n--title', event.target.textContent)
+    }
   })
 })
 
@@ -108,13 +116,22 @@ document.body.addEventListener('input', (event) => { reactElementNameChange(even
 /** @type {HTMLCanvasElement} */
 const canvas = document.querySelector('canvas.canvas-example')
 
-async function paintHelloWorldCanvas () {
+/** @param {HTMLCanvasElement} canvas */
+async function paintHelloWorldOnCanvas (canvas) {
   const context = canvas.getContext('2d')
   context.clearRect(0, 0, canvas.width, canvas.height)
-  const text = await translate('hello world')
-  console.log(text)
+  const text = await translate('hello world', { element: canvas })
   context.font = '30px Arial'
   context.fillText(text, 10, 50)
 }
 
-paintHelloWorldCanvas()
+const observer = new ElementLangObserver((records) => {
+  for (const record of records) {
+    if (record.target instanceof HTMLCanvasElement) {
+      paintHelloWorldOnCanvas(record.target)
+    }
+  }
+})
+
+paintHelloWorldOnCanvas(canvas)
+observer.observe(canvas)

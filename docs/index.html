@@ -632,46 +632,144 @@
 
         <div class="example example--canvas">
             <div class="example__view">
-                <canvas class="canvas-example"></canvas>
+                <i18n-container lang="pt-MZ">
+                    <canvas class="canvas-example" data-i18n--title="hello mouse"></canvas>
+                </i18n-container>
+
             </div>
             <div class="example__json">
                 <div class="example__tabs">
                     <input type="radio" class="tab" name="example--canvas" aria-label="pt.json" checked>
+                    <input type="radio" class="tab" name="example--canvas" aria-label="es.json">
                     <input type="radio" class="tab" name="example--canvas" aria-label="en.json">
                     <div class="editor tab-content" data-lang="pt">
                         <script type="text/plain" class="json-example">
                             {
-                                "time since unix": "Unix Epoch aconteceu {'0' | relative time duration to seconds}",
-                                "relative time to unix: {unix timestamp}": "tempo relativo em unix: {0}, {0 | relative time duration to seconds}",
-                                "relative time to iso: {iso 8601}": "tempo relativo em IS0 8601: {0}, {0 | relative time duration to seconds}",
-                                "relative time to both: {date}": "tempo relativo em ambos: {0}, {0 | relative time duration to seconds}"
+                              "hello world": "olá mundo",
+                              "hello mouse": "olá rato"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="es">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hola mundo",
+                              "hello mouse": "hola ratón"
                             }
                         </script>
                     </div>
                     <div class="editor tab-content" data-lang="en">
                         <script type="text/plain" class="json-example">
                             {
-                                "time since unix": "Unix Epoch happened {'0' | relative time duration to seconds}",
-                                "relative time to unix: {unix timestamp}": "relative time to unix: {0}, {0 | relative time duration to seconds}",
-                                "relative time to iso: {iso 8601}": "relative time to IS0 8601: {0}, {0 | relative time duration to seconds}",
-                                "relative time to both {date}": "relative time to both: {0}, {0 | relative time duration to seconds}"
+                              "hello world": "hello world",
+                              "hello mouse": "hello mouse"
+                            }
+                        </script>
+                    </div>
+        
+
+                  </div>
+            </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                    <{{elementName}} lang="{{pt-MZ¦lang}}">
+                        <canvas class="canvas-example" data-i18n--title="{{hello mouse¦data-i18n--title}}"></canvas>
+                    </{{elementName}}>
+
+                </script>
+            </div>
+            <div class="example__js">
+                <script type="text/plain" class="js-example">
+                    import { translate, ElementLangObserver } from 'its-i18n'
+
+                    const canvas = document.querySelector('canvas.canvas-example')
+
+                    async function paintHelloWorldOnCanvas (canvas) {
+                        const context = canvas.getContext('2d')
+                        context.clearRect(0, 0, canvas.width, canvas.height)
+                        const text = await translate('hello world', { element: canvas })
+                        context.font = '30px Arial'
+                        context.fillText(text, 10, 50)
+                    }
+                      
+                    const observer = new ElementLangObserver((records) => {
+                        for (const record of records) {
+                            if (record.target instanceof HTMLCanvasElement) {
+                                paintHelloWorldOnCanvas(record.target)
+                            }
+                        }
+                    })
+                      
+                    paintHelloWorldOnCanvas(canvas)
+                    observer.observe(canvas)
+                </script>
+            </div>
+        </div>
+
+        <h3> Canvas only</h3>
+
+
+        <div class="example example--canvas-only">
+            <div class="example__view">
+                <canvas class="canvas-example" lang="es"></canvas>
+            </div>
+            <div class="example__json">
+                <div class="example__tabs">
+                    <input type="radio" class="tab" name="example--canvas-only" aria-label="es.json" checked>
+                    <input type="radio" class="tab" name="example--canvas-only" aria-label="en.json">
+                    <input type="radio" class="tab" name="example--canvas-only" aria-label="pt.json">
+                    <div class="editor tab-content" data-lang="es">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hola mundo"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="en">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "hello world"
+                            }
+                        </script>
+                    </div>
+                    <div class="editor tab-content" data-lang="pt">
+                        <script type="text/plain" class="json-example">
+                            {
+                              "hello world": "olá mundo"
                             }
                         </script>
                     </div>
                   </div>
             </div>
+            <div class="example__html">
+                <script type="text/plain" class="html-example">
+                    <canvas class="canvas-example" lang="{{es¦lang}}"></canvas>
+                </script>
+            </div>
             <div class="example__js">
-                <script type="text/plain" class="json-example">
-                    import { translate } from 'its-i18n'
+                <script type="text/plain" class="js-example">
+                    import { translate, ElementLangObserver } from 'its-i18n'
 
                     const canvas = document.querySelector('canvas.canvas-example')
 
-                    await translate("hello world")
-                </script>
-            </div>
-            <div class="example__html">
-                <script type="text/plain" class="html-example">
-                    <canvas class="canvas-example"></canvas>
+                    async function paintHelloWorldOnCanvas (canvas) {
+                        const context = canvas.getContext('2d')
+                        context.clearRect(0, 0, canvas.width, canvas.height)
+                        const text = await translate('hello world', { element: canvas })
+                        context.font = '30px Arial'
+                        context.fillText(text, 10, 50)
+                    }
+                      
+                    const observer = new ElementLangObserver((records) => {
+                        for (const record of records) {
+                            if (record.target instanceof HTMLCanvasElement) {
+                                paintHelloWorldOnCanvas(record.target)
+                            }
+                        }
+                    })
+                      
+                    paintHelloWorldOnCanvas(canvas)
+                    observer.observe(canvas)
                 </script>
             </div>
         </div>

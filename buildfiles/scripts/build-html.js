@@ -46,6 +46,7 @@ const exampleCode = (strings, ...expr) => {
       .replace(/{{([^¦]+)¦lang¦([^}]+)}}/g, '<span contenteditable="true" class="lang-edit" data-bind-selector="$2">$1</span>')
       .replace(/{{([^¦]+)¦data-i18n}}/, '<span contenteditable="true" class="data-i18n-edit">$1</span>')
       .replace(/{{([^¦]+)¦data-i18n¦([^}]+)}}/g, '<span contenteditable="true" class="data-i18n-edit" data-bind-selector="$2">$1</span>')
+      .replace(/{{([^¦]+)¦data-i18n--title}}/, '<span contenteditable="true" class="data-i18n--title-edit">$1</span>')
     statement += strings[i + 1]
   }
 
