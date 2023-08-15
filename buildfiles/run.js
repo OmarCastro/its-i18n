@@ -6,7 +6,6 @@ import { resolve, basename } from 'node:path'
 import { existsSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { exec, spawn } from 'node:child_process'
-import { waitOneOfDirChanges } from './scripts/wait-dir-changes.js'
 const execPromise = promisify(exec)
 
 const projectPathURL = new URL('../', import.meta.url)
@@ -75,11 +74,14 @@ async function execDevEnvironment () {
   await openDevServer()
   await Promise.all([execlintCode(), execTests()])
   await execBuild()
-  while (true) {
-    await waitOneOfDirChanges(
-      new URL('src', projectPathURL),
-      new URL('docs', projectPathURL),
-    )
+
+  const watcher = watchDirs(
+    new URL('src', projectPathURL).pathname,
+    new URL('docs', projectPathURL).pathname,
+  )
+
+  for await (const change of watcher) {
+    console.log(`file "${change.filename}" changed`)
     await Promise.all([execBuild(), execTests()])
     await execlintCode()
   }
@@ -306,5 +308,15 @@ async function * getFiles (dir) {
     } else {
       yield res
     }
+  }
+}
+
+async function * watchDirs (...dirs) {
+  const { watch } = await import('chokidar')
+  let currentResolver = () => {}
+  console.log(`watching ${dirs}`)
+  watch(dirs).on('change', (filename, stats) => currentResolver({ filename, stats }))
+  while (true) {
+    yield new Promise(resolve => { currentResolver = resolve })
   }
 }
