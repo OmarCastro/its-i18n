@@ -239,19 +239,9 @@ async function checkNodeModulesFolder () {
   await cmdSpawn('npm ci')
 }
 
-function cmdSpawn (command, options) {
-  const p = spawn('/bin/sh', ['-c', command], options)
-  return new Promise((resolve) => {
-    p.stdout.on('data', (x) => {
-      process.stdout.write(x.toString())
-    })
-    p.stderr.on('data', (x) => {
-      process.stderr.write(x.toString())
-    })
-    p.on('exit', (code) => {
-      resolve(code)
-    })
-  })
+function cmdSpawn (command, options = {}) {
+  const p = spawn('/bin/sh', ['-c', command], { stdio: 'inherit', ...options })
+  return new Promise((resolve) => { p.on('exit', resolve) })
 }
 
 async function openDevServer () {
