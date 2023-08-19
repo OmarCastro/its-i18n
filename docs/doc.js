@@ -113,9 +113,6 @@ function reactElementNameChange (event) {
 
 document.body.addEventListener('input', (event) => { reactElementNameChange(event) })
 
-/** @type {HTMLCanvasElement} */
-const canvas = document.querySelector('canvas.canvas-example')
-
 /** @param {HTMLCanvasElement} canvas */
 async function paintHelloWorldOnCanvas (canvas) {
   const context = canvas.getContext('2d')
@@ -133,5 +130,7 @@ const observer = new ElementLangObserver((records) => {
   }
 })
 
-paintHelloWorldOnCanvas(canvas)
-observer.observe(canvas)
+document.querySelectorAll('canvas.canvas-example').forEach(canvas => {
+  paintHelloWorldOnCanvas(canvas)
+  observer.observe(canvas)
+})
