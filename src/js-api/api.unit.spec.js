@@ -8,6 +8,7 @@ const html = String.raw
 test('an HTML page with i18n-locale-map links, i18n should get values from the page', async ({ dom, step, expect }) => {
   const { document, location } = dom
   globalThis.document = document
+  unsetStoreOnElement(document.documentElement)
 
   document.documentElement.innerHTML = html`
       <head>
@@ -36,7 +37,7 @@ test('an HTML page with i18n-locale-map links, i18n should get values from the p
 const i18nImporterImplFromLocation = (locHref) => {
   function importFile(url, base){
     const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found`) }
+    if(!href.startsWith(locHref)){ throw Error(`${href} not found, base location is ${locHref}`) }
     const file = href.substring(locHref.length)
     if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
     return filesystem[file]
