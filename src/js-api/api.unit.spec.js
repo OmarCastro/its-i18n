@@ -15,9 +15,12 @@ test('an HTML page with i18n-locale-map links, i18n should get values from the p
         <link rel="i18n-locale-map" href="i18n-definition-map.json">
       </head>
       <body>
+        <canvas lang="it"></canvas>
         lorem ipsum
       <body>
     `
+
+  const canvas = document.querySelector('canvas')
 
   provide(i18nImporterImplFromLocation(location.href))
 
@@ -29,6 +32,36 @@ test('an HTML page with i18n-locale-map links, i18n should get values from the p
     document.documentElement.setAttribute('lang', 'es')
     expect(await translate('hello world')).toEqual('hola mundo')
   })
+
+  await step('where locale translations defined on canvas are loaded correctly', async () => {
+    expect(await translate('hello world', {element: canvas})).toEqual('ciao mondo')
+  })
+
+  await step('where specific locale translations loaded correctly', async () => {
+    expect(await translate('hello world', {locale: 'pt'})).toEqual('olá mundo')
+  })
+
+  delete globalThis.document
+  unsetStoreOnElement(document.documentElement)
+})
+
+test('an HTML page with i18n-locale-map links, i18n should load store when translating with custom locales', async ({ dom, step, expect }) => {
+  const { document, location } = dom
+  globalThis.document = document
+  unsetStoreOnElement(document.documentElement)
+
+  document.documentElement.innerHTML = html`
+      <head>
+        <link rel="i18n-locale-map" href="i18n-definition-map.json">
+      </head>
+      <body>
+        <canvas lang="it"></canvas>
+        lorem ipsum
+      <body>
+    `
+  provide(i18nImporterImplFromLocation(location.href))
+  expect(await translate('hello world', {locale: 'pt'})).toEqual('olá mundo')
+
 
   delete globalThis.document
   unsetStoreOnElement(document.documentElement)
