@@ -1,7 +1,7 @@
 {
-  "hello world": "hello world",
-  "I like red color": "I like red color",
-  "I counted 0 sheeps": "No sheeps found",
-  "I counted 1 sheeps": "I counted 1 sheep",
-  "I counted {number} sheeps": "I counted {0} sheeps"
+  "hello world": "ciao mondo",
+  "I like red color": "mi piace il colore rosso",
+  "I counted 0 sheeps": "nessuna pecora trovata",
+  "I counted 1 sheeps": "ho contato 1 pecora",
+  "I counted {number} sheeps": "ho contato {0} pecore"
 }
