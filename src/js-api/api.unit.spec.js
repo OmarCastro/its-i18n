@@ -1,11 +1,12 @@
 import { test } from '../../test-utils/unit/test.js'
 import { provide } from '../utils/i18n-importer/provider.js'
 import { translate } from './api.js'
+import { i18nTanslationStore } from '../utils/store/translation-store.js'
 import { unsetStoreOnElement } from '../utils/store-map/store-map.js'
 
 const html = String.raw
 
-test('an HTML page with i18n-locale-map links, i18n should get values from the page', async ({ dom, step, expect }) => {
+test('Given an HTML page with i18n-locale-map links, i18n should get values from the page', async ({ dom, step, expect }) => {
   const { document, location } = dom
   globalThis.document = document
   unsetStoreOnElement(document.documentElement)
@@ -41,11 +42,15 @@ test('an HTML page with i18n-locale-map links, i18n should get values from the p
     expect(await translate('hello world', {locale: 'pt'})).toEqual('olá mundo')
   })
 
+  await step('and return same result if not found correctly', async () => {
+    expect(await translate('not found', {locale: 'pt'})).toEqual('not found')
+  })
+
   delete globalThis.document
   unsetStoreOnElement(document.documentElement)
 })
 
-test('an HTML page with i18n-locale-map links, i18n should load store when translating with custom locales', async ({ dom, step, expect }) => {
+test('Given an HTML page with i18n-locale-map links, i18n should load store when translating with custom locales', async ({ dom, step, expect }) => {
   const { document, location } = dom
   globalThis.document = document
   unsetStoreOnElement(document.documentElement)
@@ -61,10 +66,28 @@ test('an HTML page with i18n-locale-map links, i18n should load store when trans
     `
   provide(i18nImporterImplFromLocation(location.href))
   expect(await translate('hello world', {locale: 'pt'})).toEqual('olá mundo')
+  expect(await translate('not found', {locale: 'pt'})).toEqual('not found')
+
 
 
   delete globalThis.document
   unsetStoreOnElement(document.documentElement)
+})
+
+test('Given a store, translate() should search only from that store', async ({ dom, step, expect }) => {
+  const location = 'http://localhost/'
+
+  provide(i18nImporterImplFromLocation(location))
+  const store = i18nTanslationStore()
+  store.loadTranslations({
+    location: location+'i18n-definition-map.json',
+    languages: await filesystem['i18n-definition-map.json']
+  })
+  expect(await translate('hello world', {locale: 'pt', store})).toEqual('olá mundo')
+  expect(await translate('not found', {locale: 'pt', store})).toEqual('not found')
+
+
+  delete globalThis.document
 })
 
 const i18nImporterImplFromLocation = (locHref) => {
