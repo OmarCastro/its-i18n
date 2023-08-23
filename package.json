@@ -1,6 +1,6 @@
 {
   "name": "its-i18n",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "An i18n web component",
   "main": "src/entrypoint/node.js",
   "type": "module",
@@ -8,7 +8,7 @@
     "README.md",
     "CHANGELOG.md",
     "src",
-    "build/dist",
+    "dist",
     "test-utils/",
     "jsconfig.json"
   ],
@@ -31,11 +31,11 @@
   "devDependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
     "@codemirror/lang-json": "^6.0.1",
-    "@playwright/test": "^1.35.1",
+    "@playwright/test": "^1.37.1",
     "badge-maker": "^3.3.1",
     "c8": "^8.0.0",
     "codemirror": "^6.0.1",
-    "esbuild": "^0.18.11",
+    "esbuild": "^0.19.2",
     "eslint": "^8.44.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-jsdoc": "^46.4.3",
@@ -45,7 +45,7 @@
     "image-size": "^1.0.2",
     "jsdom": "^22.1.0",
     "live-server": "^1.2.2",
-    "marked": "^5.1.1",
+    "marked": "^7.0.4",
     "mkcert": "^1.5.1",
     "prismjs": "^1.29.0",
     "typescript": "^5.1.6"
