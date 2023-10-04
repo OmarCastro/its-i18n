@@ -139,7 +139,7 @@
 
             ### Template keys
 
-            I18n key can match multiple translation, because of that, conflict may arise, to handle it. Prioritization
+            I18n key can match multiple translations, because of that, conflict may arise, to handle it. Prioritization
             rules are made to choose which of the translation key are to be used
 
             ### 1 to 1 mapping
@@ -314,7 +314,7 @@
         <h3> Multiple languages </h3>
 
         <p ss:markdown>
-            The language used is based on the lang attribute. It will find the lang on the element and it's ancestors until the document root, the &lt;html> element.
+            The language used is based on the `lang` attribute. It will find the `lang` on the element and it's ancestors until the document root, the `&lt;html>` element.
             If not found it will choose the language defined in the browser using `navigator.language`
         </p>
 
@@ -388,7 +388,35 @@
         </div>
 
 
-        <h3> Pluralization </h3>
+        <h3> Pluralization & Specificity </h3>
+
+        <p ss:markdown>
+            There are use cases when appliyng singular and plural nouns based of the amount used to identify it.
+            
+            Due to the possibility of template keys, it is easy to apply pluralization, simply add the key match with higher specificity
+            that will be chosen in case of conflicting key match
+
+            #### Specificity
+
+            Due to template keys, one i18n key can match multiple translations, making it possible to have conflicts.
+            A conflict happens when one translation matches multiple keys. To solve conflicts, prioritization rules are made to choose which
+            of the translation key are to be used one of them is calculating the specificity of the key, the more specific the key is, the
+            higher the priority.
+
+            The key specificity is calculated in the following 2 variables
+            1. amount of match groups
+            2. specificty of each match group
+
+            A match group, is the text between curly brackets ({}), as long as opening bracket is not escaped. So, when comparing 2 i18n keys,
+            the key with less match groups will have higher priority, indepenently of the specificty of each match group. 
+            When the amount of keys are equal, the it will verify the specificty value of each match group. Each match group has a defined 
+            specificity value defined based on the specificity, e.g. {number} has a higher value than {}
+
+            In the unlikely case that both the match group amount and their specificty are equal, the i18n key defined later wins
+
+            The next example show the use of specificity to apply i18n pluraliztion.
+        </p>
+
 
         <div class="example example--pluralization">
             <div class="example__view">
@@ -431,6 +459,18 @@
         </div>
 
         <h3> Time </h3>
+
+        <p ss:markdown>
+            Its-i18n also support time on i18n keys. The match groups that get the time are 3: 
+            - `{unix timestamp}` - macthes date as time since UNIX Epoch in seconds
+            - `{iso 8601}` - matches dates in ISO 8601 format
+            - `{date}` - matches both, checks first for unix timestamp, then for ISO 8601 format
+
+            There are time variants by adding "past" and "future" on the prefix the the following examples
+            - `{past unix timestamp}` - macthes date in the past as time since UNIX Epoch in seconds
+            - `{future iso 8601}` - matches dates the future, in ISO 8601 format
+
+        </p>
 
 
         <div class="example example--date">
