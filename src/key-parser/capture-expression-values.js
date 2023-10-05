@@ -1,5 +1,5 @@
 import { isNumeric } from '../utils/algorithms/number.utils.js'
-import { parseISO8601 } from '../utils/algorithms/time.utils.js'
+import { parseISO8601, timeNowFrame } from '../utils/algorithms/time.utils.js'
 import { formatters } from './expression-formatters.js'
 
 const defaultFormat = formatters['as is'].format
@@ -97,37 +97,88 @@ const relativeTimeCaptureExpresionPrefix = {
   },
 }
 
+/** @type {Record<string, TimeIntervalCaptureExpresionPrefix>} */
 const timeIntervalCaptureExpresionPrefix = {
   millisecond: {
     additionalvalue: 33,
+    currentTimeCompare: (text) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const timeNow = timeNowFrame()
+      return timeNow - date.valueOf()
+    },
   },
 
   second: {
     additionalvalue: 30,
+    currentTimeCompare: (text) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const timeNow = timeNowFrame()
+      return Math.floor(timeNow / 1000) - Math.floor(date.valueOf() / 1000)
+    },
   },
 
   minute: {
     additionalvalue: 29,
+    currentTimeCompare: (text) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const timeNow = timeNowFrame()
+      return Math.floor(timeNow / 60_000) - Math.floor(date.valueOf() / 60_000)
+    },
   },
 
   hour: {
     additionalvalue: 28,
+    currentTimeCompare: (text) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const timeNow = timeNowFrame()
+      return Math.floor(timeNow / 360_000) - Math.floor(date.valueOf() / 360_000)
+    },
   },
 
   day: {
     additionalvalue: 27,
+    currentTimeCompare: (text) => {
+      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const timeNow = timeNowFrame()
+      return Math.floor(timeNow / 86_400_000) - Math.floor(date.valueOf() / 86_400_000)
+    },
   },
 
   week: {
     additionalvalue: 26,
+    currentTimeCompare: (text) => {
+      const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
+      const dateNow = new Date(timeNowFrame())
+      const yearNow = dateNow.getFullYear()
+      const yeardiff = yearNow - date.getFullYear()
+      if (yeardiff !== 0) { return yeardiff }
+      const onejan = new Date(yearNow, 0, 1)
+      const onejanDay = onejan.getDay()
+      const onejanTimeStamp = onejan.valueOf()
+      const weekNow = Math.ceil((((dateNow.valueOf() - onejanTimeStamp) / 86400000) + onejanDay + 1) / 7)
+      const week = Math.ceil((((date.valueOf() - onejanTimeStamp) / 86400000) + onejanDay + 1) / 7)
+      return weekNow - week
+    },
+
   },
 
   month: {
     additionalvalue: 25,
+    currentTimeCompare: (text) => {
+      const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
+      const dateNow = new Date(timeNowFrame())
+      return dateNow.getFullYear() * 12 + dateNow.getMonth() - date.getFullYear() * 12 + date.getMonth()
+    },
   },
 
   year: {
     additionalvalue: 24,
+    currentTimeCompare: (text) => {
+      const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
+      const dateNow = new Date(timeNowFrame())
+      return dateNow.getFullYear() - date.getFullYear()
+    },
+
   },
 }
 
@@ -189,3 +240,10 @@ export const captureExpressions = {
 /** @typedef {import('./expression-formatters.js').FormatCall} FormatCall */
 /** @typedef {(text: string) => boolean} MatchPredicate */
 /** @typedef {(...parameters: string[]) => MatchPredicate} MatchPredicateCreator */
+
+/**
+ * @typedef {object} TimeIntervalCaptureExpresionPrefix
+ *
+ * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
+ * @property {(text: string) => number} currentTimeCompare - compare text to current time. returns negative number when time is in the past, positive in the future, 0 in the present
+ */
