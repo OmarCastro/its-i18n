@@ -82,18 +82,30 @@ const baseTimeCaptureExpressions = {
     isConstant: false,
   },
 }
-
+/** @type {Record<string, RelativeTimeCaptureExpresionPrefix>} */
 const relativeTimeCaptureExpresionPrefix = {
   past: {
     additionalvalue: 50,
+    defaultMatchPredicate: (prev) => () => {
+        const predicate = prev()
+        return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) <= 0
+    }
   },
 
   present: {
     additionalvalue: 100,
-  },
+    defaultMatchPredicate: (prev) => () => {
+      const predicate = prev()
+      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.second.currentTimeCompare(text) == 0
+    }
+},
 
   future: {
     additionalvalue: 50,
+    defaultMatchPredicate: (prev) => () => {
+      const predicate = prev()
+      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) > 0
+    }
   },
 }
 
@@ -102,25 +114,25 @@ const timeIntervalCaptureExpresionPrefix = {
   millisecond: {
     additionalvalue: 33,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return timeNow - date.valueOf()
+      return timeNow - date
     },
   },
 
   second: {
     additionalvalue: 30,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return Math.floor(timeNow / 1000) - Math.floor(date.valueOf() / 1000)
+      return Math.floor(timeNow / 1000) - Math.floor(date / 1000)
     },
   },
 
   minute: {
     additionalvalue: 29,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
       return Math.floor(timeNow / 60_000) - Math.floor(date.valueOf() / 60_000)
     },
@@ -129,7 +141,7 @@ const timeIntervalCaptureExpresionPrefix = {
   hour: {
     additionalvalue: 28,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
       return Math.floor(timeNow / 360_000) - Math.floor(date.valueOf() / 360_000)
     },
@@ -194,6 +206,7 @@ function buildTimeCaptureExpressions () {
       const infoWithRelTime = {
         ...baseInfo,
         value: baseInfo.value + relativePrefixInfo.additionalvalue,
+        matchPredicate: relativePrefixInfo.defaultMatchPredicate(baseInfo.matchPredicate)
       }
       result.push([
         `${relativePrefixKey} ${baseKey}`,
@@ -246,4 +259,11 @@ export const captureExpressions = {
  *
  * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {(text: string) => number} currentTimeCompare - compare text to current time. returns negative number when time is in the past, positive in the future, 0 in the present
+ */
+
+/**
+ * @typedef {object} RelativeTimeCaptureExpresionPrefix
+ *
+ * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
+ * @property {(prev: MatchPredicateCreator) => MatchPredicateCreator} defaultMatchPredicate - predicate to use when no no time unit is defined (e.g. present **day** date).
  */
