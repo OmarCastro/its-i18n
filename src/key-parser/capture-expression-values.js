@@ -87,25 +87,25 @@ const relativeTimeCaptureExpresionPrefix = {
   past: {
     additionalvalue: 50,
     defaultMatchPredicate: (prev) => () => {
-        const predicate = prev()
-        return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) <= 0
-    }
+      const predicate = prev()
+      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) <= 0
+    },
   },
 
   present: {
     additionalvalue: 100,
     defaultMatchPredicate: (prev) => () => {
       const predicate = prev()
-      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.second.currentTimeCompare(text) == 0
-    }
-},
+      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.second.currentTimeCompare(text) === 0
+    },
+  },
 
   future: {
     additionalvalue: 50,
     defaultMatchPredicate: (prev) => () => {
       const predicate = prev()
       return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) > 0
-    }
+    },
   },
 }
 
@@ -114,45 +114,45 @@ const timeIntervalCaptureExpresionPrefix = {
   millisecond: {
     additionalvalue: 33,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
+      const timeText = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return timeNow - date
+      return timeText - timeNow
     },
   },
 
   second: {
     additionalvalue: 30,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
+      const timeText = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return Math.floor(timeNow / 1000) - Math.floor(date / 1000)
+      return Math.floor(timeText / 1000) - Math.floor(timeNow / 1000)
     },
   },
 
   minute: {
     additionalvalue: 29,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
+      const timeText = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return Math.floor(timeNow / 60_000) - Math.floor(date.valueOf() / 60_000)
+      return Math.floor(timeText / 60_000) - Math.floor(timeNow / 60_000)
     },
   },
 
   hour: {
     additionalvalue: 28,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
+      const timeText = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return Math.floor(timeNow / 360_000) - Math.floor(date.valueOf() / 360_000)
+      return Math.floor(timeText / 360_000) - Math.floor(timeNow / 360_000)
     },
   },
 
   day: {
     additionalvalue: 27,
     currentTimeCompare: (text) => {
-      const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)
+      const timeText = isNumeric(text) ? new Date((+text) * 1000).valueOf() : parseISO8601(text)
       const timeNow = timeNowFrame()
-      return Math.floor(timeNow / 86_400_000) - Math.floor(date.valueOf() / 86_400_000)
+      return Math.floor(timeText / 86_400_000) - Math.floor(timeNow / 86_400_000)
     },
   },
 
@@ -162,14 +162,14 @@ const timeIntervalCaptureExpresionPrefix = {
       const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
       const dateNow = new Date(timeNowFrame())
       const yearNow = dateNow.getFullYear()
-      const yeardiff = yearNow - date.getFullYear()
+      const yeardiff = date.getFullYear() - yearNow
       if (yeardiff !== 0) { return yeardiff }
       const onejan = new Date(yearNow, 0, 1)
       const onejanDay = onejan.getDay()
       const onejanTimeStamp = onejan.valueOf()
       const weekNow = Math.ceil((((dateNow.valueOf() - onejanTimeStamp) / 86400000) + onejanDay + 1) / 7)
       const week = Math.ceil((((date.valueOf() - onejanTimeStamp) / 86400000) + onejanDay + 1) / 7)
-      return weekNow - week
+      return week - weekNow
     },
 
   },
@@ -179,7 +179,7 @@ const timeIntervalCaptureExpresionPrefix = {
     currentTimeCompare: (text) => {
       const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
       const dateNow = new Date(timeNowFrame())
-      return dateNow.getFullYear() * 12 + dateNow.getMonth() - date.getFullYear() * 12 + date.getMonth()
+      return date.getFullYear() * 12 + date.getMonth() - dateNow.getFullYear() * 12 + dateNow.getMonth()
     },
   },
 
@@ -188,7 +188,7 @@ const timeIntervalCaptureExpresionPrefix = {
     currentTimeCompare: (text) => {
       const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
       const dateNow = new Date(timeNowFrame())
-      return dateNow.getFullYear() - date.getFullYear()
+      return date.getFullYear() - dateNow.getFullYear()
     },
 
   },
@@ -206,7 +206,7 @@ function buildTimeCaptureExpressions () {
       const infoWithRelTime = {
         ...baseInfo,
         value: baseInfo.value + relativePrefixInfo.additionalvalue,
-        matchPredicate: relativePrefixInfo.defaultMatchPredicate(baseInfo.matchPredicate)
+        matchPredicate: relativePrefixInfo.defaultMatchPredicate(baseInfo.matchPredicate),
       }
       result.push([
         `${relativePrefixKey} ${baseKey}`,
@@ -258,7 +258,7 @@ export const captureExpressions = {
  * @typedef {object} TimeIntervalCaptureExpresionPrefix
  *
  * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
- * @property {(text: string) => number} currentTimeCompare - compare text to current time. returns negative number when time is in the past, positive in the future, 0 in the present
+ * @property {(timeStr: string) => number} currentTimeCompare - compare text formatted date to current time. returns negative number when `timeStr` is in the past, positive in the future, 0 in the present
  */
 
 /**
