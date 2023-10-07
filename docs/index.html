@@ -586,6 +586,16 @@
 
         <h3> Relative Time Duration </h3>
 
+        <p ss:markdown>
+            While `relative time` is usefull for most use cases. There are 2 use cases it doesn't solve
+
+            1. Showing only the duration (e.g. "3 days" instead of "in 3 days")
+            2. Show the duration in parts (e.g. "3 days and 3 hours" instead of "3 days")
+
+            That's where `relative time duration` formatter comes in, by default it shows only the realtive time duration.
+            It is possible to define the highest or lowest time unit to use when defining the duration
+        </p>
+
 
         <div class="example example--relative-time-duration">
             <div class="example__view">
@@ -594,6 +604,9 @@
                     <p class="unix-timestamp" data-i18n="relative time to unix: 1686862473"></p>
                     <p class="iso-8601" data-i18n="relative time to iso: 2023-06-15T20:55:37.313Z"></p>
                     <p class="date" data-i18n="relative time to both: 2024-01-01T00:00:00.000Z"></p>
+                    <p class="date-in-days" data-i18n="time in days: 2024-01-01T00:00:00.000Z"></p>
+                    <p class="date-to-days" data-i18n="time to days: 2024-01-01T00:00:00.000Z"></p>
+
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -606,7 +619,9 @@
                                 "time since unix": "Unix Epoch aconteceu há {'0' | relative time duration} atrás",
                                 "relative time to unix: {unix timestamp}": "tempo relativo em unix: {0}, {0 | relative time duration}",
                                 "relative time to iso: {iso 8601}": "tempo relativo em IS0 8601: {0}, {0 | relative time duration}",
-                                "relative time to both: {date}": "tempo relativo em ambos: {0}, {0 | relative time duration}"
+                                "relative time to both: {date}": "tempo relativo em ambos: {0}, {0 | relative time duration}",
+                                "time in days: {date}": "tempo em dias: {0}, {0 | relative time duration in days}",
+                                "time to days: {date}": "tempo até das: {0}, {0 | relative time duration to days}"
                             }
                         </script>
                     </div>
@@ -616,7 +631,9 @@
                                 "time since unix": "Unix Epoch happened {'0' | relative time duration} ago",
                                 "relative time to unix: {unix timestamp}": "relative time to unix: {0}, {0 | relative time duration}",
                                 "relative time to iso: {iso 8601}": "relative time to IS0 8601: {0}, {0 | relative time duration}",
-                                "relative time to both {date}": "relative time to both: {0}, {0 | relative time duration}"
+                                "relative time to both {date}": "relative time to both: {0}, {0 | relative time duration}",
+                                "time in days: {date}": "time in days: {0}, {0 | relative time duration in days}",
+                                "time to days: {date}": "time to days: {0}, {0 | relative time duration to days}"
                             }
                         </script>
                     </div>
@@ -633,7 +650,11 @@
                         <p class="iso-8601" data-i18n="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
                    
                         <p class="date" data-i18n="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}"></p>
-                    </{{elementName}}>
+
+                        <p class="date" data-i18n="{{time in days: 2024-01-01T00:00:00.000Z¦data-i18n¦.date-in-days}}"></p>
+
+                        <p class="date" data-i18n="{{time to days: 2024-01-01T00:00:00.000Z¦data-i18n¦.date-to-days}}"></p>
+                        </{{elementName}}>
                 </script>
             </div>
         </div>
