@@ -204,12 +204,13 @@ function relativeTimeFormat (locale, d1, d2 = timeNowFrame()) {
  * @returns {string} formatted relative time
  */
 function relativeTimeDurationFormat (locale, d1, d2 = timeNowFrame()) {
-  const elapsed = d1 - d2
+  // "Math.abs" accounts for both "past" & "future" scenarios
+  const elapsed = Math.abs(d1 - d2)
 
   for (const [unit, duration] of durationUnitsEntries) {
     // "Math.abs" accounts for both "past" & "future" scenarios
-    if (Math.abs(elapsed) > duration) {
-      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(Math.abs(elapsed) / duration))
+    if (elapsed > duration) {
+      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsed / duration))
     }
   }
   return Intl.NumberFormat(locale.baseName, { style: 'unit', unit: 'seconds', unitDisplay: 'long' }).format(0)
@@ -238,7 +239,9 @@ function relativeTimeFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
 }
 
 /**
- * Shows relative time based on locale in units, without any time adverbs such as "ago" (2 minutes ago), "in" (in 5 minutes), tomorrow, yesterday, etc
+ * Shows relative time based on locale in units, without any time adverbs such as "ago" (2 minutes ago), "in" (in 5 minutes), tomorrow, yesterday, etc...
+ *
+ *  When the unit is zero it applies the smaller unit to
  *
  * @param {Intl.Locale} locale
  * @param {number} d1 target timestamp
@@ -247,12 +250,13 @@ function relativeTimeFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
  * @returns {string} formatted relative time
  */
 function relativeTimeDurationFormatInUnit (locale, unit, d1, d2 = timeNowFrame()) {
-  const elapsed = d1 - d2
+  // "Math.abs" accounts for both "past" & "future" scenarios
+  const elapsed = Math.abs(d1 - d2)
 
   for (const [durationUnit, duration] of durationUnitsEntries) {
-    // "Math.abs" accounts for both "past" & "future" scenarios
     if (durationUnit === unit) {
-      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(Math.abs(elapsed) / duration))
+      if (elapsed < duration) { break }
+      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsed / duration))
     }
   }
   return relativeTimeDurationFormat(locale, d1, d2)
@@ -268,30 +272,25 @@ function relativeTimeDurationFormatInUnit (locale, unit, d1, d2 = timeNowFrame()
  * @returns {string} formatted relative time
  */
 function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
-  let elapsed = d1 - d2
+  // "Math.abs" accounts for both "past" & "future" scenarios
+  let elapsed = Math.abs(d1 - d2)
   const listFormatter = new Intl.ListFormat(locale.baseName, { style: 'long', type: 'conjunction' })
 
-  /**
-   *
-   * @param {string} unit
-   * @param {Intl.NumberFormatOptions["unitDisplay"]} unitDisplay
-   * @returns
-   */
-  const timeUnitFormatter = (unit, unitDisplay = 'long') => Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay })
+  /** @param {string} unit */
+  const timeUnitFormatter = (unit) => Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' })
   const list = []
 
   for (const [unit, duration] of durationUnitsEntries) {
-    // "Math.abs" accounts for both "past" & "future" scenarios
-    if (Math.abs(elapsed) > duration) {
-      const amount = Math.floor(Math.abs(elapsed) / duration)
+    if (elapsed > duration) {
+      const amount = Math.floor(elapsed / duration)
       list.push(timeUnitFormatter(unit).format(amount))
-      elapsed -= amount * duration * Math.sign(elapsed)
+      elapsed -= amount * duration
     }
     if (unit === toUnit) {
       if (list.length) {
         break
       }
-      return relativeTimeFormat(locale, d1, d2)
+      return relativeTimeDurationFormat(locale, d1, d2)
     }
   }
   return listFormatter.format(list)
