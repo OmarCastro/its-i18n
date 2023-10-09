@@ -119,6 +119,7 @@ async function paintHelloWorldOnCanvas (canvas) {
   context.clearRect(0, 0, canvas.width, canvas.height)
   const text = await translate('hello world', { element: canvas })
   context.font = '30px Arial'
+  context.fillStyle = 'green'
   context.fillText(text, 10, 50)
 }
 

@@ -7,9 +7,9 @@
 /*
  Light Theme
  */
- .example__view, pre, .cm-editor, .cm-view{
+ .example__view, pre, .cm-editor, .cm-view, code.language-none{
     --code-color: #545454;
-    --code-bg: #fefefe;
+    --code-bg: #f3f3f3;
     --code-bg-highlight: #00000020;
     --code-bg-selection: #d7d4f0;
 
@@ -17,18 +17,18 @@
     --punct-color: #545454;
     --prop-color:#007299;
     --bool-color:#008000;
-    --str-color:#aa5d00;
+    --str-color:#995500;
     --oper-color:#008000;
-    --func-color:#aa5d00;
+    --func-color:#995500;
     --kword-color:#008000;
-    --regex-color:#aa5d00;
+    --regex-color:#995500;
  }
  
  /*
  Dark Theme
  */
  @media (prefers-color-scheme: dark) {
-  .example__view, pre, .cm-editor, .cm-view{
+  .example__view, pre, .cm-editor, .cm-view, code.language-none{
         --code-color: #f8f8f2;
         --code-bg-highlight: #ffffff20;
         --code-bg: #2b2b2b;

@@ -83,10 +83,6 @@ queryAll('script.js-example').forEach(element => {
   element.replaceWith(pre)
 })
 
-queryAll('code').forEach(element => {
-  Prism.highlightElement(element, false)
-})
-
 queryAll('svg[ss:include]').forEach(element => {
   const ssInclude = element.getAttribute('ss:include')
   const svgText = fs.readFileSync(`${docsOutputPath}/${ssInclude}`, 'utf8')
@@ -96,6 +92,10 @@ queryAll('svg[ss:include]').forEach(element => {
 queryAll('[ss:markdown]').forEach(element => {
   const md = dedent(element.innerHTML)
   element.innerHTML = marked(md, { mangle: false, headerIds: false })
+})
+
+queryAll('code').forEach(element => {
+  Prism.highlightElement(element, false)
 })
 
 queryAll('img[ss:size]').forEach(element => {

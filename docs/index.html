@@ -49,7 +49,7 @@
         <section class="section section--introduction">
             <h2> Introducion </h2>
 
-            "It's i18n" is a web component that intenationalizes input content
+            "It's i18n" is a web component that intenationalizes html content
 
         </section>
 
@@ -314,7 +314,7 @@
         <h3> Multiple languages </h3>
 
         <p ss:markdown>
-            The language used is based on the `lang` attribute. It will find the `lang` on the element and it's ancestors until the document root, the `&lt;html>` element.
+            The language used is based on the `lang` attribute. It will find the `lang` on the element and it's ancestors until the document root, the <code>&lt;html></code> element.
             If not found it will choose the language defined in the browser using `navigator.language`
         </p>
 
@@ -410,7 +410,7 @@
             A capture expressions, is the text between curly brackets ({}), as long as opening bracket is not escaped. So, when comparing 2 i18n keys,
             the key with less capture expressions will have higher priority, indepenently of the specificty of each one. 
             When the amount of capture expressions are equal, it will verify the specificty value of each capture expression. Each on has a defined 
-            specificity value defined based on the specificity, e.g. {number} has a higher value than {}
+            specificity value defined based on the specificity, e.g. `{number}` has a higher value than `{}`
 
             In the unlikely case that both calculated specificity has the same value, the i18n key defined later wins
 
@@ -775,6 +775,7 @@
                         context.clearRect(0, 0, canvas.width, canvas.height)
                         const text = await translate('hello world', { element: canvas })
                         context.font = '30px Arial'
+                        context.fillStyle = 'green'
                         context.fillText(text, 10, 50)
                     }
                       
@@ -843,6 +844,7 @@
                         context.clearRect(0, 0, canvas.width, canvas.height)
                         const text = await translate('hello world', { element: canvas })
                         context.font = '30px Arial'
+                        context.fillStyle = 'green'
                         context.fillText(text, 10, 50)
                     }
                       
