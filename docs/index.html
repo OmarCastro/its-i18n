@@ -661,6 +661,14 @@
 
         <h3> Tick Time </h3>
 
+        <p ss:markdown>
+            You can set a relative time to seconds, but showing seconds without updating it regularly does not help, that's where
+            `data-i18n-tick-time` comes from, it updates the i18n content when outdated
+
+            The next example shows the relative formatter updating every second
+        </p>
+
+
 
         <div class="example example--relative-time">
             <div class="example__view">
@@ -715,6 +723,11 @@
 
         <h3> Canvas </h3>
 
+        Its-i18n is meant to be applied for all HTML elements, and canvas is an HTML element, but you need Javascript to paint on the canvas.
+
+        For that reason Its-i18n provides a JS API to apply i18n inside canvas.
+
+        The next example shows the usage of the JS api that reacts to canvas language change
 
         <div class="example example--canvas">
             <div class="example__view">
@@ -794,6 +807,10 @@
         </div>
 
         <h3> Canvas only</h3>
+
+        By using the JS API, the canvas element do not necessarily need to be inside the component. 
+        
+        The next example shows the canvas working without being wrapped in the component
 
 
         <div class="example example--canvas-only">
