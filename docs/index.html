@@ -79,7 +79,7 @@
             </p>
             <script type="text/plain" class="html-example">
                 <!-- the pattern is generally key, end of key char (in this case the ;, or be in parentesis), list of params-->
-                <button data-i18n="hello mouse; param1, param2"></button>
+                <button data-i18n-text="hello mouse; param1, param2"></button>
             </script>
             <p>
                 Which is why most translations are done using javascript in the browser, the idea of this component is to be able to apply i18n with HTML only.
@@ -185,7 +185,7 @@
         <div class="example example--basic">
             <div class="example__view">
                 <i18n-container lang="es">
-                    <button data-i18n--title="hello mouse" data-i18n="hello world">hover me</button>
+                    <button data-i18n--title="hello mouse" data-i18n-text="hello world">hover me</button>
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -229,7 +229,7 @@
                         </head>
                         <body>
                             <{{elementName}} lang="{{es¦lang}}">
-                                <button data-i18n--title="hello mouse" data-i18n="{{hello world¦data-i18n}}">hover me</button>
+                                <button data-i18n--title="hello mouse" data-i18n-text="{{hello world¦data-i18n}}">hover me</button>
                             </{{elementName}}>
                         </body>
                     </html>
@@ -249,7 +249,7 @@
         <div class="example example--definition-import">
             <div class="example__view">
                 <i18n-container lang="es">
-                    <pre data-i18n--title="hello mouse" data-i18n="hello world">hover me</pre>
+                    <pre data-i18n--title="hello mouse" data-i18n-text="hello world">hover me</pre>
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -301,7 +301,7 @@
                         </head>
                         <body>
                             <{{elementName}} lang="{{es¦lang}}">
-                                <pre data-i18n--title="hello mouse" data-i18n="{{hello world¦data-i18n}}">hover me</pre>
+                                <pre data-i18n--title="hello mouse" data-i18n-text="{{hello world¦data-i18n}}">hover me</pre>
                             </{{elementName}}>
                         </body>
                     </html>
@@ -322,13 +322,13 @@
             <div class="example__view">
                 <i18n-container>
                     <div class="portuguese" lang="pt">
-                        <span data-i18n--title="hello mouse" data-i18n="I am portuguese"></span>
+                        <span data-i18n--title="hello mouse" data-i18n-text="I am portuguese"></span>
                     </div>
                     <div class="spanish" lang="es">
-                        <span data-i18n--title="hello mouse" data-i18n="I am spanish"></span>
+                        <span data-i18n--title="hello mouse" data-i18n-text="I am spanish"></span>
                     </div>
                     <div class="english" lang="en">
-                        <span data-i18n--title="hello mouse" data-i18n="I am english"></span>
+                        <span data-i18n--title="hello mouse" data-i18n-text="I am english"></span>
                     </div>
                 </i18n-container>
             </div>
@@ -373,13 +373,13 @@
                 <script type="text/plain" class="html-example">
                     <{{elementName}}>
                         <div class="portuguese" lang="{{pt¦lang¦.portuguese}}">
-                            <span data-i18n--title="hello mouse" data-i18n="I am portuguese"></span>
+                            <span data-i18n--title="hello mouse" data-i18n-text="I am portuguese"></span>
                         </div>
                         <div class="spanish" lang="{{es¦lang¦.spanish}}">
-                            <span data-i18n--title="hello mouse" data-i18n="I am spanish"></span>
+                            <span data-i18n--title="hello mouse" data-i18n-text="I am spanish"></span>
                         </div>
                         <div class="english" lang="{{en¦lang¦.english}}">
-                            <span data-i18n--title="hello mouse" data-i18n="I am english"></span>
+                            <span data-i18n--title="hello mouse" data-i18n-text="I am english"></span>
                         </div>
                     </{{elementName}}>
                 </script>
@@ -421,7 +421,7 @@
         <div class="example example--pluralization">
             <div class="example__view">
                 <i18n-container lang="pt">
-                    <span title="lorem ipsum" data-i18n="I bought 2 carrots"></span>
+                    <span title="lorem ipsum" data-i18n-text="I bought 2 carrots"></span>
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -452,7 +452,7 @@
                 <script type="text/plain" class="html-example">
                    <{{elementName}} lang="{{pt¦lang}}">
                        
-                        <span data-i18n="{{I bought 2 carrots¦data-i18n}}"></span>
+                        <span data-i18n-text="{{I bought 2 carrots¦data-i18n}}"></span>
                    </{{elementName}}>
                 </script>
             </div>
@@ -476,9 +476,9 @@
         <div class="example example--date">
             <div class="example__view">
                 <i18n-container lang="en-GB">
-                    <p class="unix-timestamp" data-i18n="date using timestamp - 1686862473"></p>
-                    <p class="iso-8601" data-i18n="date using ISO 8601 - 2023-06-15T20:55:37.313Z"></p>
-                    <p class="date" data-i18n="or both ways - 0"></p>
+                    <p class="unix-timestamp" data-i18n-text="date using timestamp - 1686862473"></p>
+                    <p class="iso-8601" data-i18n-text="date using ISO 8601 - 2023-06-15T20:55:37.313Z"></p>
+                    <p class="date" data-i18n-text="or both ways - 0"></p>
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -509,11 +509,11 @@
                 <script type="text/plain" class="html-example">
                     <{{elementName}} lang="{{en-GB¦lang}}">
                    
-                        <p class="unix-timestamp" data-i18n="{{date using timestamp - 1686862473¦data-i18n¦.unix-timestamp}}"></p>
+                        <p class="unix-timestamp" data-i18n-text="{{date using timestamp - 1686862473¦data-i18n¦.unix-timestamp}}"></p>
                    
-                        <p class="iso-8601" data-i18n="{{date using ISO 8601 - 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
+                        <p class="iso-8601" data-i18n-text="{{date using ISO 8601 - 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
                    
-                        <p class="date" data-i18n="{{or both ways - 0¦data-i18n¦.date}}"></p>
+                        <p class="date" data-i18n-text="{{or both ways - 0¦data-i18n¦.date}}"></p>
                     </{{elementName}}>
                 </script>
             </div>
@@ -536,10 +536,10 @@
         <div class="example example--relative-time">
             <div class="example__view">
                 <i18n-container lang="pt-BR">
-                    <p class="unix-epoch" data-i18n="time since unix"></p>
-                    <p class="unix-timestamp" data-i18n="relative time to unix: 1686862473"></p>
-                    <p class="iso-8601" data-i18n="relative time to iso: 2023-06-15T20:55:37.313Z"></p>
-                    <p class="date" data-i18n="relative time to both: 2024-01-01T00:00:00.000Z"></p>
+                    <p class="unix-epoch" data-i18n-text="time since unix"></p>
+                    <p class="unix-timestamp" data-i18n-text="relative time to unix: 1686862473"></p>
+                    <p class="iso-8601" data-i18n-text="relative time to iso: 2023-06-15T20:55:37.313Z"></p>
+                    <p class="date" data-i18n-text="relative time to both: 2024-01-01T00:00:00.000Z"></p>
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -572,13 +572,13 @@
                 <script type="text/plain" class="html-example">
                     <{{elementName}} lang="{{pt-BR¦lang}}">
                    
-                        <p class="unix-timestamp" data-i18n="{{time since unix¦data-i18n¦.unix-epoch}}"></p>
+                        <p class="unix-timestamp" data-i18n-text="{{time since unix¦data-i18n¦.unix-epoch}}"></p>
                         
-                        <p class="unix-timestamp" data-i18n="{{relative time to unix: 1686862473¦data-i18n¦.unix-timestamp}}"></p>
+                        <p class="unix-timestamp" data-i18n-text="{{relative time to unix: 1686862473¦data-i18n¦.unix-timestamp}}"></p>
                    
-                        <p class="iso-8601" data-i18n="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
+                        <p class="iso-8601" data-i18n-text="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
                    
-                        <p class="date" data-i18n="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}"></p>
+                        <p class="date" data-i18n-text="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}"></p>
                     </{{elementName}}>
                 </script>
             </div>
@@ -600,12 +600,12 @@
         <div class="example example--relative-time-duration">
             <div class="example__view">
                 <i18n-container lang="pt-BR">
-                    <p class="unix-epoch" data-i18n="time since unix"></p>
-                    <p class="unix-timestamp" data-i18n="relative time to unix: 1686862473"></p>
-                    <p class="iso-8601" data-i18n="relative time to iso: 2023-06-15T20:55:37.313Z"></p>
-                    <p class="date" data-i18n="relative time to both: 2024-01-01T00:00:00.000Z"></p>
-                    <p class="date-in-days" data-i18n="time in days: 2024-01-01T00:00:00.000Z"></p>
-                    <p class="date-to-days" data-i18n="time to days: 2024-01-01T00:00:00.000Z"></p>
+                    <p class="unix-epoch" data-i18n-text="time since unix"></p>
+                    <p class="unix-timestamp" data-i18n-text="relative time to unix: 1686862473"></p>
+                    <p class="iso-8601" data-i18n-text="relative time to iso: 2023-06-15T20:55:37.313Z"></p>
+                    <p class="date" data-i18n-text="relative time to both: 2024-01-01T00:00:00.000Z"></p>
+                    <p class="date-in-days" data-i18n-text="time in days: 2024-01-01T00:00:00.000Z"></p>
+                    <p class="date-to-days" data-i18n-text="time to days: 2024-01-01T00:00:00.000Z"></p>
 
                 </i18n-container>
             </div>
@@ -643,17 +643,17 @@
                 <script type="text/plain" class="html-example">
                     <{{elementName}} lang="{{pt-BR¦lang}}">
                    
-                        <p class="unix-timestamp" data-i18n="{{time since unix¦data-i18n¦.unix-epoch}}"></p>
+                        <p class="unix-timestamp" data-i18n-text="{{time since unix¦data-i18n¦.unix-epoch}}"></p>
                         
-                        <p class="unix-timestamp" data-i18n="{{relative time to unix: 1686862473¦data-i18n¦.unix-timestamp}}"></p>
+                        <p class="unix-timestamp" data-i18n-text="{{relative time to unix: 1686862473¦data-i18n¦.unix-timestamp}}"></p>
                    
-                        <p class="iso-8601" data-i18n="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
+                        <p class="iso-8601" data-i18n-text="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}"></p>
                    
-                        <p class="date" data-i18n="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}"></p>
+                        <p class="date" data-i18n-text="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}"></p>
 
-                        <p class="date" data-i18n="{{time in days: 2024-01-01T00:00:00.000Z¦data-i18n¦.date-in-days}}"></p>
+                        <p class="date" data-i18n-text="{{time in days: 2024-01-01T00:00:00.000Z¦data-i18n¦.date-in-days}}"></p>
 
-                        <p class="date" data-i18n="{{time to days: 2024-01-01T00:00:00.000Z¦data-i18n¦.date-to-days}}"></p>
+                        <p class="date" data-i18n-text="{{time to days: 2024-01-01T00:00:00.000Z¦data-i18n¦.date-to-days}}"></p>
                         </{{elementName}}>
                 </script>
             </div>
@@ -673,10 +673,10 @@
         <div class="example example--relative-time">
             <div class="example__view">
                 <i18n-container lang="pt-BR">
-                    <p class="unix-epoch" data-i18n="time since unix" data-i18n-tick-time></p>
-                    <p class="unix-timestamp" data-i18n="relative time to unix: 1686862473" data-i18n-tick-time></p>
-                    <p class="iso-8601" data-i18n="relative time to iso: 2023-06-15T20:55:37.313Z" data-i18n-tick-time></p>
-                    <p class="date" data-i18n="relative time to both: 2024-01-01T00:00:00.000Z" data-i18n-tick-time></p>
+                    <p class="unix-epoch" data-i18n-text="time since unix" data-i18n-tick-time></p>
+                    <p class="unix-timestamp" data-i18n-text="relative time to unix: 1686862473" data-i18n-tick-time></p>
+                    <p class="iso-8601" data-i18n-text="relative time to iso: 2023-06-15T20:55:37.313Z" data-i18n-tick-time></p>
+                    <p class="date" data-i18n-text="relative time to both: 2024-01-01T00:00:00.000Z" data-i18n-tick-time></p>
                 </i18n-container>
             </div>
             <div class="example__json">
@@ -709,13 +709,13 @@
                 <script type="text/plain" class="html-example">
                     <{{elementName}} lang="{{pt-BR¦lang}}">
                    
-                        <p class="unix-timestamp" data-i18n="{{time since unix¦data-i18n¦.unix-epoch}}" data-i18n-tick-time></p>
+                        <p class="unix-timestamp" data-i18n-text="{{time since unix¦data-i18n¦.unix-epoch}}" data-i18n-tick-time></p>
                         
-                        <p class="unix-timestamp" data-i18n="{{relative time to unix: 1686862473¦data-i18n¦.unix-timestamp}}" data-i18n-tick-time></p>
+                        <p class="unix-timestamp" data-i18n-text="{{relative time to unix: 1686862473¦data-i18n¦.unix-timestamp}}" data-i18n-tick-time></p>
                    
-                        <p class="iso-8601" data-i18n="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}" data-i18n-tick-time></p>
+                        <p class="iso-8601" data-i18n-text="{{relative time to iso: 2023-06-15T20:55:37.313Z¦data-i18n¦.iso-8601}}" data-i18n-tick-time></p>
                    
-                        <p class="date" data-i18n="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}" data-i18n-tick-time></p>
+                        <p class="date" data-i18n-text="{{relative time to both: 2024-01-01T00:00:00.000Z¦data-i18n¦.date}}" data-i18n-tick-time></p>
                     </{{elementName}}>
                 </script>
             </div>
