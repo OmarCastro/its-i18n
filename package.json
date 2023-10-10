@@ -1,6 +1,6 @@
 {
   "name": "its-i18n",
-  "version": "0.4.0",
+  "version": "0.3.1",
   "description": "An i18n web component",
   "main": "src/entrypoint/node.js",
   "type": "module",
