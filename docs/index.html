@@ -94,11 +94,11 @@
 
             To use a CDN all you need is to add the following code in the HTML page:
 
-            <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.0/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
+            <pre><code class="language-markup keep-markup">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named=<span class="component-name-edit" contenteditable="true">i18n-container</span>">&lt;/script></code></pre>
 
             As noted, there is a query string `named` to set the component name, if it is not defined then the component will not be registered and you would need to import it and register manually, like with the following code: 
 
-            <pre><code class="language-js keep-markup">import element from 'https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.0/dist/i18n.element.min.js'
+            <pre><code class="language-js keep-markup">import element from 'https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js'
 
             customElements.define('<span class="component-name-edit" contenteditable="true">i18n-container</span>', element)</code></pre>
                 
@@ -226,7 +226,7 @@
                             <link rel="i18n-translation-map" href="es.json" lang="es">
                             <link rel="i18n-translation-map" href="en.json" lang="en">
                             <link rel="i18n-translation-map" href="pt.json" lang="pt">
-                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.0/dist/i18n.element.min.js?named={{elementNameEditable}}">&lt;/script>
+                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named={{elementNameEditable}}">&lt;/script>
                         </head>
                         <body>
                             <{{elementName}} lang="{{es¦lang}}">
@@ -299,7 +299,7 @@
                     <html>
                         <head>
                             <link rel="i18n-locale-map" href="definition.json">
-                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.0/dist/i18n.element.min.js?named={{elementNameEditable}}">&lt;/script>
+                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named={{elementNameEditable}}">&lt;/script>
                         </head>
                         <body>
                             <{{elementName}} lang="{{es¦lang}}">
