@@ -42,6 +42,7 @@ const exampleCode = (strings, ...expr) => {
   for (let i = 0; i < expr.length; i++) {
     statement += String(expr[i]).replace(/</g, '&lt')
       .replaceAll('{{elementName}}', '<span class="component-name-ref keep-markup">i18n-container</span>')
+      .replaceAll('{{elementNameEditable}}', '<span class="component-name-edit keep-markup" contenteditable="true">i18n-container</span>')
       .replace(/{{([^¦]+)¦lang}}/g, '<span contenteditable="true" class="lang-edit">$1</span>')
       .replace(/{{([^¦]+)¦lang¦([^}]+)}}/g, '<span contenteditable="true" class="lang-edit" data-bind-selector="$2">$1</span>')
       .replace(/{{([^¦]+)¦data-i18n}}/, '<span contenteditable="true" class="data-i18n-edit">$1</span>')
