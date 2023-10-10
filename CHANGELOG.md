@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0]
+## [0.3.0] - 2023-10-10
 
+- Add past, present and future time match
+
+## [0.2.0] - 2023-08-24
+
+- Add javascript API for canvas use
 
 ## [0.1.1] - 2023-07-16
 
