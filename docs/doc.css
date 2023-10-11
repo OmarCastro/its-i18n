@@ -12,6 +12,14 @@ html {
     font-size: 16px;
 }
 
+body > .sidebar {
+    border-right: #00000022 1px solid;
+}
+
+body > .content {
+    margin: 1em;
+}
+
 @media (prefers-color-scheme: dark) {
     html {
         --bg-color: #303540;
@@ -20,7 +28,10 @@ html {
         --fg-color-disabled: #ccc;
         --resizable-border-color: #dddcdf;
         --tab-active-color: chocolate;
+    }
 
+    body > .sidebar {
+        border-right: #ffffff22 1px solid;
     }
 }
 code:not([class]){
@@ -31,6 +42,8 @@ code:not([class]){
     font-size: 0.9em;
     white-space: break-spaces;
 }
+
+
 
 .toc {
     position: sticky;
@@ -93,6 +106,7 @@ h3:before {
 }
 
 body {
+    margin: 0;
     background-color: var(--bg-color);
     color: var(--fg-color);
 }

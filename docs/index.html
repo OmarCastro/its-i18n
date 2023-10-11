@@ -169,9 +169,9 @@
             The examples will normally show 3 or 4 sections.
 
              1. The **result** section that shows the final result of the other sections;
-             2. The **tabbed i18n** section that shows the content of i18n files, every change in the json will reset the i18n store. The json files are expected to be static so there is no problem with that;
-             3. The **html** section that shows tne whole document or subset to show the usage, the editable changes will only update the current element without;
-             4. The **javascript** section that only shows on canvas example, since you need to use JS to draw on canvas. This is static and only serves to show how to use it;
+             2. The **tabbed i18n** section that shows the content of i18n files, every change in the JSON will reset the view. JSON files are expected to be static so there is no problem with that;
+             3. The **html** section that shows the whole document or a subset to show the usage, the editable part changes will only update the current element without resetting the view;
+             4. The **javascript** section, only shown on canvas examples, since you need to use JS to draw it. This is static and only serves to show how to use the features on canvas;
         </span>
 
         <h3> Hello world </h3>
@@ -226,7 +226,7 @@
                             <link rel="i18n-translation-map" href="es.json" lang="es">
                             <link rel="i18n-translation-map" href="en.json" lang="en">
                             <link rel="i18n-translation-map" href="pt.json" lang="pt">
-                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named={{elementNameEditable}}">&lt;/script>
+                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named={{elementName}}">&lt;/script>
                         </head>
                         <body>
                             <{{elementName}} lang="{{es¦lang}}">
@@ -299,7 +299,7 @@
                     <html>
                         <head>
                             <link rel="i18n-locale-map" href="definition.json">
-                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named={{elementNameEditable}}">&lt;/script>
+                            &lt;script type="module" src="https://cdn.jsdelivr.net/gh/OmarCastro/its-i18n@0.3.1/dist/i18n.element.min.js?named={{elementName}}">&lt;/script>
                         </head>
                         <body>
                             <{{elementName}} lang="{{es¦lang}}">
@@ -725,11 +725,13 @@
 
         <h3> Canvas </h3>
 
-        Its-i18n is meant to be applied for all HTML elements, and canvas is an HTML element, but you need Javascript to paint on the canvas.
+        <p ss:markdown>
+            Its-i18n is meant to be applied for all HTML elements, and canvas is an HTML element, but you need Javascript to paint on the canvas.
+            
+            For that reason Its-i18n provides a JS API to apply i18n inside canvas.
 
-        For that reason Its-i18n provides a JS API to apply i18n inside canvas.
-
-        The next example shows the usage of the JS api that reacts to canvas language change
+            The next example shows the usage of the JS api that reacts to canvas language change
+        </p>
 
         <div class="example example--canvas">
             <div class="example__view">
@@ -810,9 +812,11 @@
 
         <h3> Canvas only</h3>
 
-        By using the JS API, the canvas element do not necessarily need to be inside the component. 
-        
-        The next example shows the canvas working without being wrapped in the component
+        <p ss:markdown>
+            By using the JS API, the canvas element do not necessarily need to be inside the component. 
+            
+            The next example shows the canvas working without being wrapped in the component
+        </p>
 
 
         <div class="example example--canvas-only">
