@@ -73,7 +73,8 @@ function langMutationObserverCallback (records) {
   const validatedNodes = new Set()
   const rootNodesToTrigger = new Set()
   for (const record of records) {
-    const rootNode = record.target.getRootNode()
+    const recordTarget = record.target
+    const rootNode = recordTarget.getRootNode()
     rootNodesToTrigger.add(rootNode)
     const observingElements = rootNodes.get(rootNode)?.observingElements
     observingElements && observingElements.forEach((node) => {
@@ -81,31 +82,44 @@ function langMutationObserverCallback (records) {
         return
       }
       validatedNodes.add(node)
-      const info = observingElementsInfo.get(node)
-      if (!info) {
-        return
+      const result = handleLangMutationOnElement(node, recordTarget)
+      if (result === changeTriggered) {
+        triggeredNodes.add(node)
       }
-      const oldLang = info.currentLang
-      const newLang = getLanguageFromElement(node)
-      if (newLang === oldLang) {
-        return
-      }
-      info.currentLang = newLang
-      info.observers.forEach(observer => {
-        observer[data].callback([{
-          target: node,
-          causingElement: record.target,
-          previousLanguage: oldLang,
-          language: newLang,
-        }])
-      })
-      triggeredNodes.add(node)
     })
   }
   const event = new CustomEvent(rootEventName, { detail: { triggeredNodes: Array.from(triggeredNodes) } })
   for (const node of rootNodesToTrigger) {
     node.dispatchEvent(event)
   }
+}
+
+const changeTriggered = Object.freeze({ changeTriggered: true })
+const changeNotTriggered = Object.freeze({ changeTriggered: false })
+/**
+ * @param {Element} element
+ * @param {Node} causingElement
+ */
+function handleLangMutationOnElement (element, causingElement) {
+  const info = observingElementsInfo.get(element)
+  if (!info) {
+    return changeNotTriggered
+  }
+  const oldLang = info.currentLang
+  const newLang = getLanguageFromElement(element)
+  if (newLang === oldLang) {
+    return changeNotTriggered
+  }
+  info.currentLang = newLang
+  info.observers.forEach(observer => {
+    observer[data].callback([{
+      target: element,
+      causingElement,
+      previousLanguage: oldLang,
+      language: newLang,
+    }])
+  })
+  return changeTriggered
 }
 
 /**
