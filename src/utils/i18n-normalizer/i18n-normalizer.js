@@ -180,12 +180,12 @@ export function normalizeI18nDefinitionMap (data) {
           message: `invalid locale "${localeString}", it also conflicts with correct locale "${baseName}", it will be ignored`,
         })
         continue
-      } else {
-        warnings.push({
-          path: properyPath(localeString),
-          message: `invalid locale "${localeString}", fixed to locale "${baseName}"`,
-        })
       }
+
+      warnings.push({
+        path: properyPath(localeString),
+        message: `invalid locale "${localeString}", fixed to locale "${baseName}"`,
+      })
     }
 
     const normalizedResult = normalizeI18nDefinition(i18nDefninition)
