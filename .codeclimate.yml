@@ -1,5 +1,5 @@
 ## other configuration excluded from example...
 exclude_patterns:
-- "**/*.spec.ts/"
-- "**/*.spec.js/"
+- "**/*.spec.ts"
+- "**/*.spec.js"
 - "**/*.d.ts"
