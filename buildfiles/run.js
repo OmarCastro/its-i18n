@@ -94,7 +94,7 @@ async function execTests () {
   const COVERAGE_DIR = 'reports/coverage'
   const REPORTS_TMP_DIR = 'reports/.tmp'
   const COVERAGE_TMP_DIR = `${REPORTS_TMP_DIR}/coverage`
-  const COVERAGE_BACKUP_DIR = 'reports/coverage'
+  const COVERAGE_BACKUP_DIR = 'reports/coverage.bak'
 
   await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
   if (existsSync(COVERAGE_DIR)) {
