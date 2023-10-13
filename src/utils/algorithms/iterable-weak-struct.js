@@ -18,16 +18,11 @@ export class IterableWeakMap {
   }
 
   /**
-   *
+   *  Deletes a key from the iterable weak map
    * @param {K} key
    */
   delete (key) {
-    const { keySet, refWeakMap } = dataOf(this)
-    const entry = refWeakMap.get(key)
-    if (!entry) return false
-    keySet.delete(entry.ref)
-    refWeakMap.delete(key)
-    return true
+    deleteKey(key, this)
   }
 
   [Symbol.iterator] () {
@@ -74,16 +69,7 @@ export class IterableWeakMap {
   }
 
   * keys () {
-    const { keySet } = dataOf(this)
-    const array = Array.from(keySet)
-    for (const ref of array) {
-      const deref = ref.deref()
-      if (!deref) {
-        keySet.delete(ref)
-        continue
-      }
-      yield deref
-    }
+    yield * iterateKeys(this)
   }
 
   /**
@@ -132,16 +118,11 @@ export class IterableWeakSet {
   }
 
   /**
-   *
+   * Deletes a key from the iterable weak set
    * @param {V} key
    */
   delete (key) {
-    const { keySet, refWeakMap } = dataOf(this)
-    const entry = refWeakMap.get(key)
-    if (!entry) return false
-    keySet.delete(entry.ref)
-    refWeakMap.delete(key)
-    return true
+    deleteKey(key, this)
   }
 
   [Symbol.iterator] () {
@@ -173,16 +154,7 @@ export class IterableWeakSet {
   }
 
   * keys () {
-    const { keySet } = dataOf(this)
-    const array = Array.from(keySet)
-    for (const ref of array) {
-      const deref = ref.deref()
-      if (!deref) {
-        keySet.delete(ref)
-        continue
-      }
-      yield deref
-    }
+    yield * iterateKeys(this)
   }
 
   /**
@@ -207,6 +179,44 @@ export class IterableWeakSet {
   * values () {
     for (const value of this.keys()) { yield value }
   }
+}
+
+/**
+ * @template {object} K
+ * @template V
+ *
+ * Generates an iterable weak struct key iterator
+ *
+ * @param {IterableWeakSet<K> | IterableWeakMap<K, V>} struct
+ * @returns {Generator<K>}
+ */
+function * iterateKeys (struct) {
+  const { keySet } = dataOf(struct)
+  const array = Array.from(keySet)
+  for (const ref of array) {
+    const deref = ref.deref()
+    if (!deref) {
+      keySet.delete(ref)
+      continue
+    }
+    yield deref
+  }
+}
+
+/**
+ * Deletes a key from an iterable weak struct
+ *
+ * @param {object} key
+ * @param {IterableWeakSet<object> | IterableWeakMap<object, *>} struct
+ * @returns
+ */
+function deleteKey (key, struct) {
+  const { keySet, refWeakMap } = dataOf(struct)
+  const entry = refWeakMap.get(key)
+  if (!entry) return false
+  keySet.delete(entry.ref)
+  refWeakMap.delete(key)
+  return true
 }
 
 const dataOf = (() => {
