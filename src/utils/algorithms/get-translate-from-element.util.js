@@ -25,17 +25,24 @@ export function isElementTranslatable (element) {
     return false
   }
   for (const node of traverseUpDomWithSlots(element)) {
-    if (node instanceof HTMLElement) {
-      return node.translate
-    }
-    const translateValue = node.getAttribute('translate')
-    if (translateValue == null) continue
-
-    if (translateValue === '' || translateValue === 'yes') {
-      return true
-    } else if (translateValue === 'no') {
-      return false
-    }
+    const value = translateValue(node)
+    if (value != null) { return value }
   }
   return true
+}
+
+/** @param {Element} element */
+function translateValue (element) {
+  if (element instanceof HTMLElement) {
+    return element.translate
+  }
+  const translateValue = element.getAttribute('translate')
+
+  if (translateValue === '' || translateValue === 'yes') {
+    return true
+  } else if (translateValue === 'no') {
+    return false
+  }
+
+  return null
 }
