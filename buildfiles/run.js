@@ -91,17 +91,22 @@ async function execDevEnvironment () {
 }
 
 async function execTests () {
+  const COVERAGE_DIR = 'reports/coverage'
+  const REPORTS_TMP_DIR = 'reports/.tmp'
+  const COVERAGE_TMP_DIR = `${REPORTS_TMP_DIR}/coverage`
+  const COVERAGE_BACKUP_DIR = 'reports/coverage'
+
   await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
-  if (existsSync('reports/coverage')) {
-    await mv('reports/coverage', 'reports/coverage.bak')
+  if (existsSync(COVERAGE_DIR)) {
+    await mv(COVERAGE_DIR, COVERAGE_BACKUP_DIR)
   }
-  await mv('reports/.tmp/coverage', 'reports/coverage')
-  const rmTmp = rm_rf('reports/.tmp')
-  const rmBak = rm_rf('reports/coverage.bak')
+  await mv(COVERAGE_TMP_DIR, COVERAGE_DIR)
+  const rmTmp = rm_rf(REPORTS_TMP_DIR)
+  const rmBak = rm_rf(COVERAGE_BACKUP_DIR)
 
   const badges = cmdSpawn('node buildfiles/scripts/build-badges.js')
 
-  const files = Array.from(await getFiles('reports/coverage/unit'))
+  const files = Array.from(await getFiles(`${COVERAGE_DIR}/unit`))
   const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('buildfiles/assets/coverage-report-base.css', path))
   const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('buildfiles/assets/coverage-report-prettify.css', path))
   await Promise.all([rmTmp, rmBak, badges, ...cpBase, ...cpPrettify])
