@@ -142,6 +142,52 @@ const reducerFormatter = (fragmentedFormatters, parameters, locale, defaultForma
   return reducerAcc.result
 }
 
+const printNothing = () => ''
+
+/**
+ * @param {Token} token - capture token
+ * @returns {Formatter}
+ */
+function getFormatterFromCaptureToken (token) {
+  const fragmentedCaptureExpressionsInfo = parseCaptureKey(token)
+
+  if (fragmentedCaptureExpressionsInfo.length === 0) {
+    return printNothing
+  }
+
+  /** @type {FormatterReducer[]} */
+  const fragmentedFormatters = []
+
+  const [firstInfo, ...restInfo] = fragmentedCaptureExpressionsInfo
+
+  if (firstInfo.type === 'string') {
+    const { text } = firstInfo
+    fragmentedFormatters.push((acc) => ({ ...acc, result: text }))
+  } else if (isInteger(firstInfo.text)) {
+    const position = +firstInfo.text
+    fragmentedFormatters.push(positionFormatter(position))
+  } else {
+    return printNothing
+  }
+
+  for (const info of restInfo) {
+    const { text } = info
+    if (Object.hasOwn(expressionFormatters, text)) {
+      const formatter = expressionFormatters[text]
+      fragmentedFormatters.push((acc) => ({
+        ...acc,
+        result: formatter.format(acc.result, acc.locale),
+      }))
+    }
+  }
+
+  if (fragmentedFormatters.length <= 1) {
+    fragmentedFormatters.push(applyDefaultformatter)
+  }
+
+  return (parameters, locale, defaultFormatters) => reducerFormatter(fragmentedFormatters, parameters, locale, defaultFormatters)
+}
+
 /**
  *
  * @param {Token[]} tokens
@@ -165,45 +211,7 @@ function getFormatterFromTokens (tokens) {
       strings.push(keyToken.text)
       continue
     }
-    const fragmentedCaptureExpressionsInfo = parseCaptureKey(keyToken)
-
-    if (fragmentedCaptureExpressionsInfo.length === 0) {
-      formatters.push(() => '')
-      continue
-    }
-
-    /** @type {FormatterReducer[]} */
-    const fragmentedFormatters = []
-
-    const [firstInfo, ...restInfo] = fragmentedCaptureExpressionsInfo
-
-    if (firstInfo.type === 'string') {
-      const { text } = firstInfo
-      fragmentedFormatters.push((acc) => ({ ...acc, result: text }))
-    } else if (isInteger(firstInfo.text)) {
-      const position = +firstInfo.text
-      fragmentedFormatters.push(positionFormatter(position))
-    } else {
-      formatters.push(() => '')
-      continue
-    }
-
-    for (const info of restInfo) {
-      const { text } = info
-      if (Object.hasOwn(expressionFormatters, text)) {
-        const formatter = expressionFormatters[text]
-        fragmentedFormatters.push((acc) => ({
-          ...acc,
-          result: formatter.format(acc.result, acc.locale),
-        }))
-      }
-    }
-
-    if (fragmentedFormatters.length <= 1) {
-      fragmentedFormatters.push(applyDefaultformatter)
-    }
-
-    formatters.push((parameters, locale, defaultFormatters) => reducerFormatter(fragmentedFormatters, parameters, locale, defaultFormatters))
+    formatters.push(getFormatterFromCaptureToken(keyToken))
   }
 
   /*

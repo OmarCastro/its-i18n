@@ -246,7 +246,7 @@ const _initDocument = (html) => {
 }
 
 /**
- * @param {Object}        param
+ * @param {object}        param
  * @param {Element}       param.currentElement    - current
  * @param {Element[]}     param.removedElements   - list of removed elements, mutable
  * @param {RemovedAttr[]} param.removedAttributes - list of removed attributes, mutable

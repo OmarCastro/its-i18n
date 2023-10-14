@@ -135,7 +135,7 @@ function translatorFromValue (valueTemplate, match) {
  */
 
 /**
- * @typedef {Object<string, TranslationValue>} Translations
+ * @typedef {{[key: string]: TranslationValue}} Translations
  *
  * Translation map
  */
@@ -146,7 +146,7 @@ function translatorFromValue (valueTemplate, match) {
  * An object used to optimize queries from a {@link Translations} object, it is generated the fist time it is called
  * {@link queryFromTranslations} for each new {@link Translations} object
  *
- * @property {Object<string, QueryResult>}  cache        - query result cache map used for memoization
+ * @property {{[key: string]: QueryResult}}  cache        - query result cache map used for memoization
  * @property {OptimizedTranslations}        optimizedMap - optimized translation map @see OptimizedTranslations
  */
 
@@ -175,9 +175,9 @@ function translatorFromValue (valueTemplate, match) {
  *
  * @property {Translations}                          literalKeys                 -   It contains only non-template keys, since they have the highest
  *  priority it will be use for a quick search before searching the remaining keys, which all are template keys
- * @property {Object<string, OptimizedTemplateKey>} templateKeys   - A map of "template key" to "optimized template info" with already computed information
+ * @property {{[key: string]: OptimizedTemplateKey}} templateKeys   - A map of "template key" to "optimized template info" with already computed information
  * @property {OptimizedTemplateKey[]}           sortedTemplateKeys -  A list of of template keys sorted by priority
- * @property {Object<string, Translations>}    prefixTemplateSearchByWords - A map of translations by prefix, unused, @todo use it
+ * @property {{[prefix: string]: Translations}}    prefixTemplateSearchByWords - A map of translations by prefix, unused, @todo use it
  */
 
 /**
