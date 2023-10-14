@@ -1,6 +1,13 @@
 import { parseKey } from '../../key-parser/key-parser.util.js'
 import { parseValue } from '../../key-parser/value-parser.util.js'
 
+const initOptimizedTranslationsObject = () => /** @type {OptimizedTranslations} */ ({
+  literalKeys: {},
+  templateKeys: {},
+  sortedTemplateKeys: [],
+  prefixTemplateSearchByWords: {},
+})
+
 /**
  * Creates an {@link OptimizedTranslations} based on target {@link Translations}
  *
@@ -9,13 +16,7 @@ import { parseValue } from '../../key-parser/value-parser.util.js'
  * @returns {OptimizedTranslations} resulting optimized translation
  */
 function optimizeTranslationForQueries (translations) {
-  /** @type {OptimizedTranslations} */
-  const result = {
-    literalKeys: {},
-    templateKeys: {},
-    sortedTemplateKeys: [],
-    prefixTemplateSearchByWords: {},
-  }
+  const result = initOptimizedTranslationsObject()
   const { literalKeys, templateKeys, sortedTemplateKeys, prefixTemplateSearchByWords } = result
 
   for (const [key, value] of Object.entries(translations)) {
@@ -43,6 +44,66 @@ function optimizeTranslationForQueries (translations) {
 /** @type {WeakMap<Translations, TranslationQueryOptimization>} */
 const translationOptimizations = new WeakMap()
 
+/** @param {Translations} translations */
+function getOrInitOptimizations (translations) {
+  let optmization = translationOptimizations.get(translations)
+  if (!optmization) {
+    optmization = {
+      cache: {},
+      optimizedMap: optimizeTranslationForQueries(translations),
+    }
+    translationOptimizations.set(translations, optmization)
+  }
+  return optmization
+}
+
+/**
+ *
+ * @param {string} key
+ * @param {Translations} translations
+ */
+const notFoundQueryResult = (key, translations) => /** @type {QueryResult} */ ({
+  targetKey: key,
+  translations,
+  found: false,
+  valueTemplate: '',
+  translate: () => key,
+})
+
+/**
+ *
+ * @param {string} key
+ * @param {Translations} translations
+ * @param {string} valueTemplate
+ * @param {ReturnType<ReturnType<typeof parseKey>["match"]>} [matchResult]
+ */
+const foundQueryResult = (key, translations, valueTemplate, matchResult) => /** @type {QueryResult} */ ({
+  targetKey: key,
+  translations,
+  found: true,
+  valueTemplate,
+  translate: translatorFromValue(valueTemplate, matchResult),
+})
+
+/**
+ * @param {string} key
+ * @param {OptimizedTranslations} optimizedMap
+ */
+function findMatchingTemplateKey (key, optimizedMap) {
+  const { templateKeys } = optimizedMap
+  for (const { key: templateKeyStr } of optimizedMap.sortedTemplateKeys) {
+    const templateKey = templateKeys[templateKeyStr]
+    const matchResult = templateKey.parsedKey.match(key)
+    if (matchResult.isMatch) {
+      return {
+        templateKey,
+        matchResult,
+      }
+    }
+  }
+  return null
+}
+
 /**
  * Queries translation value from a {@link Translations} object
  *
@@ -52,57 +113,23 @@ const translationOptimizations = new WeakMap()
  * @returns {QueryResult} result of the query
  */
 export function queryFromTranslations (key, translations) {
-  let optmization = translationOptimizations.get(translations)
-  if (!optmization) {
-    optmization = {
-      cache: {},
-      optimizedMap: optimizeTranslationForQueries(translations),
-    }
-    translationOptimizations.set(translations, optmization)
-  }
+  const { cache, optimizedMap } = getOrInitOptimizations(translations)
 
-  const { cache, optimizedMap } = optmization
-
-  if (cache[key] != null) {
-    return cache[key]
-  }
+  if (cache[key] != null) { return cache[key] }
 
   if (optimizedMap.literalKeys[key] != null) {
     const valueTemplate = optimizedMap.literalKeys[key]
-    cache[key] = {
-      targetKey: key,
-      translations,
-      found: true,
-      valueTemplate,
-      translate: translatorFromValue(valueTemplate),
-    }
+    cache[key] = foundQueryResult(key, translations, valueTemplate)
+    return cache[key]
+  }
+  const matchingTemplateKey = findMatchingTemplateKey(key, optimizedMap)
+  if (matchingTemplateKey) {
+    const valueTemplate = matchingTemplateKey.templateKey.value
+    cache[key] = foundQueryResult(key, translations, valueTemplate, matchingTemplateKey.matchResult)
     return cache[key]
   }
 
-  const { templateKeys } = optimizedMap
-  for (const { key: templateKey } of optimizedMap.sortedTemplateKeys) {
-    const { parsedKey } = templateKeys[templateKey]
-    const match = parsedKey.match(key)
-    if (match.isMatch) {
-      const valueTemplate = templateKeys[templateKey].value
-      cache[key] = {
-        targetKey: key,
-        translations,
-        found: true,
-        valueTemplate,
-        translate: translatorFromValue(valueTemplate, match),
-      }
-      return cache[key]
-    }
-  }
-
-  return {
-    targetKey: key,
-    translations,
-    found: false,
-    valueTemplate: '',
-    translate: () => key,
-  }
+  return notFoundQueryResult(key, translations)
 }
 
 /**
