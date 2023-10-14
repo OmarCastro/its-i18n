@@ -38,40 +38,39 @@ const formatSimpleKey = (value) => ({
 })
 
 /**
+ * @param {[string, CaptureExpressionsInfoDetail[]]} acc
+ * @param {Token} token - captureChildToken
+ * @returns {[string, CaptureExpressionsInfoDetail[]]}
+ */
+function parseCaptureKeyToken (acc, token) {
+  const [currentExpression, fragmentedCaptureExpressionsInfo] = acc
+  switch (token.type) {
+    case states.capture_expr:
+      return [currentExpression ? `${currentExpression} ${token.text}` : token.text, fragmentedCaptureExpressionsInfo]
+    case states.capture_expr_sep: {
+      return ['', [...fragmentedCaptureExpressionsInfo, { type: 'expression', text: currentExpression }]]
+    }
+    case states.sq_string:
+    case states.dq_string:
+    case states.bt_string: {
+      /** @type {CaptureExpressionsInfoDetail} */
+      const info = { type: 'string', text: token.text.slice(1, token.text.length - 1) }
+      return [currentExpression, [...fragmentedCaptureExpressionsInfo, info]]
+    }
+    default:
+      console.error('error: invalid expression, ignoring...')
+      return acc
+  }
+}
+
+/**
  * Parse capture key to ease usage in {@link getFormatterFromTokens}
  * @param {Token} captureToken
  * @returns {CaptureExpressionsInfoDetail[]}
  */
 function parseCaptureKey (captureToken) {
-  /** @type {CaptureExpressionsInfoDetail[]} */
-  const fragmentedCaptureExpressionsInfo = []
+  const [currentExpression, fragmentedCaptureExpressionsInfo] = captureToken.childTokens.reduce(parseCaptureKeyToken, ['', []])
 
-  let currentExpression = ''
-  for (const token of captureToken.childTokens) {
-    switch (token.type) {
-      case states.capture_expr:
-        currentExpression = currentExpression ? `${currentExpression} ${token.text}` : token.text
-        continue
-
-      case states.capture_expr_sep:
-        fragmentedCaptureExpressionsInfo.push({
-          type: 'expression',
-          text: currentExpression,
-        })
-        currentExpression = ''
-        continue
-      case states.sq_string:
-      case states.dq_string:
-      case states.bt_string:
-        fragmentedCaptureExpressionsInfo.push({
-          type: 'string',
-          text: token.text.slice(1, token.text.length - 1),
-        })
-        continue
-      default:
-        console.error('error: invalid expression, ignoring...')
-    }
-  }
   if (currentExpression) {
     fragmentedCaptureExpressionsInfo.push({
       type: 'expression',
@@ -142,6 +141,22 @@ const reducerFormatter = (fragmentedFormatters, parameters, locale, defaultForma
   return reducerAcc.result
 }
 
+/**
+ * @param {CaptureExpressionsInfoDetail} detail - capture token
+ * @returns {FormatterReducer | null}
+ */
+function getFirstExpressionFormatterReducer (detail) {
+  if (detail.type === 'string') {
+    const { text } = detail
+    return (acc) => ({ ...acc, result: text })
+  } else if (isInteger(detail.text)) {
+    const position = +detail.text
+    return positionFormatter(position)
+  } else {
+    return null
+  }
+}
+
 const printNothing = () => ''
 
 /**
@@ -150,42 +165,38 @@ const printNothing = () => ''
  */
 function getFormatterFromCaptureToken (token) {
   const fragmentedCaptureExpressionsInfo = parseCaptureKey(token)
-
-  if (fragmentedCaptureExpressionsInfo.length === 0) {
-    return printNothing
-  }
-
-  /** @type {FormatterReducer[]} */
-  const fragmentedFormatters = []
+  if (fragmentedCaptureExpressionsInfo.length === 0) { return printNothing }
 
   const [firstInfo, ...restInfo] = fragmentedCaptureExpressionsInfo
+  const firstReducer = getFirstExpressionFormatterReducer(firstInfo)
+  if (!firstReducer) { return printNothing }
 
-  if (firstInfo.type === 'string') {
-    const { text } = firstInfo
-    fragmentedFormatters.push((acc) => ({ ...acc, result: text }))
-  } else if (isInteger(firstInfo.text)) {
-    const position = +firstInfo.text
-    fragmentedFormatters.push(positionFormatter(position))
-  } else {
-    return printNothing
-  }
-
+  const fragmentedFormatters = [firstReducer]
   for (const info of restInfo) {
     const { text } = info
     if (Object.hasOwn(expressionFormatters, text)) {
       const formatter = expressionFormatters[text]
-      fragmentedFormatters.push((acc) => ({
-        ...acc,
-        result: formatter.format(acc.result, acc.locale),
-      }))
+      fragmentedFormatters.push((acc) => ({ ...acc, result: formatter.format(acc.result, acc.locale) }))
     }
   }
-
   if (fragmentedFormatters.length <= 1) {
     fragmentedFormatters.push(applyDefaultformatter)
   }
 
   return (parameters, locale, defaultFormatters) => reducerFormatter(fragmentedFormatters, parameters, locale, defaultFormatters)
+}
+
+/**
+ *
+ * @param {object} param
+ * @param {string[]} param.strings
+ * @param {Formatter[]} param.formatters
+ */
+function guaranteeFormatterEndsWithString ({ strings, formatters }) {
+  if (strings.length === formatters.length) {
+    strings.push('')
+  }
+  return { strings, formatters }
 }
 
 /**
@@ -214,15 +225,7 @@ function getFormatterFromTokens (tokens) {
     formatters.push(getFormatterFromCaptureToken(keyToken))
   }
 
-  /*
-    template strings format works the same way, starts with a string and ends with a string, even
-    if it ends with a parameter
-  */
-  if (strings.length === formatters.length) {
-    strings.push('')
-  }
-
-  return formatterWithFormat({ strings, formatters })
+  return formatterWithFormat(guaranteeFormatterEndsWithString({ strings, formatters }))
 }
 
 /**
