@@ -5,20 +5,25 @@
         <source srcset="https://img.shields.io/npm/v/its-i18n?style=for-the-badge&logo=npm&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
         <img src="https://img.shields.io/npm/v/its-i18n?style=for-the-badge&logo=npm&logoColor=%23333&labelColor=%23ccc">
     </picture>
-</a><a href="https://github.com/OmarCastro/its-i18n" aria-label="go to NPM package" title="go to NPM package">
+</a><a href="https://github.com/OmarCastro/its-i18n" aria-label="go to Github" title="go to Github">
     <picture>
         <source srcset="https://img.shields.io/github/v/release/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
         <img src="https://img.shields.io/github/v/release/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23333&labelColor=%23ccc">
     </picture>
-</a><a href="https://github.com/OmarCastro/its-i18n" aria-label="go to NPM package" title="go to NPM package">
+</a><a href="https://github.com/OmarCastro/its-i18n" aria-label="go to Github" title="go to Github">
     <picture>
         <source srcset="https://img.shields.io/github/stars/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
         <img src="https://img.shields.io/github/stars/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23333&labelColor=%23ccc">
     </picture>
-</a><a href="https://github.com/OmarCastro/its-i18n" aria-label="go to NPM package" title="go to NPM package">
+</a><a href="https://github.com/OmarCastro/its-i18n" aria-label="go to Github" title="go to Github">
     <picture>
         <source srcset="https://img.shields.io/github/forks/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
         <img src="https://img.shields.io/github/forks/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23333&labelColor=%23ccc">
+    </picture>
+</a><a href="https://codeclimate.com/github/OmarCastro/its-i18n" aria-label="view code climate" title="view code climate">
+    <picture>
+        <source srcset="https://img.shields.io/codeclimate/maintainability/OmarCastro/its-i18n?style=for-the-badge&logo=codeclimate&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
+        <img src="https://img.shields.io/codeclimate/maintainability/OmarCastro/its-i18n?style=for-the-badge&logo=codeclimate&logoColor=%23333&labelColor=%23ccc">
     </picture>
 </a>
 
