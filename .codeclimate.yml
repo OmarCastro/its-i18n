@@ -11,3 +11,9 @@ checks:
   return-statements:
     config:
       threshold: 5
+  similar-code:
+    config:
+      threshold: 10
+  identical-code:
+    config:
+      threshold: 10
