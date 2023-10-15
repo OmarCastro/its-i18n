@@ -40,23 +40,8 @@ function badgeColor (pct) {
   return 'red'
 }
 
-const applyA11yTheme = (svgContent) => {
-  body.innerHTML = svgContent
-  const svg = body.querySelector('svg')
-  if (!svg) { return svgContent }
+const svgStyle = (color) => {
   const style = document.createElement('style')
-  svg.prepend(style)
-  svg.querySelectorAll('text').forEach(el => el.removeAttribute('fill'))
-  let color = colors.red
-  const rects = Array.from(svg.querySelectorAll('rect'))
-  rects.slice(0, 1).forEach(el => {
-    el.classList.add('label')
-    el.removeAttribute('fill')
-  })
-  rects.slice(1).forEach(el => {
-    color = el.getAttribute('fill') || colors.red
-    el.removeAttribute('fill')
-  })
   style.innerHTML = `
   text { fill: #333; }
   rect.label { fill: #ccc; }
@@ -67,6 +52,25 @@ const applyA11yTheme = (svgContent) => {
     rect { fill: ${color} }
   }
   `.replaceAll(/\n+\s*/g, '')
+  return style
+}
+
+const applyA11yTheme = (svgContent) => {
+  body.innerHTML = svgContent
+  const svg = body.querySelector('svg')
+  if (!svg) { return svgContent }
+  svg.querySelectorAll('text').forEach(el => el.removeAttribute('fill'))
+  const rects = Array.from(svg.querySelectorAll('rect'))
+  rects.slice(0, 1).forEach(el => {
+    el.classList.add('label')
+    el.removeAttribute('fill')
+  })
+  let color = colors.red
+  rects.slice(1).forEach(el => {
+    color = el.getAttribute('fill') || colors.red
+    el.removeAttribute('fill')
+  })
+  svg.prepend(svgStyle(color))
 
   return svg.outerHTML
 }

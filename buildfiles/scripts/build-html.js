@@ -144,40 +144,48 @@ queryAll('link[href][ss:repeat-glob]').forEach(element => {
   element.remove()
 })
 
-queryAll('[ss:toc]').forEach(element => {
-  const ol = document.createElement('ol')
-  /** @type {[HTMLElement, HTMLElement][]} */
-  const path = []
-  for (const element of queryAll('h1, h2, h3, h4, h5, h6')) {
-    if (element.matches('.no-toc')) {
-      continue
-    }
+const tocUtils = {
+  getOrCreateId: (element) => {
     const id = element.getAttribute('id') || element.textContent.trim().toLowerCase().replaceAll(/\s+/g, '-')
     if (!element.hasAttribute('id')) {
       element.setAttribute('id', id)
     }
-    const li = document.createElement('li')
+    return id
+  },
+  createMenuItem: (element) => {
     const a = document.createElement('a')
-    a.href = `#${id}`
+    const li = document.createElement('li')
+    a.href = `#${element.id}`
     a.textContent = element.textContent
     li.append(a)
-
-    const parent = (() => {
-      while (path.length > 0) {
-        const [title, possibleParent] = path.at(-1)
-        if (title.tagName < element.tagName) {
-          const possibleParentList = possibleParent.querySelector('ol')
-          if (!possibleParentList) {
-            const ol = document.createElement('ol')
-            possibleParent.append(ol)
-            return ol
-          }
-          return possibleParentList
+    return li
+  },
+  getParentOL: (element, path) => {
+    while (path.length > 0) {
+      const [title, possibleParent] = path.at(-1)
+      if (title.tagName < element.tagName) {
+        const possibleParentList = possibleParent.querySelector('ol')
+        if (!possibleParentList) {
+          const ol = document.createElement('ol')
+          possibleParent.append(ol)
+          return ol
         }
-        path.pop()
+        return possibleParentList
       }
-      return ol
-    })()
+      path.pop()
+    }
+    return null
+  },
+}
+
+queryAll('[ss:toc]').forEach(element => {
+  const ol = document.createElement('ol')
+  /** @type {[HTMLElement, HTMLElement][]} */
+  const path = []
+  for (const element of queryAll(':is(h1, h2, h3, h4, h5, h6):not(.no-toc)')) {
+    tocUtils.getOrCreateId(element)
+    const parent = tocUtils.getParentOL(element, path) || ol
+    const li = tocUtils.createMenuItem(element)
     parent.append(li)
     path.push([element, li])
   }
