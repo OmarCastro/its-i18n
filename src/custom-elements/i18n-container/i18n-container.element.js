@@ -63,47 +63,59 @@ export class I18nContainerElement extends HTMLElement {
 
 /**
  *
+ * @param {Element} element
+ * @returns {Promise<Element | null>[]}
+ */
+function updateI18nOnElement (element) {
+  const promises = /** @type Promise<Element | null>[] */([])
+
+  if (!isElementTranslatable(element) || !element.hasAttributes()) {
+    return promises
+  }
+  const attributesToUpdate = getAttributesToUpdate(element)
+  const attributeEntries = Object.entries(attributesToUpdate)
+  const contentDetails = getContentDetailsToUpdate(element)
+  if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
+    return promises
+  }
+  const locale = new Intl.Locale(getLanguageFromElement(element))
+
+  for (const [attribute, i18nKey] of attributeEntries) {
+    const promise = translate(i18nKey, locale, element).then((result) => {
+      if (element.getAttribute(attribute) === result) {
+        return null
+      } else {
+        element.setAttribute(attribute, result)
+        return element
+      }
+    })
+    promises.push(promise)
+  }
+  if (contentDetails !== notFoundContentDetails) {
+    const promise = translate(contentDetails.key, locale, element).then((result) => {
+      const previousHtml = element.innerHTML
+      contentDetails.contentSetter(element, result)
+      return previousHtml === element.innerHTML ? null : element
+    })
+    promises.push(promise)
+  }
+
+  const isTicking = element.hasAttribute('data-i18n-tick-time')
+  if (isTicking) {
+    timeTick().tickElement(element)
+  }
+  return promises
+}
+
+/**
+ *
  * @param {Iterable<Element>} iterable
  * @returns {Promise<Element[]>}
  */
 function updateI18nOnElements (iterable) {
   const promises = []
   for (const element of iterable) {
-    if (!isElementTranslatable(element) || !element.hasAttributes()) {
-      continue
-    }
-    const attributesToUpdate = getAttributesToUpdate(element)
-    const attributeEntries = Object.entries(attributesToUpdate)
-    const contentDetails = getContentDetailsToUpdate(element)
-    if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
-      continue
-    }
-    const locale = new Intl.Locale(getLanguageFromElement(element))
-
-    for (const [attribute, i18nKey] of attributeEntries) {
-      const promise = translate(i18nKey, locale, element).then((result) => {
-        if (element.getAttribute(attribute) === result) {
-          return null
-        } else {
-          element.setAttribute(attribute, result)
-          return element
-        }
-      })
-      promises.push(promise)
-    }
-    if (contentDetails !== notFoundContentDetails) {
-      const promise = translate(contentDetails.key, locale, element).then((result) => {
-        const previousHtml = element.innerHTML
-        contentDetails.contentSetter(element, result)
-        return previousHtml === element.innerHTML ? null : element
-      })
-      promises.push(promise)
-    }
-
-    const isTicking = element.hasAttribute('data-i18n-tick-time')
-    if (isTicking) {
-      timeTick().tickElement(element)
-    }
+    promises.push(...updateI18nOnElement(element))
   }
 
   return Promise.allSettled(promises).then((promises) => promises.flatMap((promise) => {
@@ -242,6 +254,28 @@ function triggerUpdate () {
   updateI18nOnElements(targets)
 }
 
+/**
+ * @param {MutationRecord[]} records
+ */
+function fillTargetsToUpdate (records) {
+  const { elements, subtrees } = targetsToUpdateI18n
+  for (const record of records) {
+    const { target, type, attributeName, oldValue } = record
+
+    if (!(target instanceof Element) || type !== 'attributes' || !attributeName || oldValue === target.getAttribute(attributeName)) {
+      continue
+    }
+
+    if (attributeName === 'lang') {
+      elements.add(target)
+      subtrees.add(target)
+    } else if (Object.hasOwn(contentAttributeDetails, attributeName) || attributeName.match(dataI18nAttributeMatchRegex)) {
+      elements.add(target)
+    }
+  }
+  return targetsToUpdateI18n
+}
+
 /** @type {number | undefined} */
 let frameRequestNumber
 
@@ -250,24 +284,7 @@ let frameRequestNumber
  * @param {MutationRecord[]} records
  */
 function observerCallback (records) {
-  const { elements, subtrees } = targetsToUpdateI18n
-  for (const record of records) {
-    const { target, type } = record
-
-    if (!(target instanceof Element) || type !== 'attributes') {
-      continue
-    }
-
-    const { attributeName } = record
-    if (!attributeName) continue
-    if (record.oldValue === target.getAttribute(attributeName)) continue
-    if (attributeName === 'lang') {
-      elements.add(target)
-      subtrees.add(target)
-    } else if (Object.hasOwn(contentAttributeDetails, attributeName) || attributeName.match(dataI18nAttributeMatchRegex)) {
-      elements.add(target)
-    }
-  }
+  const { elements, subtrees } = fillTargetsToUpdate(records)
 
   if (frameRequestNumber === undefined && (elements.size > 0 || subtrees.size > 0)) {
     frameRequestNumber = requestAnimationFrame(() => {
@@ -298,7 +315,7 @@ const langObserver = new ElementLangObserver(records => {
 })
 
 /** @type {MutationObserverInit} */
-const mutationProperties = Object.freeze({ attributes: true, subtree: true })
+const mutationProperties = Object.freeze({ attributes: true, attributesOldValue: true, subtree: true })
 
 export default I18nContainerElement
 
