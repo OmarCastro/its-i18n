@@ -64,22 +64,12 @@ export class I18nContainerElement extends HTMLElement {
 /**
  *
  * @param {Element} element
+ * @param {Intl.Locale} locale
+ * @param {[string, string][]} attributeEntries
  * @returns {Promise<Element | null>[]}
  */
-function updateI18nOnElement (element) {
+function applyI18nAttributesUpdate (element, locale, attributeEntries) {
   const promises = /** @type Promise<Element | null>[] */([])
-
-  if (!isElementTranslatable(element) || !element.hasAttributes()) {
-    return promises
-  }
-  const attributesToUpdate = getAttributesToUpdate(element)
-  const attributeEntries = Object.entries(attributesToUpdate)
-  const contentDetails = getContentDetailsToUpdate(element)
-  if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
-    return promises
-  }
-  const locale = new Intl.Locale(getLanguageFromElement(element))
-
   for (const [attribute, i18nKey] of attributeEntries) {
     const promise = translate(i18nKey, locale, element).then((result) => {
       if (element.getAttribute(attribute) === result) {
@@ -91,17 +81,50 @@ function updateI18nOnElement (element) {
     })
     promises.push(promise)
   }
-  if (contentDetails !== notFoundContentDetails) {
-    const promise = translate(contentDetails.key, locale, element).then((result) => {
-      const previousHtml = element.innerHTML
-      contentDetails.contentSetter(element, result)
-      return previousHtml === element.innerHTML ? null : element
-    })
-    promises.push(promise)
-  }
+  return promises
+}
 
-  const isTicking = element.hasAttribute('data-i18n-tick-time')
-  if (isTicking) {
+/**
+ *
+ * @param {Element} element
+ * @param {Intl.Locale} locale
+ * @param {typeof orderedContentAttributeDetails[number] & { key: string }} contentDetails
+ * @returns {Promise<Element | null>[]}
+ */
+function applyI18nContentUpdate (element, locale, contentDetails) {
+  if (contentDetails === notFoundContentDetails) {
+    return []
+  }
+  const promise = translate(contentDetails.key, locale, element).then((result) => {
+    const previousHtml = element.innerHTML
+    contentDetails.contentSetter(element, result)
+    return previousHtml === element.innerHTML ? null : element
+  })
+  return [promise]
+}
+
+/**
+ *
+ * @param {Element} element
+ * @returns {Promise<Element | null>[]}
+ */
+function updateI18nOnElement (element) {
+  if (!isElementTranslatable(element) || !element.hasAttributes()) {
+    return []
+  }
+  const attributesToUpdate = getAttributesToUpdate(element)
+  const attributeEntries = Object.entries(attributesToUpdate)
+  const contentDetails = getContentDetailsToUpdate(element)
+  if (attributeEntries.length <= 0 && contentDetails === notFoundContentDetails) {
+    return []
+  }
+  const locale = new Intl.Locale(getLanguageFromElement(element))
+  const promises = [
+    ...applyI18nAttributesUpdate(element, locale, attributeEntries),
+    ...applyI18nContentUpdate(element, locale, contentDetails),
+  ]
+
+  if (element.hasAttribute('data-i18n-tick-time')) {
     timeTick().tickElement(element)
   }
   return promises

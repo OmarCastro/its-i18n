@@ -23,6 +23,35 @@ function updateStore (exampleObject, exampleContainer) {
 }
 
 /**
+ * @param {Record<string, any>} exampleObject
+ * @param {Element} codeView
+ */
+async function transformCodeViewToEditor (exampleObject, codeView) {
+  const exampleContainer = codeView.closest('.example')
+  const lang = codeView.getAttribute('data-lang')
+  const { createEditorView } = await import('./code-editor.lazy.js')
+  const editorView = createEditorView({
+    doc: codeView.textContent || '',
+    onChange: (e) => {
+      try {
+        const value = e.state.doc.toString()
+        const newTranslations = JSON.parse(value)
+        if (JSON.stringify(newTranslations) !== JSON.stringify(exampleObject[lang])) {
+          exampleObject[lang] = newTranslations
+          updateStore(exampleObject, exampleContainer)
+        }
+      } catch {
+        // ignore
+      }
+    },
+    parent: codeView,
+  })
+
+  codeView.replaceChildren(editorView.dom)
+  return editorView
+}
+
+/**
  *
  * @param {Record<string, any>} exampleObject
  * @param {Element} editorElement
@@ -41,26 +70,7 @@ async function applyExample (exampleObject, editorElement) {
       return
     }
     editorElement.removeEventListener('click', eventListener)
-    const { createEditorView } = await import('./code-editor.lazy.js')
-    const editorView = createEditorView({
-      doc: editorElement.textContent || '',
-      onChange: (e) => {
-        try {
-          const value = e.state.doc.toString()
-          const newTranslations = JSON.parse(value)
-          if (JSON.stringify(newTranslations) !== JSON.stringify(exampleObject[lang])) {
-            exampleObject[lang] = newTranslations
-            updateStore(exampleObject, exampleContainer)
-          }
-        } catch {
-          // ignore
-        }
-      },
-      parent: editorElement,
-    })
-
-    editorElement.replaceChildren(editorView.dom)
-
+    const editorView = await transformCodeViewToEditor(exampleObject, editorElement)
     const { clientX, clientY } = event
     requestAnimationFrame(() => {
       editorView.focus()
@@ -84,18 +94,19 @@ document.querySelectorAll('.example').forEach(element => {
   updateStore(exampleObj, element)
 
   element.addEventListener('input', (event) => {
+    const bindSelectorAttr = 'data-bind-selector'
     if (event.target.matches('.lang-edit')) {
-      const selector = event.target.getAttribute('data-bind-selector') || '[lang]'
+      const selector = event.target.getAttribute(bindSelectorAttr) || '[lang]'
       const node = element.querySelector(selector)
       node && node.setAttribute('lang', event.target.textContent)
     }
     if (event.target.matches('.data-i18n-edit')) {
-      const selector = event.target.getAttribute('data-bind-selector') || '[data-i18n-text]'
+      const selector = event.target.getAttribute(bindSelectorAttr) || '[data-i18n-text]'
       const node = element.querySelector(selector)
       node && node.setAttribute('data-i18n-text', event.target.textContent)
     }
     if (event.target.matches('.data-i18n--title-edit')) {
-      const selector = event.target.getAttribute('data-bind-selector') || '[data-i18n--title]'
+      const selector = event.target.getAttribute(bindSelectorAttr) || '[data-i18n--title]'
       const node = element.querySelector(selector)
       node && node.setAttribute('data-i18n--title', event.target.textContent)
     }
