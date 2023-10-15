@@ -3,14 +3,13 @@ import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from '../i18n-nor
 /**
  * Add merge data to accumulator
  *
- * @param {I18nMergeIntermediaryResult} acc - acc
+ * @param {I18nMergeIntermediaryResult} acc - accumulator
  * @param {NormalizedI18nDefinition} i18nDefinition
  * @param {string} language
  * @param {string | URL} locationBase
- * @returns
  */
 const mergeLang = (acc, i18nDefinition, language, locationBase) => {
-  const { translations, import: ext } = normalizeI18nDefinition(i18nDefinition).result
+  const { translations, import: ext } = i18nDefinition
   const strLang = language.toString()
   const definition = acc[strLang] || { import: new Set(), translations: {} }
   const definitionExtSet = definition.import
@@ -29,29 +28,37 @@ const mergeLang = (acc, i18nDefinition, language, locationBase) => {
 }
 
 /**
+ * reducer for `merge` function, normalizes i18n to use `mergeLang`
+ *
+ * @param {I18nMergeIntermediaryResult} acc - accumulator
+ * @param {I18nLangMergeData} mergeData - acc
+ */
+const mergeReducer = (acc, mergeData) => {
+  const { location, kind } = mergeData
+  const locationStr = typeof location === 'string' ? location : location.href
+  if (kind === 'definition') {
+    const i18nDefinition = normalizeI18nDefinition(mergeData.data).result
+    return mergeLang(acc, i18nDefinition, mergeData.language.toString(), location)
+  }
+
+  if (kind === 'translations') {
+    const i18nDefinition = normalizeI18nDefinition(locationStr).result
+    return mergeLang(acc, i18nDefinition, mergeData.language.toString(), location)
+  }
+
+  const i18nDefinitionMap = normalizeI18nDefinitionMap(mergeData.data).result
+  return Object.entries(i18nDefinitionMap).reduce(
+    (acc, [lang, def]) => mergeLang(acc, def, lang, location),
+    acc)
+}
+
+/**
  *
  * @param  {...I18nLangMergeData} data
  * @returns {NormalizedI18nDefinitionMap}
  */
 const merge = (...data) => {
-  const result = data.reduce((acc, value) => {
-    const { location, kind } = value
-    const locationStr = typeof location === 'string' ? location : location.href
-    if (kind === 'definition') {
-      const i18nDefinition = normalizeI18nDefinition(value.data).result
-      return mergeLang(acc, i18nDefinition, value.language.toString(), location)
-    }
-
-    if (kind === 'translations') {
-      const i18nDefinition = normalizeI18nDefinition(locationStr).result
-      return mergeLang(acc, i18nDefinition, value.language.toString(), location)
-    }
-
-    const i18nDefinitionMap = normalizeI18nDefinitionMap(value.data).result
-    return Object.entries(i18nDefinitionMap).reduce((acc, [lang, def]) => {
-      return mergeLang(acc, def, lang, location)
-    }, acc)
-  }, {})
+  const result = data.reduce(mergeReducer, {})
 
   return Object.fromEntries(
     Object.entries(result).map(([lang, { import: ext, translations }]) => [
