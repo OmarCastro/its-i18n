@@ -2,13 +2,18 @@ env:
   browser: true
   es2021: true
   node: true
-extends: standard
+extends: 
+  - standard
+  - plugin:sonarjs/recommended
 plugins:
   - jsdoc
 parserOptions:
   ecmaVersion: latest
   sourceType: module
 rules:
+  jsdoc/check-types: 1
   comma-dangle: [error, always-multiline]
   key-spacing: ["error", { "mode": "minimum" }]
   no-multi-spaces: [error, { exceptions: { Property: true, ObjectExpression: true }}]
+  sonarjs/cognitive-complexity: ["error", 10]
+  max-lines-per-function: ["error", 25]
