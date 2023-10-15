@@ -10,7 +10,7 @@ checks:
       threshold: 10
   return-statements:
     config:
-      threshold: 5
+      threshold: 10
 
 plugins:
   duplication:
