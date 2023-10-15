@@ -9,7 +9,6 @@ import { builder } from '../utils/i18n-merger/i18n-merger.util.js'
  */
 async function loadLocaleMaps ({ document, location, merger }) {
   const locationHref = location.href
-
   const localeMaps = Array.from(document.querySelectorAll('link[rel="i18n-locale-map"]'))
   if (localeMaps.length <= 0) {
     return merger
@@ -18,12 +17,10 @@ async function loadLocaleMaps ({ document, location, merger }) {
   const deferredMapPromises = localeMaps.flatMap((link) => {
     const href = link.getAttribute('href')
     if (!href) return []
-
     return [importI18nJson(href, locationHref).then((result) => ({ result, location: new URL(href, locationHref) }))]
   })
 
   const promiseResults = await Promise.allSettled(deferredMapPromises)
-
   return promiseResults.reduce((merger, settled) => {
     if (settled.status === 'rejected') {
       console.error('error loading file: %o', settled.reason)
@@ -41,11 +38,8 @@ async function loadLocaleMaps ({ document, location, merger }) {
  */
 function loadTranslations ({ document, location, merger }) {
   const locationHref = location.href
-
   const translationsMaps = document.querySelectorAll('link[rel="i18n-translation-map"]')
-  if (translationsMaps.length <= 0) {
-    return merger
-  }
+  if (translationsMaps.length <= 0) { return merger }
 
   return [...translationsMaps].reduce((merger, link) => {
     const href = link.getAttribute('href')
@@ -77,7 +71,6 @@ export async function loadI18n ({ document, location } = window) {
   location = typeof location === 'string' ? new URL(location) : location
   const localeMapMerger = await loadLocaleMaps({ document, location, merger: builder })
   const finalMerger = loadTranslations({ document, location, merger: localeMapMerger })
-
   const store = i18nTanslationStore()
 
   store.loadTranslations({
