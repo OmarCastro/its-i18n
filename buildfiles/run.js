@@ -1,5 +1,5 @@
 #!/usr/bin/env -S node --input-type=module
-/* eslint-disable camelcase */
+/* eslint-disable camelcase, max-lines-per-function */
 import process from 'node:process'
 import fs from 'node:fs/promises'
 import { resolve, basename } from 'node:path'
