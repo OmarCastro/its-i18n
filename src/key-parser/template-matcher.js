@@ -41,6 +41,114 @@ const emptyYesMatch = Object.freeze({
 const exactStringMatcher = (textToMatch) => (text) => (textToMatch === text) ? emptyYesMatch : noMatch
 
 /**
+ * @param {CaptureExpressionsInfoDetail[]} details
+ * @returns {CaptureExpressionInfo}
+ */
+const captureExpressionInfoFromDetails = (details) => ({
+  matchPredicate: (text) => {
+    for (const expressionPart of details) {
+      if (expressionPart.matches(text)) {
+        return {
+          isMatch: true,
+          expressionInfo: expressionPart.expressionInfo,
+        }
+      }
+    }
+    return noMatchExpression
+  },
+})
+
+/**
+ * @param {import('./key-ast.util.js').Token} captureToken
+ * @returns {CaptureExpressionInfo}
+ */
+function captureExpressionInfoFromToken (captureToken) {
+  if (captureToken.childTokens.length === 0) {
+    return anyMatchCaptureExpressionsInfo
+  }
+  /** @type {CaptureExpressionsInfoDetail[]} */
+  const fragmentedCaptureExpressionsInfo = []
+  let currentExpression = ''
+  for (const token of captureToken.childTokens) {
+    switch (token.type) {
+      case states.capture_expr:
+        currentExpression = currentExpression ? `${currentExpression} ${token.text}` : token.text
+        continue
+
+      case states.capture_expr_sep:
+        fragmentedCaptureExpressionsInfo.push({
+          type: 'expression',
+          text: currentExpression,
+          expressionInfo: captureExpressions.named[currentExpression],
+          matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
+        })
+        currentExpression = ''
+        continue
+      case states.regex:
+        fragmentedCaptureExpressionsInfo.push({
+          type: 'regex',
+          text: token.text,
+          expressionInfo: captureExpressions.special.regex,
+          matches: captureExpressions.special.regex.matchPredicate(token.text.slice(1, -1)),
+        })
+        continue
+      case states.sq_string:
+      case states.dq_string:
+      case states.bt_string:
+        fragmentedCaptureExpressionsInfo.push({
+          type: 'string',
+          text: token.text,
+          expressionInfo: captureExpressions.special.string,
+          matches: captureExpressions.special.string.matchPredicate(token.text),
+        })
+        continue
+    }
+  }
+  if (currentExpression) {
+    fragmentedCaptureExpressionsInfo.push({
+      type: 'expression',
+      text: currentExpression,
+      expressionInfo: captureExpressions.named[currentExpression],
+      matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
+    })
+  }
+
+  return captureExpressionInfoFromDetails(fragmentedCaptureExpressionsInfo)
+}
+
+/**
+ * @param {RegExp} regex - used to validate for `text` match
+ * @param {CaptureExpressionInfo[]} captureExpressionsInfo - to validate each capture token match
+ * @returns {Matcher}
+ */
+const expressionMatcher = (regex, captureExpressionsInfo) => (text) => {
+  if (typeof text !== 'string') return noMatch
+  const matches = text.match(regex)
+  if (matches == null) {
+    return noMatch
+  }
+
+  const parameters = matches.slice(1)
+  const paramMatchInfo = []
+
+  for (const [index, text] of parameters.entries()) {
+    const matchResult = captureExpressionsInfo[index].matchPredicate(text)
+    if (!matchResult.isMatch) {
+      return noMatch
+    }
+    paramMatchInfo.push(matchResult.expressionInfo)
+  }
+
+  const defaultFormatters = paramMatchInfo.map((info) => info.defaultFormat)
+
+  return {
+    isMatch: true,
+    parameters,
+    defaultFormatters,
+  }
+}
+
+/**
  *
  * @param {import('./key-ast.util.js').Token[]} tokens
  * @returns {Matcher}
@@ -53,112 +161,13 @@ function getMatcherFromTokens (tokens) {
     return exactStringMatcher(textToMatch)
   }
 
-  const captureExpressionsInfo = captureTokens.map((captureToken) => {
-    /** @type {CaptureExpressionsInfoDetail[]} */
-    const fragmentedCaptureExpressionsInfo = []
-    if (captureToken.childTokens.length === 0) {
-      return anyMatchCaptureExpressionsInfo
-    }
-    let currentExpression = ''
-    for (const token of captureToken.childTokens) {
-      switch (token.type) {
-        case states.capture_expr:
-          currentExpression = currentExpression ? `${currentExpression} ${token.text}` : token.text
-          continue
+  const captureExpressionsInfo = captureTokens.map(captureExpressionInfoFromToken)
 
-        case states.capture_expr_sep:
-          fragmentedCaptureExpressionsInfo.push({
-            type: 'expression',
-            text: currentExpression,
-            expressionInfo: captureExpressions.named[currentExpression],
-            matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
-          })
-          currentExpression = ''
-          continue
-        case states.regex:
-          fragmentedCaptureExpressionsInfo.push({
-            type: 'regex',
-            text: token.text,
-            expressionInfo: captureExpressions.special.regex,
-            matches: captureExpressions.special.regex.matchPredicate(token.text.slice(1, -1)),
-          })
-          continue
-        case states.sq_string:
-        case states.dq_string:
-        case states.bt_string:
-          fragmentedCaptureExpressionsInfo.push({
-            type: 'string',
-            text: token.text,
-            expressionInfo: captureExpressions.special.string,
-            matches: captureExpressions.special.string.matchPredicate(token.text),
-          })
-          continue
-      }
-    }
-    if (currentExpression) {
-      fragmentedCaptureExpressionsInfo.push({
-        type: 'expression',
-        text: currentExpression,
-        expressionInfo: captureExpressions.named[currentExpression],
-        matches: captureExpressions.named[currentExpression]?.matchPredicate() ?? falsePredicate,
-      })
-    }
-
-    return {
-      /**
-       *
-       * @param {string} text
-       * @returns {ParameterMatchResult}
-       */
-      matchPredicate: (text) => {
-        const expressionPart = fragmentedCaptureExpressionsInfo.find((expressionPart) => expressionPart.matches(text))
-        if (!expressionPart) {
-          return noMatchExpression
-        }
-        return {
-          isMatch: true,
-          expressionInfo: expressionPart.expressionInfo,
-        }
-      },
-    }
-  })
-
-  const regexStr = tokens.map((token) => {
-    if (token.type === states.capture) {
-      return '(.*)'
-    } else {
-      return escape(token.text)
-    }
-  }).join('')
+  const regexStr = tokens.map((token) => token.type === states.capture ? '(.*)' : escape(token.text)).join('')
 
   const regex = new RegExp('^' + regexStr + '$')
 
-  return (text) => {
-    if (typeof text !== 'string') return noMatch
-    const matches = text.match(regex)
-    if (matches == null) {
-      return noMatch
-    }
-
-    const parameters = matches.slice(1)
-    const paramMatchInfo = []
-
-    for (const [index, text] of parameters.entries()) {
-      const matchResult = captureExpressionsInfo[index].matchPredicate(text)
-      if (!matchResult.isMatch) {
-        return noMatch
-      }
-      paramMatchInfo.push(matchResult.expressionInfo)
-    }
-
-    const defaultFormatters = paramMatchInfo.map((info) => info.defaultFormat)
-
-    return {
-      isMatch: true,
-      parameters,
-      defaultFormatters,
-    }
-  }
+  return expressionMatcher(regex, captureExpressionsInfo)
 }
 
 /**
@@ -169,6 +178,11 @@ function getMatcherFromTokens (tokens) {
 export function getMatcher (ast) {
   return getMatcherFromTokens(ast.tokens)
 }
+
+/**
+ * @typedef {object} CaptureExpressionInfo
+ * @property { (text: string) => ParameterMatchResult} matchPredicate
+ */
 
 /**
  * @typedef {object} CaptureExpressionsInfoDetail
