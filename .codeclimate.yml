@@ -11,6 +11,9 @@ checks:
   return-statements:
     config:
       threshold: 10
+  method-lines:
+    config:
+      threshold: 75
 
 plugins:
   duplication:

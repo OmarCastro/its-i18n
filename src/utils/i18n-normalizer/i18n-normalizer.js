@@ -93,7 +93,6 @@ export function normalizeTranslations (translations) {
  * @param {I18nDefinition} data - target i18n definition to be normalized
  * @returns {{ result: NormalizedI18nDefinition; errors: ErrorList }} normalized i18n definition
  */
-// eslint-disable-next-line max-lines-per-function -- it is supposed to be large due to handling many use cases to return early
 export function normalizeI18nDefinition (data) {
   if (data === '') {
     return {
@@ -155,7 +154,6 @@ export function normalizeI18nDefinition (data) {
  *
  * @returns {NormalizationResult} normalized i18n definition map
  */
-// eslint-disable-next-line max-lines-per-function -- it is large to create customized warnings and errors for each use case
 export function normalizeI18nDefinitionMap (data) {
   const errors = []
   const warnings = []
