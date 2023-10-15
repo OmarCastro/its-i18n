@@ -155,6 +155,7 @@ export function normalizeI18nDefinition (data) {
  *
  * @returns {NormalizationResult} normalized i18n definition map
  */
+// eslint-disable-next-line max-lines-per-function -- it is large to create customized warnings and errors for each use case
 export function normalizeI18nDefinitionMap (data) {
   const errors = []
   const warnings = []
