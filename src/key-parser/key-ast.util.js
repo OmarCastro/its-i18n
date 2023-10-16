@@ -117,7 +117,7 @@ const stateMachine = (() => {
  * @param {string} key - target sting
  * @returns {AST} the parsed AST of the target key
  */
-// eslint-disable-next-line -- this function is optimized for speed as its critical for startup speed, maintainability concerns are ignored
+// eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity -- this function is optimized for speed as its critical for startup speed, it is meant to be complex
 export function getAST (key) {
   let currentState = states.normal
   let currentMachineState = stateMachine[currentState]
