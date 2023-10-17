@@ -41,3 +41,7 @@ import element from 'its-i18n'
 
 customElements.define('i18n-container', element)
 ```
+
+### Examples
+
+You can see the examples [on the github page](https://omarcastro.github.io/its-i18n/#examples) as well t interact with them
