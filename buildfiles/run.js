@@ -48,6 +48,10 @@ const tasks = {
     description: 'launch dev server',
     cb: async () => { await openDevServer(); await wait(2 ** 30) },
   },
+  'ls-changed': {
+    description: 'launch dev server',
+    cb: async () => { (await listChangedFiles()).forEach(filename => console.log(filename)) },
+  },
   help: helpTask,
   '--help': helpTask,
   '-h': helpTask,
@@ -328,7 +332,7 @@ async function * watchDirs (...dirs) {
   }
 }
 
-const execCmd = async (command, args) => {
+async function execCmd (command, args) {
   const options = {
     cwd: process.cwd(),
     env: process.env,
@@ -338,9 +342,11 @@ const execCmd = async (command, args) => {
   return await execFile(command, args, options)
 }
 
-const execGitCmd = async (args) => (await execCmd('git', args)).stdout.trim().toString().split('\n')
+async function execGitCmd (args) {
+  return (await execCmd('git', args)).stdout.trim().toString().split('\n')
+}
 
-const listChangedFiles = async () => {
+async function listChangedFiles () {
   const mainBranchName = 'master'
   const mergeBase = await execGitCmd(['merge-base', 'HEAD', mainBranchName])
   const diffExec = execGitCmd(['diff', '--name-only', '--diff-filter=ACMRTUB', mergeBase])
