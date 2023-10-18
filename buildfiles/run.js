@@ -292,7 +292,6 @@ async function openDevServer () {
   const params = {
     host,
     port,
-    fallback: 'index.html',
     live: true,
     root: pathFromProject('.'),
     tls: {
