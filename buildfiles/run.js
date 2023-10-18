@@ -5,9 +5,10 @@ import fs from 'node:fs/promises'
 import { resolve, basename } from 'node:path'
 import { existsSync } from 'node:fs'
 import { promisify } from 'node:util'
-import { exec, spawn } from 'node:child_process'
+import { exec as baseExec, execFile as baseExecFile, spawn } from 'node:child_process'
 
-const execPromise = promisify(exec)
+const exec = promisify(baseExec)
+const execFile = promisify(baseExecFile)
 
 const projectPathURL = new URL('../', import.meta.url)
 const pathFromProject = (path) => new URL(path, projectPathURL).pathname
@@ -96,7 +97,7 @@ async function execTests () {
   const COVERAGE_TMP_DIR = `${REPORTS_TMP_DIR}/coverage`
   const COVERAGE_BACKUP_DIR = 'reports/coverage.bak'
 
-  await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text --reporter html playwright test')
+  await cmdSpawn('TZ=UTC npx c8 --all --include "src/**/*.{js,ts}" --exclude "src/**/*.{test,spec}.{js,ts}" --temp-directory ".tmp/coverage" --report-dir reports/.tmp/coverage/unit --reporter json-summary --reporter text-summary --reporter html playwright test')
   if (existsSync(COVERAGE_DIR)) {
     await mv(COVERAGE_DIR, COVERAGE_BACKUP_DIR)
   }
@@ -173,7 +174,7 @@ async function execBuild () {
 
   logStage('build html')
 
-  await execPromise(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`)
+  await exec(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`)
 
   logStage('move to final dir')
 
@@ -325,4 +326,24 @@ async function * watchDirs (...dirs) {
   while (true) {
     yield new Promise(resolve => { currentResolver = resolve })
   }
+}
+
+const execCmd = async (command, args) => {
+  const options = {
+    cwd: process.cwd(),
+    env: process.env,
+    stdio: 'pipe',
+    encoding: 'utf-8',
+  }
+  return await execFile(command, args, options)
+}
+
+const execGitCmd = async (args) => (await execCmd('git', args)).stdout.trim().toString().split('\n')
+
+const listChangedFiles = async () => {
+  const mainBranchName = 'master'
+  const mergeBase = await execGitCmd(['merge-base', 'HEAD', mainBranchName])
+  const diffExec = execGitCmd(['diff', '--name-only', '--diff-filter=ACMRTUB', mergeBase])
+  const lsFilesExec = execGitCmd(['ls-files', '--others', '--exclude-standard'])
+  return new Set([...(await diffExec), ...(await lsFilesExec)].filter(filename => filename.trim().length > 0))
 }
