@@ -4,6 +4,7 @@ import { minify } from 'html-minifier'
 import { imageSize } from 'image-size'
 import { JSDOM } from 'jsdom'
 import { marked } from 'marked'
+import { existsSync } from 'fs'
 
 const dom = new JSDOM('', {
   url: import.meta.url,
@@ -60,6 +61,8 @@ const exampleCode = (strings, ...expr) => {
  */
 const queryAll = (selector) => [...document.documentElement.querySelectorAll(selector)]
 
+const readFileImport = (file) => existsSync(`${docsOutputPath}/${file}`) ? fs.readFileSync(`${docsOutputPath}/${file}`, 'utf8') : fs.readFileSync(`${docsPath}/${file}`, 'utf8')
+
 queryAll('script.html-example').forEach(element => {
   const pre = document.createElement('pre')
   pre.innerHTML = exampleCode`<code class="language-markup keep-markup">${dedent(element.innerHTML)}</code>`
@@ -86,12 +89,18 @@ queryAll('script.js-example').forEach(element => {
 
 queryAll('svg[ss:include]').forEach(element => {
   const ssInclude = element.getAttribute('ss:include')
-  const svgText = fs.readFileSync(`${docsOutputPath}/${ssInclude}`, 'utf8')
+  const svgText = readFileImport(ssInclude)
   element.outerHTML = svgText
 })
 
-queryAll('[ss:markdown]').forEach(element => {
+queryAll('[ss:markdown]:not([ss:include])').forEach(element => {
   const md = dedent(element.innerHTML)
+  element.innerHTML = marked(md, { mangle: false, headerIds: false })
+})
+
+queryAll('[ss:markdown][ss:include]').forEach(element => {
+  const ssInclude = element.getAttribute('ss:include')
+  const md = readFileImport(ssInclude)
   element.innerHTML = marked(md, { mangle: false, headerIds: false })
 })
 
