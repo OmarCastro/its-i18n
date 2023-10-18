@@ -15,8 +15,11 @@
   "directories": {
     "doc": "docs"
   },
+  
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./buildfiles/run build",
+    "build:github-action": "./buildfiles/run build:github-action",
+    "test": "./buildfiles/run test"
   },
   "repository": {
     "type": "git",
