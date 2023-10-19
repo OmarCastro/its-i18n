@@ -192,7 +192,7 @@ async function execBuild () {
 
 async function execlintCode () {
   logStartStage('lint', 'lint using eslint')
-  await cmdSpawn('npx eslint . --fix')
+  await lintCode()
   logStage('typecheck with typescript')
   await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
@@ -308,6 +308,19 @@ function wait (ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
+}
+
+async function lintCode (options) {
+  const { ESLint } = await import('eslint')
+  const eslint = new ESLint()
+  const formatter = await eslint.loadFormatter()
+  const results = await eslint.lintFiles(['src/**/*.js', 'buildfiles/**/*.js'])
+
+  if (options != null && options.fix === true) {
+    await ESLint.outputFixes(results)
+  }
+
+  console.log(formatter.format(results))
 }
 
 async function * getFiles (dir) {
