@@ -14,6 +14,7 @@ const projectPathURL = new URL('../', import.meta.url)
 const pathFromProject = (path) => new URL(path, projectPathURL).pathname
 process.chdir(pathFromProject('.'))
 let updateDevServer = () => {}
+const esLintFilePatterns = ['src/**/*.js', 'buildfiles/**/*.js']
 
 const args = process.argv.slice(2)
 
@@ -35,6 +36,10 @@ const tasks = {
   test: {
     description: 'builds the project',
     cb: async () => { await execTests(); process.exit(0) },
+  },
+  linc: {
+    description: 'validates the code only on changed files',
+    cb: async () => { await execlintCodeOnChanged(); process.exit(0) },
   },
   lint: {
     description: 'validates the code',
@@ -79,7 +84,7 @@ await main()
 
 async function execDevEnvironment () {
   await openDevServer()
-  await Promise.all([execlintCode(), execTests()])
+  await Promise.all([execlintCodeOnChanged(), execTests()])
   await execBuild()
 
   const watcher = watchDirs(
@@ -91,7 +96,7 @@ async function execDevEnvironment () {
     console.log(`file "${change.filename}" changed`)
     await Promise.all([execBuild(), execTests()])
     updateDevServer()
-    await execlintCode()
+    await execlintCodeOnChanged()
   }
 }
 
@@ -190,9 +195,17 @@ async function execBuild () {
   logEndStage()
 }
 
+async function execlintCodeOnChanged () {
+  logStartStage('lint', 'lint using eslint')
+  await lintCode({ onlyChanged: true })
+  logStage('typecheck with typescript')
+  await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
+  logEndStage()
+}
+
 async function execlintCode () {
   logStartStage('lint', 'lint using eslint')
-  await lintCode()
+  await lintCode({ onlyChanged: false })
   logStage('typecheck with typescript')
   await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
@@ -309,18 +322,31 @@ function wait (ms) {
     setTimeout(resolve, ms)
   })
 }
-
-async function lintCode (options) {
+async function lintCode ({ onlyChanged }, options) {
+  const finalFilePatterns = await getLintCodeFilePattern(onlyChanged)
+  if (finalFilePatterns.length <= 0) {
+    return
+  }
   const { ESLint } = await import('eslint')
   const eslint = new ESLint()
   const formatter = await eslint.loadFormatter()
-  const results = await eslint.lintFiles(['src/**/*.js', 'buildfiles/**/*.js'])
+  const results = await eslint.lintFiles(finalFilePatterns)
 
   if (options != null && options.fix === true) {
     await ESLint.outputFixes(results)
   }
 
   console.log(formatter.format(results))
+}
+
+async function getLintCodeFilePattern (onlyChanged) {
+  if (!onlyChanged) {
+    return esLintFilePatterns
+  }
+  const { minimatch } = await import('minimatch')
+  const changedFiles = [...(await listChangedFiles())]
+  const intersection = esLintFilePatterns.flatMap(pattern => minimatch.match(changedFiles, pattern, { matchBase: true }))
+  return [...new Set(intersection)]
 }
 
 async function * getFiles (dir) {
@@ -360,7 +386,7 @@ async function execGitCmd (args) {
 }
 
 async function listChangedFiles () {
-  const mainBranchName = 'master'
+  const mainBranchName = 'main'
   const mergeBase = await execGitCmd(['merge-base', 'HEAD', mainBranchName])
   const diffExec = execGitCmd(['diff', '--name-only', '--diff-filter=ACMRTUB', mergeBase])
   const lsFilesExec = execGitCmd(['ls-files', '--others', '--exclude-standard'])
