@@ -16,9 +16,14 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "./buildfiles/run build",
-    "build:github-action": "./buildfiles/run build:github-action",
-    "test": "./buildfiles/run test"
+    "build": "node ./buildfiles/run.js build",
+    "build:github-action": "node ./buildfiles/run.js build:github-action",
+    "test": "node ./buildfiles/run.js test",
+    "lint": "node ./buildfiles/run.js lint",
+    "linc": "node ./buildfiles/run.js linc",
+    "dev": "node ./buildfiles/run.js dev",
+    "dev-server": "node ./buildfiles/run.js dev-server",
+    "help": "node ./buildfiles/run.js help"
   },
   "repository": {
     "type": "git",
