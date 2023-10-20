@@ -3,7 +3,7 @@
 import process from 'node:process'
 import fs from 'node:fs/promises'
 import { resolve, basename } from 'node:path'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { exec as baseExec, execFile as baseExecFile, spawn } from 'node:child_process'
 
@@ -52,10 +52,6 @@ const tasks = {
   'dev-server': {
     description: 'launch dev server',
     cb: async () => { await openDevServer(); await wait(2 ** 30) },
-  },
-  'ls-changed': {
-    description: 'launch dev server',
-    cb: async () => { (await listChangedFiles()).forEach(filename => console.log(filename)) },
   },
   help: helpTask,
   '--help': helpTask,
@@ -217,13 +213,17 @@ async function execGithubBuildWorkflow () {
 }
 
 function helpText () {
-  const maxTaskLength = Math.max(...['help, --help, -h', ...Object.keys(tasks)].map(text => text.length))
+  const fromNPM = isRunningFromNPMScript()
+
+  const helpArgs = fromNPM ? 'help' : 'help, --help, -h'
+  const maxTaskLength = Math.max(...[helpArgs, ...Object.keys(tasks)].map(text => text.length))
   const tasksToShow = Object.entries(tasks).filter(([_, value]) => value !== helpTask)
-  return `Usage: run <task>
+  const usageLine = fromNPM ? 'npm run <task>' : 'run <task>'
+  return `Usage: ${usageLine}
 
 Tasks: 
   ${tasksToShow.map(([key, value]) => `${key.padEnd(maxTaskLength, ' ')}  ${value.description}`).join('\n  ')}
-  ${'help, --help, -h'.padEnd(maxTaskLength, ' ')}  ${helpTask.description}`
+  ${helpArgs.padEnd(maxTaskLength, ' ')}  ${helpTask.description}`
 }
 
 /** @param {string[]} paths  */
@@ -391,4 +391,8 @@ async function listChangedFiles () {
   const diffExec = execGitCmd(['diff', '--name-only', '--diff-filter=ACMRTUB', mergeBase])
   const lsFilesExec = execGitCmd(['ls-files', '--others', '--exclude-standard'])
   return new Set([...(await diffExec), ...(await lsFilesExec)].filter(filename => filename.trim().length > 0))
+}
+
+function isRunningFromNPMScript () {
+  return JSON.parse(readFileSync(pathFromProject('./package.json'))).name === process.env.npm_package_name
 }
