@@ -36,3 +36,27 @@ main at any time
  We are using GitHub Issues for our public bugs. We keep a close eye on this and try to make it
 clear when we have an internal fix in progress. Before filing a new task, try to make sure your
 problem doesn’t already exist.
+
+
+## Contribution Prerequisites
+
+- You have Node installed at latest stable.
+- You are familiar with Git.
+
+## Development Workflow
+
+After cloning its-i18n, you can run several commands, the first time you run any of the following commands, it will automatically install the dependencies.
+
+- `npm run lint` checks the code style.
+- `npm run linc` is like `npm run lint` but faster because it only checks files that differ in your branch.
+- `npm test` runs all unit tests.
+- `npm run build` creates a build folder with dist and documentation.
+- `npm run dev-server` launch a server for development
+- `npm run dev` setups the whole development environment.
+  - builds the project
+  - runs tests
+  - launch the development server
+  - opens documentation in a web browser
+  - watch for file changes so that it build, test, check code styles and refresh documentation in the browser
+- `npm run help` shows the list of supported tasks with their description
+- `npm run build:github-action` is like `npm run build` but checks the style code before building, used for github actions
