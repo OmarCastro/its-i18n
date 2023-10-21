@@ -1,7 +1,7 @@
 import { traverseUpDomWithSlots } from './traverse-up-dom.js'
 
 /**
- * @param {Element} element
+ * @param {Element} element - target element
  * @returns {string} fallback language
  */
 function getFallbackLanguage (element) {
@@ -15,28 +15,28 @@ function getFallbackLanguage (element) {
 }
 
 /**
- * @param {Element} elementWithLangAttr
- * @param {string} invalidLanguage
+ * @param {Element} element - element with invaling lang attribute
+ * @param {string} invalidLanguage - the invalid language detected
  * @returns {string} corrected language
  */
-function handleInvalidLanguage (elementWithLangAttr, invalidLanguage) {
-  if (elementWithLangAttr === elementWithLangAttr.ownerDocument.documentElement) {
-    return getFallbackLanguage(elementWithLangAttr)
-  } else if (elementWithLangAttr.parentNode instanceof ShadowRoot) {
-    return getLanguageFromElement(elementWithLangAttr.parentNode.host)
+function handleInvalidLanguage (element, invalidLanguage) {
+  console.error('element %o has invalid language "%s" defined ignoring...', element, invalidLanguage)
+  if (element === element.ownerDocument.documentElement) {
+    return getFallbackLanguage(element)
+  } else if (element.parentNode instanceof ShadowRoot) {
+    return getLanguageFromElement(element.parentNode.host)
   }
-  return getLanguageFromElement(elementWithLangAttr.parentElement)
+  return getLanguageFromElement(element.parentElement)
 }
 
 /**
- * Gets the currently applied language of the element
- *
- * @param {Element | null} element
+ * Gets the currently applied language of element, get default locale otherwise
+ * @param {Element | null} element - target element
  * @returns {string} element language
  */
 export function getLanguageFromElement (element) {
   if (element == null) {
-    return navigator.language
+    return Intl.DateTimeFormat().resolvedOptions().locale
   }
   for (const node of traverseUpDomWithSlots(element)) {
     const langValue = node.getAttribute('lang')

@@ -11,9 +11,8 @@ import { traverseUpDomWithSlots } from './traverse-up-dom.js'
  * > or whether to leave them unchanged.
  *
  * The tranlate will apply to all elements, including non-HTML elements
- *
  * @see https://html.spec.whatwg.org/multipage/dom.html#attr-translate
- * @param {Element} element
+ * @param {Element} element - t
  * @returns {boolean} true if element is translatable, false otherwise
  */
 export function isElementTranslatable (element) {
@@ -31,7 +30,10 @@ export function isElementTranslatable (element) {
   return true
 }
 
-/** @param {Element} element */
+/**
+ * @param {Element} element - target element, may have `translate` attribute defined or not
+ * @returns {boolean | null} null if translateValue is invalid, true if translate is enabled, false otherwise
+ */
 function translateValue (element) {
   if (element instanceof HTMLElement) {
     return element.translate
