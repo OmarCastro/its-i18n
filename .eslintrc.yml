@@ -5,8 +5,7 @@ env:
 extends: 
   - standard
   - plugin:sonarjs/recommended
-plugins:
-  - jsdoc
+  - plugin:jsdoc/recommended-typescript-flavor
 parserOptions:
   ecmaVersion: latest
   sourceType: module
