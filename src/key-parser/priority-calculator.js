@@ -6,19 +6,11 @@ import { states } from './key-ast.util.js'
 import { captureExpressions } from './capture-expression-values.js'
 
 /**
- * @param {import('./key-ast.util.js').AST} ast
- * @returns
+ * @param {import('./key-ast.util.js').AST} ast - AST of parsed key
+ * @returns {KeyPriority} - priority of parsed key
  */
 export function calculatePriority (ast) {
-  return calculatePriorityFromTokens(ast.tokens)
-}
-
-/**
- * @param {import('./key-ast.util.js').Token[]} tokens
- * @returns {KeyPriority}
- */
-function calculatePriorityFromTokens (tokens) {
-  const captureTokens = tokens.filter((token) => token.type === states.capture)
+  const captureTokens = ast.tokens.filter((token) => token.type === states.capture)
   const captureValues = captureTokens.length
   const captureExpressionsInfo = captureTokens.map(calculateCaptureTokenPriority)
   const sum = captureExpressionsInfo.reduce((a, b) => a + b, 0)
@@ -29,9 +21,9 @@ function calculatePriorityFromTokens (tokens) {
 }
 
 /**
- * Calculates the priority of a value token
- * @param {import('./key-ast.util.js').Token} captureToken
- * @returns
+ * Calculates the priority of a capture token
+ * @param {import('./key-ast.util.js').Token} captureToken - target capture token
+ * @returns {number} priority value of target token
  */
 function calculateCaptureTokenPriority (captureToken) {
   if (captureToken.childTokens.length === 0) {
@@ -69,17 +61,14 @@ function calculateCaptureTokenPriority (captureToken) {
 
 /**
  * Calculates the priority into a numeric value to ease comparison of keys priority
- *
  * @param {number} captures - first value of priority - the number of capture tokens
  * @param {number} sum      - second value of priority - the sum of capture token values
- * @returns the numeric representation of priority tuple
+ * @returns {number} the numeric representation of priority tuple
  */
 export const getNumericValuePriority = (captures, sum) => Number.MAX_SAFE_INTEGER - (captures << 20) + sum
 
 /**
  * @typedef {object} KeyPriority
- *
- * @property {[number, number]} priority
- * @property {number} priorityAsNumber
- *
+ * @property {[number, number]} priority - priority in groups
+ * @property {number} priorityAsNumber - priority as number to improve comparison speed
  */

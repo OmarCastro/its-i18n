@@ -4,7 +4,7 @@
  * @template V
  */
 export class IterableWeakMap {
-  /** @param {Iterable<Readonly<[K, V]>>} [iterable] - initial data of the map */
+  /** @param {Iterable<readonly [K, V]>} [iterable] - initial data of the map */
   constructor (iterable = []) {
     for (const [key, value] of iterable) { this.set(key, value) }
   }

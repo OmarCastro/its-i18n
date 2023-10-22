@@ -2,14 +2,15 @@ import { getAST, states } from './key-ast.util.js'
 import { calculatePriority } from './priority-calculator.js'
 import { getMatcher } from './template-matcher.js'
 
-/** @param {Token} token - parsed key AST */
-function normalizeDefaultToken (token) {
-  return token.text
-}
+/**
+ *  @param {Token} token - parsed key AST
+ *  @returns {string} normalized text based on AST token
+ */
+const normalizeDefaultToken = (token) => token.text
 
 /**
  * @param {Token} token - parsed key AST
- * @returns {string}
+ *  @returns {string} normalized text based on AST token
  */
 function normalizedCaptureToken (token) {
   const { childTokens } = token
@@ -29,22 +30,17 @@ function normalizedCaptureToken (token) {
   return `{${normalizedCapture}}`
 }
 
-const normalizeTokenMapper = {
-  [states.capture]: normalizedCaptureToken,
-  [states.normal]: normalizeDefaultToken,
-}
-
 /**
  * Uses the target abstract syntax tree token to normalize the key
  * @param {Token} token - parsed key AST
+ * @returns {string} normalized text based on AST token
  */
-function normalizeToken (token) {
-  return (normalizeTokenMapper[token.type] ?? normalizeDefaultToken)(token)
-}
+const normalizeToken = (token) => token.type === states.capture ? normalizedCaptureToken(token) : normalizeDefaultToken(token)
 
 /**
  * Uses the abstract syntax tree to normalize the key
  * @param {AST} ast - parsed key AST
+ *  @returns {string} normalized text based on AST
  */
 function getNormalizedKey (ast) {
   return ast.tokens.map(normalizeToken).join('')
@@ -52,7 +48,6 @@ function getNormalizedKey (ast) {
 
 /**
  * Parses i18n key
- *
  * @param {string} key - target key to parse
  * @returns {ParseResult} - parse result
  */
@@ -77,9 +72,7 @@ export function parseKey (key) {
 
 /**
  * @typedef {object} ParseResult
- *
  * Representes the result of parsing a defined key
- *
  * @property {[number, number]} priority
  *   Defines the key priority.
  *
@@ -105,9 +98,7 @@ export function parseKey (key) {
 
 /**
  * @callback MatchPredicate
- *
  * Predicate to check if a defined text matches the key
- *
  * @param {string} text - target text to parse
  * @returns {boolean}
  */
