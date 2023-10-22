@@ -1,7 +1,7 @@
 /**
  * Traverse up in the document DOM closest element by passing shadow DOM
- *
- * @param {Element} targetElement
+ * @param {Element} targetElement - first element to yield from the generator
+ * @yields {Element} one element for each subsequent ancestor
  */
 export function * traverseUpDom (targetElement) {
   let el = targetElement
@@ -21,8 +21,8 @@ export function * traverseUpDom (targetElement) {
 
 /**
  * Traverse up in the document DOM closest element by passing shadow DOM, passing throug slots
- *
- * @param {Element} targetElement
+ * @param {Element} targetElement - first element to yield from the generator
+ * @yields {Element} one element for each subsequent assigned slot or ancestor
  */
 export function * traverseUpDomWithSlots (targetElement) {
   let el = targetElement

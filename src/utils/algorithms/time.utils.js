@@ -1,6 +1,5 @@
 /**
- * Parses ISO-8601 text
- *
+ * Parses ISO-8601 text to unix timestamp
  * @param {string} text - ISO8601 input as string
  * @returns {number} the representing ISO date as milliseconds from UNIX time on valid input, NaN on invalid input
  */
@@ -24,7 +23,6 @@ export function parseISO8601 (text) {
  * The impact of different results in Date.now() is that each frame you may,
  * see inconsistent results on all ticking elements in a screen (one or two elements jumps 2 seconds,
  * or no seconds at all, while others are ok)
- *
  * @returns {number} the current time, or the time of first call if called more than once during a frame
  */
 export const timeNowFrame = (() => {

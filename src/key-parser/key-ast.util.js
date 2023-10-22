@@ -1,8 +1,8 @@
 /**
  * Enum for token types.
- * @enum {number}
+ * @constant
  */
-export const states = {
+export const states = Object.freeze({
   normal: 0,
   capture: 1,
   capture_expr: 2,
@@ -15,7 +15,7 @@ export const states = {
 
   previous: 9,
   previous_ignore: 10,
-}
+})
 
 /**
  * @param {string} char - target string char
@@ -24,7 +24,7 @@ export const states = {
 const ch = (char) => char.charCodeAt(0)
 
 const defaultNextState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[states.normal] = states.normal
   state[states.capture] = states.capture_expr
   state[states.capture_expr] = states.capture_expr
@@ -38,13 +38,13 @@ const defaultNextState = (() => {
 })()
 
 const normalState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('{')] = states.capture
   return state
 })()
 
 const captureState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('}')] = states.previous
   state[ch('/')] = states.regex
   state[ch('\'')] = states.sq_string
@@ -59,7 +59,7 @@ const captureState = (() => {
 })()
 
 const captureExprState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('\\')] = states.previous_ignore
   state[ch('\t')] = states.previous_ignore
   state[ch(' ')] = states.previous_ignore
@@ -70,28 +70,28 @@ const captureExprState = (() => {
 })()
 
 const regexState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('/')] = states.previous
   state[ch('\\')] = states.escape
   return state
 })()
 
 const singleQuoteStringState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('\'')] = states.previous
   state[ch('\\')] = states.escape
   return state
 })()
 
 const doubleQuoteStringState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('"')] = states.previous
   state[ch('\\')] = states.escape
   return state
 })()
 
 const backtickStringState = (() => {
-  const state = []
+  const state = /** @type {StateValues[]} */ ([])
   state[ch('`')] = states.previous
   state[ch('\\')] = states.escape
   return state
@@ -113,13 +113,12 @@ const stateMachine = (() => {
 
 /**
  * Parses the string into an Abstract Syntac Tree (AST)
- *
  * @param {string} key - target sting
  * @returns {AST} the parsed AST of the target key
  */
 // eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity -- this function is optimized for speed as its critical for startup speed, it is meant to be complex
 export function getAST (key) {
-  let currentState = states.normal
+  let currentState = /** @type {StateValues} */(states.normal)
   let currentMachineState = stateMachine[currentState]
 
   /** @type {AST_In_Progress} */
@@ -138,7 +137,7 @@ export function getAST (key) {
 
   /**
    * Sets the current state
-   * @param {number} newState
+   * @param {StateValues} newState - target state
    */
   const setCurrentState = (newState) => {
     currentState = newState
@@ -146,14 +145,8 @@ export function getAST (key) {
   }
 
   /**
-   * @param {AST_In_Progress | TmpToken} node
-   * @returns {node is AST_In_Progress}
-   */
-  const isRootNode = (node) => node === rootnode
-
-  /**
-   * sets the current token the parent node or the
-   * @param {number} index
+   * sets the current token the parent node or the next token if the parent in root
+   * @param {number} index - index where the current toke ends
    */
   const upOneLevel = (index) => {
     setCurrentState(/** @type {TmpToken} */(currentToken.parentNode).type ?? states.normal)
@@ -161,11 +154,11 @@ export function getAST (key) {
     if (currentToken.type === states.escape) {
       const { parentNode } = currentToken
 
-      if (isRootNode(parentNode)) {
+      if (parentNode === rootnode) {
         currentToken = /** @type {TmpToken} */(rootnode.tokens.pop())
         return
       }
-      currentToken = parentNode
+      currentToken = /** @type {TmpToken} */(parentNode)
       return
     }
 
@@ -173,7 +166,7 @@ export function getAST (key) {
 
     const { parentNode } = currentToken
 
-    if (isRootNode(parentNode)) {
+    if (parentNode === rootnode) {
       parentNode.tokens.push(currentToken)
       currentToken = {
         parentNode,
@@ -184,30 +177,31 @@ export function getAST (key) {
       }
       return
     }
-
-    parentNode.childTokens.push(currentToken)
-    currentToken = parentNode
+    const token = /** @type {TmpToken} */(parentNode)
+    token.childTokens.push(currentToken)
+    currentToken = token
   }
 
   const length = key.length
+  const { previous: PREVIOUS, previous_ignore: PREVIOUS_IGNORE, normal: NORMAL } = states
   for (let i = 0; i < length; i++) {
     const ch = key.charCodeAt(i)
 
     const nextState = currentMachineState[ch] ?? defaultNextState[currentState]
     if (nextState == null || nextState === currentState) continue
 
-    if (nextState === states.previous) {
+    if (nextState === PREVIOUS) {
       upOneLevel(i)
       continue
     }
 
-    if (nextState === states.previous_ignore) {
+    if (nextState === PREVIOUS_IGNORE) {
       upOneLevel(i - 1)
       i--
       continue
     }
 
-    if (currentState === states.normal) {
+    if (currentState === NORMAL) {
       // at this point the next state is always `states.capture`
       if (key.charCodeAt(i + 1) === ch) {
         i++
@@ -265,31 +259,25 @@ export function getAST (key) {
 
 /**
  * @typedef {object} AST
- *
  * Abstract syntax tree (AST), or just syntax tree, A parse tree is a visual representation of the
  * syntactic structure of a piece of source code, as produced by a parser.
  * It shows the hierarchy of the elements in the code and the relationships between them.
- *
  * @property {string} key - the target key used to create the key
  * @property {Token[]} tokens - the direct descentdant of the root tree
- *
  */
 
 /**
  * @typedef {object} AST_In_Progress
- *
  * A "work in progress" AST, it is just a object used to build the {@see AST}
- *
  * @property {TmpToken[]} tokens - the direct descentdant of the root tree
  */
 
 /**
  * @typedef {object} Token
  * Represents a Node in the {@link AST}
- *
  * @property {number} start - text ocurrent starting position (start index), number is inclusive
  * @property {number} end - text ocurrent ending position (end index), number is exclusive
- * @property {typeof states[keyof typeof states]} type - the node type
+ * @property {StateValues} type - the node type
  * @property {string} text - substring of the {@link AST.key} with `start` and `end`
  * @property {Token[]} childTokens - direct child tokens of the node
  */
@@ -297,10 +285,12 @@ export function getAST (key) {
 /**
  * @typedef {object} TmpToken
  * Temporary {@link Token}, used to create the final {@link Token}
- *
  * @property {AST_In_Progress | TmpToken} parentNode - parent node
  * @property {number} start - text ocurrent starting position (start index), number is inclusive
  * @property {number} end - text ocurrent ending position (end index), number is exclusive
- * @property {typeof states[keyof typeof states]} type - the node type
+ * @property {StateValues} type - the node type
  * @property {TmpToken[]} childTokens - direct child temporary tokens of the node
  */
+
+/** @typedef {keyof typeof states} StateNames */
+/** @typedef {typeof states[StateNames]} StateValues */
