@@ -1,25 +1,22 @@
 /**
- * @constructor
+ * @class
  * @template {object} K
  * @template V
  */
 export class IterableWeakMap {
-  /**
-   *
-   * @param {Iterable<readonly [K, V]>} [iterable]
-   */
+  /** @param {Iterable<Readonly<[K, V]>>} [iterable] - initial data of the map */
   constructor (iterable = []) {
     for (const [key, value] of iterable) { this.set(key, value) }
   }
 
-  /** @returns {number} */
+  /** @returns {number} amount of entries in the map */
   get size () {
     return dataOf(this).keySet.size
   }
 
   /**
-   *  Deletes a key from the iterable weak map
-   * @param {K} key
+   * Deletes the entry with key `key` from the iterable weak map, does nothing if not found
+   * @param {K} key - target key
    */
   delete (key) {
     deleteKey(key, this)
@@ -30,7 +27,8 @@ export class IterableWeakMap {
   }
 
   /**
-   * @returns {IterableIterator<[K, V]>}
+   * @yields {[K, V]} - map entry
+   * @returns {Generator<[K, V], void>} - generator object of map entries
    */
   * entries () {
     const { refWeakMap } = dataOf(this)
@@ -43,40 +41,41 @@ export class IterableWeakMap {
   }
 
   /**
-   *
-   * @param {(value : V, key : K, map : this) => void} callback
-   * @param {*} [thisArg]
+   * @param {(value : V, key : K, map : this) => void} callback - forEach callback
+   * @param {*} [thisArg] - value of `this` variable in `callback`, optional
    */
   forEach (callback, thisArg) {
     for (const [key, value] of this.entries()) { callback.call(thisArg, value, key, this) }
   }
 
   /**
-   *
-   * @param {K} key
-   * @returns {V | undefined}
+   * @param {K} key  - key object
+   * @returns {V | undefined} - entry value of found entry with key, undefined if not found
    */
   get (key) {
     return dataOf(this).refWeakMap.get(key)?.value
   }
 
   /**
-   *
-   * @param {K} key
+   * @param {K} key - key object
+   * @returns {boolean} true if map contains `key`
    */
   has (key) {
     return dataOf(this).refWeakMap.has(key)
   }
 
+  /**
+   * @yields {K} - map entry key
+   * @returns {Generator<K, void>} - generator object of map keys
+   */
   * keys () {
     yield * iterateKeys(this)
   }
 
   /**
-   *
-   * @param {K} key
-   * @param {V} value
-   * @returns
+   * @param {K} key - key target
+   * @param {V} value - value to set or override
+   * @returns {IterableWeakMap<K, V>} the same instance
    */
   set (key, value) {
     const { keySet, refWeakMap } = dataOf(this)
@@ -92,7 +91,8 @@ export class IterableWeakMap {
   }
 
   /**
-   * @returns {IterableIterator<V>}
+   * @yields {V} - map entry value
+   * @returns {Generator<V, void>} - generator object of map values
    */
   * values () {
     for (const [, value] of this.entries()) { yield value }
@@ -100,29 +100,26 @@ export class IterableWeakMap {
 }
 
 /**
- * @constructor
+ * @class
  * @template {object} V
  */
 export class IterableWeakSet {
-  /**
-   *
-   * @param {Iterable<V>} [iterable]
-   */
+  /** @param {Iterable<V>} [iterable] - initial data of the set */
   constructor (iterable = []) {
     for (const value of iterable) { this.add(value) }
   }
 
-  /** @returns {number} */
+  /** @returns {number} amount of entries in the set */
   get size () {
     return dataOf(this).keySet.size
   }
 
   /**
-   * Deletes a key from the iterable weak set
-   * @param {V} key
+   * Deletes a value from the iterable weak set, does nothing if not found
+   * @param {V} value - target value
    */
-  delete (key) {
-    deleteKey(key, this)
+  delete (value) {
+    deleteKey(value, this)
   }
 
   [Symbol.iterator] () {
@@ -130,7 +127,8 @@ export class IterableWeakSet {
   }
 
   /**
-   * @returns {IterableIterator<V>}
+   * @yields {V} - map entry value
+   * @returns {Generator<V, void>} - generator object of map values
    */
   * entries () {
     for (const value of this.keys()) { yield value }
@@ -138,8 +136,8 @@ export class IterableWeakSet {
 
   /**
    *
-   * @param {(value : V, set : this) => void} callback
-   * @param {*} [thisArg]
+   * @param {(value : V, set : this) => void} callback - forEach callback
+   * @param {*} [thisArg] - value of `this` variable in `callback`, optional
    */
   forEach (callback, thisArg) {
     for (const value of this.entries()) { callback.call(thisArg, value, this) }
@@ -147,20 +145,16 @@ export class IterableWeakSet {
 
   /**
    *
-   * @param {V} value
+   * @param {V} value - value
+   * @returns {boolean} true if map contains `value`
    */
   has (value) {
     return dataOf(this).refWeakMap.has(value)
   }
 
-  * keys () {
-    yield * iterateKeys(this)
-  }
-
   /**
-   *
-   * @param {V} value
-   * @returns
+   * @param {V} value - value to add
+   * @returns {IterableWeakSet<V>} the same instance
    */
   add (value) {
     const { keySet, refWeakMap } = dataOf(this)
@@ -174,21 +168,28 @@ export class IterableWeakSet {
   }
 
   /**
-   * @returns {IterableIterator<V>}
+   * @yields {V} - map entry value
+   * @returns {Generator<V, void>} - generator object of map values
+   */
+  * keys () {
+    yield * iterateKeys(this)
+  }
+
+  /**
+   * @yields {V} - map entry value
+   * @returns {Generator<V, void>} - generator object of map values
    */
   * values () {
-    for (const value of this.keys()) { yield value }
+    yield * iterateKeys(this)
   }
 }
 
 /**
  * @template {object} K
  * @template V
- *
  * Generates an iterable weak struct key iterator
- *
- * @param {IterableWeakSet<K> | IterableWeakMap<K, V>} struct
- * @returns {Generator<K>}
+ * @param {IterableWeakSet<K> | IterableWeakMap<K, V>} struct - target weak struct
+ * @yields {K} - weak struck key
  */
 function * iterateKeys (struct) {
   const { keySet } = dataOf(struct)
@@ -205,10 +206,9 @@ function * iterateKeys (struct) {
 
 /**
  * Deletes a key from an iterable weak struct
- *
- * @param {object} key
- * @param {IterableWeakSet<object> | IterableWeakMap<object, *>} struct
- * @returns
+ * @param {object} key - target key
+ * @param {IterableWeakSet<object> | IterableWeakMap<object, *>} struct - target weak struct
+ * @returns {boolean} true if deleted, false if not found
  */
 function deleteKey (key, struct) {
   const { keySet, refWeakMap } = dataOf(struct)
@@ -221,23 +221,13 @@ function deleteKey (key, struct) {
 
 const dataOf = (() => {
   /**
-   * @template {object} K
-   * @template V
-   *
-   * @typedef {object} IterableWeakMapData
-   *
-   * @property {WeakMap<K, {ref: WeakRef<K> , value: V}>} refWeakMap
-   * @property {Set<WeakRef<K>>} keySet
-   *
-   */
-
-  /**
    * @type {WeakMap<*, IterableWeakMapData<object,*>>} valueMap
    */
   const map = new WeakMap()
 
   /**
-   * @param {IterableWeakSet<object> | IterableWeakMap<object, *>} iter
+   * @param {IterableWeakSet<object> | IterableWeakMap<object, *>} iter - target weak struct to initialize
+   * @returns {IterableWeakMapData<*, *>} target weak struct data
    */
   function init (iter) {
     const keySet = new Set()
@@ -248,11 +238,11 @@ const dataOf = (() => {
   }
 
   /**
-     * @template {object} K
-     * @template V
-     * @param {IterableWeakSet<K> | IterableWeakMap<K, V>} iter
-     * @returns {IterableWeakMapData<K, V>} iter
-     */
+   * @template {object} K
+   * @template V
+   * @param {IterableWeakSet<K> | IterableWeakMap<K, V>} iter - target weak struct
+   * @returns {IterableWeakMapData<K, V>} target weak struct data
+   */
   function getData (iter) {
     return map.get(iter) ?? init(iter)
   }
@@ -260,3 +250,11 @@ const dataOf = (() => {
 })()
 
 export default IterableWeakMap
+
+/**
+ * @template {object} K
+ * @template V
+ * @typedef {object} IterableWeakMapData
+ * @property {WeakMap<K, {ref: WeakRef<K> , value: V}>} refWeakMap - weakmap of weak refs and values
+ * @property {Set<WeakRef<K>>} keySet - iterable set of weak keys
+ */
