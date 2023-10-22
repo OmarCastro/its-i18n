@@ -1,3 +1,4 @@
+/* eslint-disable camelcase, max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
 import Prism from 'prismjs'
 import { minimatch } from 'minimatch'
 import { minify } from 'html-minifier'
@@ -59,7 +60,7 @@ const exampleCode = (strings, ...expr) => {
 
 /**
  * @param {string} selector
- * @returns
+ * @returns {Element[]} element array to use array methods
  */
 const queryAll = (selector) => [...document.documentElement.querySelectorAll(selector)]
 

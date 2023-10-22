@@ -1,5 +1,5 @@
 #!/usr/bin/env -S node --input-type=module
-/* eslint-disable camelcase, max-lines-per-function */
+/* eslint-disable camelcase, max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
 import process from 'node:process'
 import fs from 'node:fs/promises'
 import { resolve, basename } from 'node:path'
@@ -193,7 +193,7 @@ async function execBuild () {
 
 async function execlintCodeOnChanged () {
   logStartStage('lint', 'lint using eslint')
-  await lintCode({ onlyChanged: true })
+  await lintCode({ onlyChanged: true }, { fix: true })
   logStage('typecheck with typescript')
   await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
@@ -201,7 +201,7 @@ async function execlintCodeOnChanged () {
 
 async function execlintCode () {
   logStartStage('lint', 'lint using eslint')
-  await lintCode({ onlyChanged: false })
+  await lintCode({ onlyChanged: false }, { fix: true })
   logStage('typecheck with typescript')
   await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
@@ -328,7 +328,7 @@ async function lintCode ({ onlyChanged }, options) {
     return
   }
   const { ESLint } = await import('eslint')
-  const eslint = new ESLint()
+  const eslint = new ESLint(options)
   const formatter = await eslint.loadFormatter()
   const results = await eslint.lintFiles(finalFilePatterns)
 

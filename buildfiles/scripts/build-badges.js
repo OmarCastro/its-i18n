@@ -1,3 +1,4 @@
+/* eslint-disable camelcase, max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
 import { makeBadge } from 'badge-maker'
 import { readFile as fsReadFile, writeFile } from 'node:fs/promises'
 import { JSDOM } from 'jsdom'
