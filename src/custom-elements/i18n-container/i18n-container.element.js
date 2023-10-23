@@ -50,7 +50,7 @@ export class I18nContainerElement extends HTMLElement {
     return updateI18nOnElements(this.querySelectorAll('*')).then((elementsUpdated) => {
       const result = { elementsUpdated }
 
-      if (elementsUpdated.length <= 0) {
+      if (elementsUpdated.size <= 0) {
         return result
       }
 
@@ -130,7 +130,7 @@ function updateI18nOnElement (element) {
 
 /**
  * @param {Iterable<Element>} iterable - collection of element to update i18n
- * @returns {Promise<Element[]>}
+ * @returns {Promise<Set<Element>>} - promise of elements with i18n changes
  */
 function updateI18nOnElements (iterable) {
   const promises = []
@@ -138,13 +138,10 @@ function updateI18nOnElements (iterable) {
     promises.push(...updateI18nOnElement(element))
   }
 
-  return Promise.allSettled(promises).then((promises) => promises.flatMap((promise) => {
-    if (promise.status === 'fulfilled' && promise.value) {
-      return [promise.value]
-    }
-    return []
-  }),
-  )
+  return Promise.allSettled(promises).then((promises) => {
+    const elements = promises.flatMap(promise => promise.status === 'fulfilled' && promise.value ? [promise.value] : [])
+    return new Set(elements)
+  })
 }
 
 /**
@@ -174,9 +171,8 @@ const attributePrefixPriority = {
 const dataI18nAttributeMatchRegex = /^(data-i18n-(?:attr(?:ibute)?)?-)(.*)$/
 
 /**
- *
- * @param {Element} element
- * @returns {{ [k: string]: string }}
+ * @param {Element} element - target element
+ * @returns {{ [k: string]: string }} map of attribute name with i18n keys to update on `element`
  */
 function getAttributesToUpdate (element) {
   /** @type {{ [k: string]: { prefix: string; value: string } }} */
@@ -236,9 +232,8 @@ const notFoundContentDetails = Object.freeze({
 })
 
 /**
- *
- * @param {Element} element
- * @returns {typeof orderedContentAttributeDetails[number] & { key: string }}
+ * @param {Element} element  - target element
+ * @returns {typeof orderedContentAttributeDetails[number] & { key: string }} content detail to update on element
  */
 function getContentDetailsToUpdate (element) {
   for (const detail of orderedContentAttributeDetails) {
@@ -262,7 +257,7 @@ const targetsToUpdateI18n = {
 }
 
 /**
- *
+ * Trigger update on all element targets to update i18n, it will run at most once per frame
  */
 function triggerUpdate () {
   const { elements, subtrees } = targetsToUpdateI18n
@@ -278,7 +273,8 @@ function triggerUpdate () {
 }
 
 /**
- * @param {MutationRecord[]} records
+ * @param {MutationRecord[]} records - mutation records of {@link I18nContainerElement} mutationObserver
+ * @returns {typeof targetsToUpdateI18n} element and DOM subtree targets to update i18n content
  */
 function fillTargetsToUpdate (records) {
   const { elements, subtrees } = targetsToUpdateI18n
@@ -303,8 +299,7 @@ function fillTargetsToUpdate (records) {
 let frameRequestNumber
 
 /**
- *
- * @param {MutationRecord[]} records
+ * @param {MutationRecord[]} records - mutation records of {@link I18nContainerElement} mutationObserver
  */
 function observerCallback (records) {
   const { elements, subtrees } = fillTargetsToUpdate(records)
