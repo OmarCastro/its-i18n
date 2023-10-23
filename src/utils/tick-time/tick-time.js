@@ -11,8 +11,7 @@ const MARGIN_MILLIS = 100
 
 let timeTickInstances
 /**
- *
- * @param {TimeTickInstance} newInstance;
+ * @param {TimeTickInstance} newInstance - target time tick instance
  */
 export function checkTick (newInstance) {
   const { callbacks, tickingElements, timeoutNumber } = newInstance
@@ -33,7 +32,7 @@ export function checkTick (newInstance) {
 
 /**
  * @this {TimeTickInstance}
- * @param {Element} element
+ * @param {Element} element - target element
  */
 export function tickElement (element) {
   this.tickingElements.add(element)
@@ -42,7 +41,7 @@ export function tickElement (element) {
 
 /**
  * @this {TimeTickInstance}
- * @param {Element} element
+ * @param {Element} element - target element
  */
 export function untickElement (element) {
   this.tickingElements.add(element)
@@ -50,7 +49,7 @@ export function untickElement (element) {
 
 /**
  * @this {TimeTickInstance}
- * @param {TimeTickCallback} callback
+ * @param {TimeTickCallback} callback - callback to trigger each time tick
  */
 export function addCallback (callback) {
   this.callbacks.add(callback)
@@ -59,12 +58,16 @@ export function addCallback (callback) {
 
 /**
  * @this {TimeTickInstance}
- * @param {TimeTickCallback} callback
+ * @param {TimeTickCallback} callback - callback added on {@link addCallback}
  */
 export function removeCallback (callback) {
   this.callbacks.delete(callback)
 }
 
+/**
+ * @class
+ * Builds a time tick instance
+ */
 function TimeTickInstance () {
   /** @type {IterableWeakSet<Element>} */
   this.tickingElements = new IterableWeakSet()
@@ -80,7 +83,7 @@ TimeTickInstance.prototype.addCallback = addCallback
 TimeTickInstance.prototype.removeCallback = removeCallback
 
 /**
- * @returns {TimeTickInstance}
+ * @returns {TimeTickInstance} singleton time tick instance
  */
 export function timeTick () {
   timeTickInstances ??= new TimeTickInstance()
@@ -89,8 +92,8 @@ export function timeTick () {
 
 /**
  * @typedef {object} TimeTickCallbackParams
- * @property {Element[]} targets
- * @property {(el: Element) => void} untick
+ * @property {Element[]} targets - target ticking elements
+ * @property {(el: Element) => void} untick - stop ticking an element, does nothing if already not ticking
  */
 
 /**

@@ -44,7 +44,6 @@ export function provide (newImpl) {
  * @callback ImportTranslations
  *
  * Imports a {@link Translations} from an URL
- *
  * @param {string | URL} url - target URL
  * @param {string | URL} base - Base URL to use when `url` uses relative url
  * @returns {Promise<Translations>} promise that results imported {@link Translations} object on finish
@@ -54,7 +53,6 @@ export function provide (newImpl) {
  * @callback ImportI18nJson
  *
  * Imports a {@link I18nDefinitionMap} from an URL
- *
  * @param {string} url - target URL
  * @param {string} base - Base URL to use when `url` uses relative url
  * @returns {Promise<I18nDefinitionMap>} promise that results imported {@link I18nDefinitionMap} object on finish

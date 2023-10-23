@@ -35,7 +35,6 @@ const tokenToString = (() => {
 /**
  * Normalizes translation entry value, we use the AST instead of the text
  * to not parse it multiple times on {@link parseValue}
- *
  * @param {import('./key-ast.util.js').AST} ast - parsed AST of the value
  * @returns {string} normalized value
  */
@@ -45,7 +44,6 @@ function getNormalizedValue (ast) {
 
 /**
  * Parses I18n translation entry value
- *
  * @param {string} value - target i18n entry value
  * @returns {ParseResult} - parse result information
  */
@@ -65,7 +63,6 @@ export function parseValue (value) {
 
 /**
  * @typedef {object} ParseResult
- *
  * @property {string} value - target value used to parse
  * @property {string} normalizedValue - normalized `value`
  * @property {ReturnType<typeof getFormatter>} formatter - function to get the final output based on received key parameters

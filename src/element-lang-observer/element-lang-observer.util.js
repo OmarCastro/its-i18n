@@ -11,11 +11,10 @@ const observingElementsInfo = new WeakMap()
 
 export const domRootLangDispatchListener = {
   /**
-   *
-   * @param {Element | Document} target,
-   * @param {EventListenerOrEventListenerObject} callback
-   * @param {boolean | AddEventListenerOptions} options
-   * @returns
+   * @param {Element | Document} target - root target
+   * @param {EventListenerOrEventListenerObject} callback - callback
+   * @param {boolean | AddEventListenerOptions} options - listener options
+   * @returns {{removeListener: () => void}} event listener
    */
   onDispatchOnRoot: (target, callback, options) => {
     target.addEventListener(rootEventName, callback, options)
@@ -29,8 +28,7 @@ export const rootEventName = 'lang-change-dispatched'
 
 export class ElementLangObserver {
   /**
-   *
-   * @param {ElementLangObserverHandler} callback
+   * @param {ElementLangObserverHandler} callback - handler callback
    */
   constructor (callback) {
     this[data] = {
@@ -38,18 +36,12 @@ export class ElementLangObserver {
     }
   }
 
-  /**
-   *
-   * @param {Element} element
-   */
+  /** @param {Element} element - element target to observe */
   observe (element) {
     observeLangFromElement(element, this)
   }
 
-  /**
-   *
-   * @param {Element} element
-   */
+  /** @param {Element} element - element target to stop observing */
   unobserve (element) {
     unobserveLangFromElement(element, this)
   }
@@ -66,7 +58,7 @@ const mutationProperties = Object.freeze({
 
 /**
  * callback of MutationObserver that detect language changes
- * @param {MutationRecord[]} records
+ * @param {MutationRecord[]} records - mutation records
  */
 function langMutationObserverCallback (records) {
   const triggeredNodes = new Set()
@@ -97,8 +89,9 @@ function langMutationObserverCallback (records) {
 const changeTriggered = Object.freeze({ changeTriggered: true })
 const changeNotTriggered = Object.freeze({ changeTriggered: false })
 /**
- * @param {Element} element
- * @param {Node} causingElement
+ * @param {Element} element - target element
+ * @param {Node} causingElement - the element that caused the locale change, most likely by having the `lang` attribute changed
+ * @returns {Readonly<{ changeTriggered: boolean }>} result object if change has triggered or not
  */
 function handleLangMutationOnElement (element, causingElement) {
   const info = observingElementsInfo.get(element)
@@ -123,9 +116,9 @@ function handleLangMutationOnElement (element, causingElement) {
 }
 
 /**
- * Creates an
- * @param {Node} targetNode
- * @returns
+ * Creates an observer to handle `lang` change on DOM root
+ * @param {Node} targetNode - root node be it the `<html>` element or the `ShadowRoot`
+ * @returns {MutationObserver} created mutation observe observing `targetNode`
  */
 function createObserver (targetNode) {
   const observer = new MutationObserver(langMutationObserverCallback)
@@ -134,9 +127,9 @@ function createObserver (targetNode) {
 }
 
 /**
- *
- * @param {Node} rootNode
- * @param {Element} element
+ * Traverse DOM roots, creating an observer if not defined to listen for `lang` attribute change
+ * @param {Node} rootNode - traversing root node
+ * @param {Element} element - element to trigger when `rootNode` detects a language change
  */
 function traverseRootNode (rootNode, element) {
   const observeInfomation = rootNodes.get(rootNode)
@@ -157,9 +150,8 @@ function traverseRootNode (rootNode, element) {
 }
 
 /**
- *
- * @param {Element} element
- * @param {ElementLangObserver} observer
+ * @param {Element} element - target element
+ * @param {ElementLangObserver} observer - observer to observe
  */
 export function observeLangFromElement (element, observer) {
   const oldVal = observingElementsInfo.get(element)
@@ -176,9 +168,8 @@ export function observeLangFromElement (element, observer) {
 }
 
 /**
- *
- * @param {Element} element
- * @param {ElementLangObserver} observer
+ * @param {Element} element - target element
+ * @param {ElementLangObserver} observer - observing observer
  */
 export function unobserveLangFromElement (element, observer) {
   const observers = observingElementsInfo.get(element)?.observers

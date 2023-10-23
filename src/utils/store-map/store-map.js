@@ -20,8 +20,8 @@ export const unsetStoreOnElement = (element) => {
 }
 
 /**
- * Checks if there is a translation store set on element
  * @param {Element} element - target element
+ * @returns {boolean} true if there is a translation store assigned on `element`, false otherwise
  */
 export const isStoreSetOnElement = function (element) {
   return map.has(element)
@@ -57,7 +57,6 @@ export const getStoresInfoFromElement = function * (target) {
  * @typedef {object} StoreSearchResult
  *
  * Result of {@link getStoresInfoFromElement}
- *
  * @property {TranslationStore} store - store found, or fallback store
  * @property {Element} [element] element where the store is assigned
  */

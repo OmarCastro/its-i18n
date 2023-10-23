@@ -1,8 +1,7 @@
 /**
  * Checks if import path is valid
- *
- * @param {string} path
- * @returns {{ valid: true } | { valid: false, error: string }}
+ * @param {string} path - target import path
+ * @returns {{ valid: true } | { valid: false, error: string }} validation result
  */
 export function validateImportPath (path) {
   if (typeof path !== 'string') {
@@ -16,9 +15,8 @@ export function validateImportPath (path) {
 
 /**
  * Normalize Import Array, eliminating invalid import paths
- *
- * @param {string[]} importArray
- * @returns {{ result: string[]; errors: ErrorList }}
+ * @param {string[]} importArray - import list
+ * @returns {{ result: string[]; errors: ErrorList }} normalized data with a list of errors found
  */
 function normalizeImportArray (importArray) {
   const result = []
@@ -36,34 +34,32 @@ function normalizeImportArray (importArray) {
 
 /**
  * Normalize Import string, into an normalized import array
- *
- * @param {unknown} extdensVal
- * @returns {{ result: string[]; errors: ErrorList }}
+ * @param {unknown} importVal - import data
+ * @returns {{ result: string[]; errors: ErrorList }} normalized data with a list of errors found
  */
-function normalizesImportValue (extdensVal) {
-  if (extdensVal === '') {
+function normalizesImportValue (importVal) {
+  if (importVal === '') {
     return { result: [], errors: [{ path: '', message: 'cannot import empty path, ignoring import' }] }
   }
 
-  if (typeof extdensVal === 'string') {
-    return { result: [extdensVal], errors: [] }
+  if (typeof importVal === 'string') {
+    return { result: [importVal], errors: [] }
   }
 
-  if (Array.isArray(extdensVal)) {
-    return normalizeImportArray(extdensVal)
+  if (Array.isArray(importVal)) {
+    return normalizeImportArray(importVal)
   }
 
   return {
     result: [],
-    errors: [{ path: '', message: `expected string or string array (string[]) instead of ${typeOf(extdensVal)}` }],
+    errors: [{ path: '', message: `expected string or string array (string[]) instead of ${typeOf(importVal)}` }],
   }
 }
 
 /**
  * Normalize Translations, eliminatin invalid entries
- *
- * @param {Translations} [translations]
- * @returns {{ result: Translations; errors: ErrorList }}
+ * @param {Translations} [translations] - translation data
+ * @returns {{ result: Translations; errors: ErrorList }} normalized data with a list of errors found
  */
 export function normalizeTranslations (translations) {
   if (!isPlainObject(translations)) {
@@ -89,9 +85,8 @@ export function normalizeTranslations (translations) {
 
 /**
  * Normalizes the i18n definition model data
- *
  * @param {I18nDefinition} data - target i18n definition to be normalized
- * @returns {{ result: NormalizedI18nDefinition; errors: ErrorList }} normalized i18n definition
+ * @returns {{ result: NormalizedI18nDefinition; errors: ErrorList }} normalized i18n definition with a list of errors found
  */
 export function normalizeI18nDefinition (data) {
   if (data === '') {
@@ -149,9 +144,7 @@ export function normalizeI18nDefinition (data) {
 
 /**
  * Normalizes the i18n definition map
- *
  * @param {I18nDefinitionMap} data - target i18n definition map to be normalized
- *
  * @returns {NormalizationResult} normalized i18n definition map
  */
 export function normalizeI18nDefinitionMap (data) {
@@ -200,21 +193,21 @@ export function normalizeI18nDefinitionMap (data) {
 }
 
 /**
- * @param {unknown} targetVar
- * @returns type of variable
+ * @param {unknown} targetVar - target object
+ * @returns {string} type of object, returns "null" istead of "object" for null value
  */
 const typeOf = (targetVar) => targetVar == null ? String(targetVar) : typeof targetVar
 
 /**
- * @param {unknown} value
- * @returns {value is Record<string, unknown>}
+ * @param {unknown} value - target object
+ * @returns {value is Record<string, unknown>} true if plain object, false otherwise
  */
 const isPlainObject = (value) => value?.constructor === Object
 
 /**
  * Transforms property name to a valid property path so it can be used to chain with other properties
  * @param {string} propName - object property key
- * @returns .`propName` for simple popery names, otherwise .[`propName`]
+ * @returns {string} .`propName` for simple popery names, otherwise .[`propName`]
  */
 const properyPath = (propName) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
 
@@ -222,7 +215,7 @@ const properyPath = (propName) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propNa
  * Merge 2 propery paths
  * @param {string} prop1 - target property path
  * @param {string} prop2 - property path to merge with target
- * @returns merged property path
+ * @returns {string} merged property path
  */
 const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('.[') ? prop2.substring(1) : prop2)
 
@@ -242,7 +235,7 @@ const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('
 
 /**
  * @typedef {object} NormalizationResult
- * @property {NormalizedI18nDefinitionMap} result
- * @property {ErrorList} warnings
- * @property {ErrorList} errors
+ * @property {NormalizedI18nDefinitionMap} result - normalized value
+ * @property {ErrorList} warnings - errors found but automatically fixed (e.g. locale en-UK fixed to en-GB)
+ * @property {ErrorList} errors - non-fixable errors found
  */

@@ -3,9 +3,12 @@ import { i18nTanslationStore } from '../utils/store/translation-store.js'
 import { builder } from '../utils/i18n-merger/i18n-merger.util.js'
 
 /**
- *
- * @param {LoadPartParameters} params
- * @returns
+ * Adds locale maps to mergeInstance
+ * @param {object} params - parameters
+ * @param {Document} params.document - DOM document
+ * @param {BaseURL} params.location - i18n locale map location
+ * @param {typeof builder} params.merger - merge instance
+ * @returns {Promise<typeof builder>} resulting mergeInstance
  */
 async function loadLocaleMaps ({ document, location, merger }) {
   const locationHref = location.href
@@ -32,9 +35,12 @@ async function loadLocaleMaps ({ document, location, merger }) {
 }
 
 /**
- *
- * @param {LoadPartParameters} params
- * @returns
+ * Adds translations to mergeInstance
+ * @param {object} params - parameters
+ * @param {Document} params.document - DOM document
+ * @param {BaseURL} params.location - i18n translation location
+ * @param {typeof builder} params.merger - merge instance
+ * @returns {typeof builder} - resulting mergeInstance
  */
 function loadTranslations ({ document, location, merger }) {
   const locationHref = location.href
@@ -63,9 +69,11 @@ function loadTranslations ({ document, location, merger }) {
 }
 
 /**
- *
- * @param {LoadI18nParams} params
- * @returns {Promise<import('../utils/store/translation-store.js').TranslationStore>}
+ * Loads i18n from the DOM
+ * @param {object} params - loadI18n parameters
+ * @param {Document} params.document         - DOM document
+ * @param {BaseURL | string} params.location - i18n location
+ * @returns {Promise<import('../utils/store/translation-store.js').TranslationStore>} - loaded store
  */
 export async function loadI18n ({ document, location } = window) {
   location = typeof location === 'string' ? new URL(location) : location
@@ -82,22 +90,3 @@ export async function loadI18n ({ document, location } = window) {
 }
 
 /** @typedef {{href: string}} BaseURL - any type that has `href`, like {@link URL} and {@link window.location} */
-
-/**
- * @typedef {object} LoadI18nParams
- *
- * Parameters used to load I18n from the DOM
- *
- * @property {Document} document
- * @property {BaseURL | string} location
- */
-
-/**
- * @typedef {object} LoadPartParameters
- *
- * Parameters used to load I18n from the DOM
- *
- * @property {Document} document
- * @property {BaseURL} location
- * @property {typeof builder} merger
- */

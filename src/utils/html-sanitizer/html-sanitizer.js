@@ -227,7 +227,6 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
  * @typedef SanitizeHtmlResult
  *
  * The result of `sanitizeI18nHtml`, show the sanitized html as well as the actions performed during sanitization
- *
  * @property {string}        html               - sanitized html result
  * @property {Element[]}     removedElements    - list of removed elements
  * @property {RemovedAttr[]} removedAttributes  - list of removed attributes
@@ -235,7 +234,6 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
 
 /**
  * Initializes a Document and shows its body
- *
  * @param   {string}      html - HTML input string to sanitize
  * @returns {HTMLElement}        Sanitized Html string
  */
@@ -246,8 +244,8 @@ const _initDocument = (html) => {
 }
 
 /**
- * @param {object}        param
- * @param {Element}       param.currentElement    - current
+ * @param {object}        param                   - funciton parameters
+ * @param {Element}       param.currentElement    - current element being sanitized
  * @param {Element[]}     param.removedElements   - list of removed elements, mutable
  * @param {RemovedAttr[]} param.removedAttributes - list of removed attributes, mutable
  */
@@ -277,7 +275,6 @@ const sanitizeElement = ({ currentElement, removedElements, removedAttributes })
 
 /**
  * Sanitizes The HTML input
- *
  * @param   {string}             html - HTML input string to sanitize
  * @returns {SanitizeHtmlResult} Sanitization result
  */

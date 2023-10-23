@@ -195,8 +195,7 @@ const timeIntervalCaptureExpresionPrefix = {
 }
 
 /**
- *
- * @returns {CaptureExpressionMap}
+ * @returns {CaptureExpressionMap} build time capture expressions
  */
 function buildTimeCaptureExpressions () {
   const { entries, fromEntries } = Object
@@ -240,14 +239,12 @@ export const captureExpressions = {
  *
  * Capture expression information used by key parser, as to get the correct matcher
  * based on the ket priority.
- *
  * @property {number}                value - Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {MatchPredicateCreator} matchPredicate - Match predicate creator. The resulting match predicate is based on the `parameters` used
  *                                                    (e.g. creating a matcher from a regex pattern).
  * @property {FormatCall}            defaultFormat - Default format to be used when no formatter is explicitly applied.
  * @property {boolean}               isConstant - A flag to indicate whether the matcher will always match the same key in a translation map,
  *                                                It helps to decide when to query the translation map for the same key.
- *
  */
 
 /** @typedef {import('./expression-formatters.js').FormatCall} FormatCall */
@@ -256,14 +253,12 @@ export const captureExpressions = {
 
 /**
  * @typedef {object} TimeIntervalCaptureExpresionPrefix
- *
  * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {(timeStr: string) => number} currentTimeCompare - compare text formatted date to current time. returns negative number when `timeStr` is in the past, positive in the future, 0 in the present
  */
 
 /**
  * @typedef {object} RelativeTimeCaptureExpresionPrefix
- *
  * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {(prev: MatchPredicateCreator) => MatchPredicateCreator} defaultMatchPredicate - predicate to use when no no time unit is defined (e.g. present **day** date).
  */

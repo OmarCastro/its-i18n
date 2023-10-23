@@ -9,7 +9,8 @@ const intialDataStore = Object.freeze({
 
 /**
  * Normalizes `StoreDataEntry.data`
- * @param {StoreDataEntry} data
+ * @param {StoreDataEntry} data - target data
+ * @returns {{ location: string; languages: NormalizedI18nDefinitionMap }} normalized data
  */
 function normalizeTranslationData (data) {
   const normalizedLanguages = normalizeI18nDefinitionMap(data.languages)
@@ -26,7 +27,8 @@ const memoizedTranslationsMap = new WeakMap()
 
 /**
  *
- * @param {TranslationStore} store
+ * @param {TranslationStore} store - target store
+ * @returns {Record<string, Translations>} - memoized translations data
  */
 function getMemoizedTranslations (store) {
   const memoizedTranslations = memoizedTranslationsMap.get(store)
@@ -40,10 +42,9 @@ function getMemoizedTranslations (store) {
 }
 
 /**
- *
- * @param {TranslationStore} store
- * @param {string} locale
- * @returns {Promise<Translations>}
+ * @param {TranslationStore} store - target store
+ * @param {string} locale - target locale
+ * @returns {Promise<Translations>} translations on a specific locale
  */
 const getTranslationsFromData = async (store, locale) => {
   const computed = getMemoizedTranslations(store)
@@ -125,7 +126,6 @@ export function i18nTanslationStore () {
  * @typedef {object} StoreData
  *
  * Data of {@link TranslationStore}
- *
  * @property {NormalizedI18nDefinitionMap} languages - Store data languages
  * @property {string} location - location of stored data, used to get relative path to load additional i18n files
  */
@@ -134,7 +134,6 @@ export function i18nTanslationStore () {
  * @typedef {object} StoreDataEntry
  *
  * Data to used to save in {@link TranslationStore}, it will be normalized to  {@link StoreData} on {@link TranslationStore.loadTranslations} call
- *
  * @property {I18nDefinitionMap} languages - Store data languages
  * @property {string} location - location of stored data, used to get relative path to load additional i18n files
  */
@@ -143,7 +142,6 @@ export function i18nTanslationStore () {
  * @typedef {object} TranslationStore
  *
  * Data to used to save in {@link TranslationStore}, it will be normalized to  {@link StoreData} on {@link TranslationStore.loadTranslations} call
- *
  * @property {(data: StoreDataEntry) => void} loadTranslations - loads translations in data
  * @property {TranslationsFromLanguage} translationsFromLanguage - get stored translations from a locale
  * @property {StoreData} data - Store data where all infomation is saved with loadTranslations()
