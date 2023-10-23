@@ -62,11 +62,10 @@ export class I18nContainerElement extends HTMLElement {
 }
 
 /**
- *
- * @param {Element} element
- * @param {Intl.Locale} locale
- * @param {[string, string][]} attributeEntries
- * @returns {Promise<Element | null>[]}
+ * @param {Element} element - target element
+ * @param {Intl.Locale} locale - locale to translate attributes
+ * @param {[string, string][]} attributeEntries - attribute entries found in {@link getAttributesToUpdate}
+ * @returns {Promise<Element | null>[]} list of promises of element attribute changes
  */
 function applyI18nAttributesUpdate (element, locale, attributeEntries) {
   const promises = /** @type Promise<Element | null>[] */([])
@@ -85,11 +84,10 @@ function applyI18nAttributesUpdate (element, locale, attributeEntries) {
 }
 
 /**
- *
- * @param {Element} element
- * @param {Intl.Locale} locale
- * @param {typeof orderedContentAttributeDetails[number] & { key: string }} contentDetails
- * @returns {Promise<Element | null>[]}
+ * @param {Element} element - target element
+ * @param {Intl.Locale} locale - locale to translate attributes
+ * @param {typeof orderedContentAttributeDetails[number] & { key: string }} contentDetails - content detais applien on {@link getContentDetailsToUpdate}
+ * @returns {Promise<Element | null>[]} list of promises of element content changes
  */
 function applyI18nContentUpdate (element, locale, contentDetails) {
   if (contentDetails === notFoundContentDetails) {
@@ -105,8 +103,8 @@ function applyI18nContentUpdate (element, locale, contentDetails) {
 
 /**
  *
- * @param {Element} element
- * @returns {Promise<Element | null>[]}
+ * @param {Element} element  - target element
+ * @returns {Promise<Element | null>[]} - list of promises of element attribute and content changes
  */
 function updateI18nOnElement (element) {
   if (!isElementTranslatable(element) || !element.hasAttributes()) {
@@ -131,8 +129,7 @@ function updateI18nOnElement (element) {
 }
 
 /**
- *
- * @param {Iterable<Element>} iterable
+ * @param {Iterable<Element>} iterable - collection of element to update i18n
  * @returns {Promise<Element[]>}
  */
 function updateI18nOnElements (iterable) {
@@ -264,6 +261,9 @@ const targetsToUpdateI18n = {
   subtrees: new Set(),
 }
 
+/**
+ *
+ */
 function triggerUpdate () {
   const { elements, subtrees } = targetsToUpdateI18n
   if (elements.size === 0 && subtrees.size === 0) {
