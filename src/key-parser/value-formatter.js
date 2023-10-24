@@ -7,9 +7,8 @@ const emptyArray = Object.freeze([])
 
 /**
  * Add or replace format method from templateFormatter object
- *
- * @param {Omit<TemplateFormatter, 'format'>} templateFormatter
- * @returns {TemplateFormatter}
+ * @param {Omit<TemplateFormatter, 'format'>} templateFormatter - target TemplateFormatter object
+ * @returns {TemplateFormatter} TemplateFormatter object with updated `format` fuction
  */
 const formatterWithFormat = (templateFormatter) => ({
   ...templateFormatter,
@@ -27,9 +26,8 @@ const formatterWithFormat = (templateFormatter) => ({
  * Returns a formatter that returns the `value` content
  *
  * Used when the value does not have parameters
- *
- * @param {string} value
- * @returns {TemplateFormatter}
+ * @param {string} value - value contant
+ * @returns {TemplateFormatter} resulting template formatter
  */
 const formatSimpleKey = (value) => ({
   strings: [value],
@@ -38,9 +36,10 @@ const formatSimpleKey = (value) => ({
 })
 
 /**
- * @param {[string, CaptureExpressionsInfoDetail[]]} acc
- * @param {Token} token - captureChildToken
- * @returns {[string, CaptureExpressionsInfoDetail[]]}
+ * parse capture key token reducer
+ * @param {[string, CaptureExpressionsInfoDetail[]]} acc - accumulator
+ * @param {Token} token - capture child token
+ * @returns {[string, CaptureExpressionsInfoDetail[]]} updated accumulator
  */
 function parseCaptureKeyToken (acc, token) {
   const [currentExpression, fragmentedCaptureExpressionsInfo] = acc
@@ -65,8 +64,8 @@ function parseCaptureKeyToken (acc, token) {
 
 /**
  * Parse capture key to ease usage in {@link getFormatterFromTokens}
- * @param {Token} captureToken
- * @returns {CaptureExpressionsInfoDetail[]}
+ * @param {Token} captureToken - target capture token
+ * @returns {CaptureExpressionsInfoDetail[]} parse result
  */
 function parseCaptureKey (captureToken) {
   const [currentExpression, fragmentedCaptureExpressionsInfo] = captureToken.childTokens.reduce(parseCaptureKeyToken, ['', []])
@@ -96,9 +95,8 @@ function applyDefaultformatter (acc) {
 }
 
 /**
- *
- * @param {number} position
- * @returns {FormatterReducer}
+ * @param {number} position - position to query
+ * @returns {FormatterReducer} built FormatterReducer
  */
 const positionFormatter = (position) => (acc) => {
   const { parameters } = acc
@@ -118,13 +116,13 @@ const positionFormatter = (position) => (acc) => {
 
 /**
  *
- * @param {FormatterReducer[]} fragmentedFormatters
- * @param {readonly string[]} parameters
- * @param {Intl.Locale} locale
- * @param {readonly DefaultFormatter[]} [defaultFormatters]
- * @returns
+ * @param {FormatterReducer[]} fragmentedFormatters - list of formatter reducers
+ * @param {readonly string[]} parameters - parameter list
+ * @param {Intl.Locale} locale - locale to format data
+ * @param {readonly DefaultFormatter[]} [defaultFormatters] - default formatter
+ * @returns {string} format result
  */
-const reducerFormatter = (fragmentedFormatters, parameters, locale, defaultFormatters = []) => {
+const formatFromReducers = (fragmentedFormatters, parameters, locale, defaultFormatters = []) => {
   /** @type {FormatterReducerAcc} */
   let reducerAcc = {
     parameters,
@@ -143,7 +141,7 @@ const reducerFormatter = (fragmentedFormatters, parameters, locale, defaultForma
 
 /**
  * @param {CaptureExpressionsInfoDetail} detail - capture token
- * @returns {FormatterReducer | null}
+ * @returns {FormatterReducer | null} - FormatterReducer or null if invalid
  */
 function getFirstExpressionFormatterReducer (detail) {
   if (detail.type === 'string') {
@@ -161,7 +159,7 @@ const printNothing = () => ''
 
 /**
  * @param {Token} token - capture token
- * @returns {Formatter}
+ * @returns {Formatter} resulting formatter
  */
 function getFormatterFromCaptureToken (token) {
   const fragmentedCaptureExpressionsInfo = parseCaptureKey(token)
@@ -183,28 +181,28 @@ function getFormatterFromCaptureToken (token) {
     fragmentedFormatters.push(applyDefaultformatter)
   }
 
-  return (parameters, locale, defaultFormatters) => reducerFormatter(fragmentedFormatters, parameters, locale, defaultFormatters)
+  return (parameters, locale, defaultFormatters) => formatFromReducers(fragmentedFormatters, parameters, locale, defaultFormatters)
 }
 
 /**
- *
- * @param {object} param
- * @param {string[]} param.strings
- * @param {Formatter[]} param.formatters
+ * This is for the formatter to work the same way as a template string, it always end with a string even if is empty
+ * @param {Pick<TemplateFormatter, "strings"|"formatters">} params - building formatter
+ * @returns {Pick<TemplateFormatter, "strings"|"formatters">} formatter that ends with string
  */
-function guaranteeFormatterEndsWithString ({ strings, formatters }) {
+function guaranteeFormatterEndsWithString (params) {
+  const { strings, formatters } = params
   if (strings.length === formatters.length) {
-    strings.push('')
+    return { strings: [...strings, ''], formatters }
   }
-  return { strings, formatters }
+  return params
 }
 
 /**
- *
- * @param {Token[]} tokens
- * @returns
+ * @param {AST} ast  - AST of parsed value
+ * @returns {TemplateFormatter} resulting formatter
  */
-function getFormatterFromTokens (tokens) {
+export function getFormatter (ast) {
+  const { tokens } = ast
   const captureTokens = tokens.filter((token) => token.type === states.capture)
 
   if (captureTokens.length <= 0) {
@@ -228,15 +226,6 @@ function getFormatterFromTokens (tokens) {
   return formatterWithFormat(guaranteeFormatterEndsWithString({ strings, formatters }))
 }
 
-/**
- *
- * @param {AST} ast
- * @returns {TemplateFormatter}
- */
-export function getFormatter (ast) {
-  return getFormatterFromTokens(ast.tokens)
-}
-
 /** @typedef {import('./key-ast.util.js').AST} AST */
 /** @typedef {import('./key-ast.util.js').Token} Token */
 /** @typedef {import('./capture-expression-values.js').CaptureExpressionInfo} CaptureExpressionInfo */
@@ -244,15 +233,14 @@ export function getFormatter (ast) {
 
 /**
  * @typedef {object} CaptureExpressionsInfoDetail
- * @property {'expression' | 'string'} type
- * @property {string} text
+ * @property {'expression' | 'string'} type - type of detail
+ * @property {string} text - detail text
  */
 
 /**
  * @typedef {object} FormatterReducerAcc
  *
  * Formatter reducer accumulator, used when piping in the result with an expression (e.g. `{0 | relative time}`)
- *
  * @property {readonly string[]} parameters
  *  Parameters used in the i18n key, e.g. when translating "On 2023-01-01T20:00:00 I bought 10 fireworks"
  *  on key "On {date} I bought {number} fireworks", the parameters are going to be ["2023-01-01T20:00:00", "10"]
@@ -274,9 +262,7 @@ export function getFormatter (ast) {
 
 /**
  * @typedef {object} TemplateFormatter
- *
- *
- * @property {readonly string[]} strings
- * @property {readonly Formatter[]} formatters
- * @property {(parameters: readonly string[], locale: Intl.Locale, defaultFormatters?: readonly DefaultFormatter[]) => string} format
+ * @property {readonly string[]} strings - raw strings
+ * @property {readonly Formatter[]} formatters - formatters of each capture token
+ * @property {(parameters: readonly string[], locale: Intl.Locale, defaultFormatters?: readonly DefaultFormatter[]) => string} format - format function
  */

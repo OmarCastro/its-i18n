@@ -35,14 +35,14 @@ const emptyYesMatch = Object.freeze({
 })
 
 /**
- * @param {string} textToMatch
- * @returns {Matcher}
+ * @param {string} textToMatch - target text to match
+ * @returns {Matcher} - match result
  */
 const exactStringMatcher = (textToMatch) => (text) => (textToMatch === text) ? emptyYesMatch : noMatch
 
 /**
- * @param {CaptureExpressionsInfoDetail[]} details
- * @returns {CaptureExpressionInfo}
+ * @param {CaptureExpressionsInfoDetail[]} details - target details
+ * @returns {CaptureExpressionInfo} expression info from details
  */
 const captureExpressionInfoFromDetails = (details) => ({
   matchPredicate: (text) => {
@@ -59,8 +59,8 @@ const captureExpressionInfoFromDetails = (details) => ({
 })
 
 /**
- * @param {import('./key-ast.util.js').Token} captureToken
- * @returns {CaptureExpressionInfo}
+ * @param {import('./key-ast.util.js').Token} captureToken - capture token from AST of parsed key
+ * @returns {CaptureExpressionInfo} its respective expression info
  */
 function captureExpressionInfoFromToken (captureToken) {
   if (captureToken.childTokens.length === 0) {
@@ -119,7 +119,7 @@ function captureExpressionInfoFromToken (captureToken) {
 /**
  * @param {RegExp} regex - used to validate for `text` match
  * @param {CaptureExpressionInfo[]} captureExpressionsInfo - to validate each capture token match
- * @returns {Matcher}
+ * @returns {Matcher} matcher function
  */
 const expressionMatcher = (regex, captureExpressionsInfo) => (text) => {
   if (typeof text !== 'string') return noMatch
@@ -149,9 +149,8 @@ const expressionMatcher = (regex, captureExpressionsInfo) => (text) => {
 }
 
 /**
- *
- * @param {import('./key-ast.util.js').Token[]} tokens
- * @returns {Matcher}
+ * @param {import('./key-ast.util.js').Token[]} tokens - tokens from AST of parsed key
+ * @returns {Matcher} matcher function
  */
 function getMatcherFromTokens (tokens) {
   const captureTokens = tokens.filter((token) => token.type === states.capture)
@@ -172,8 +171,8 @@ function getMatcherFromTokens (tokens) {
 
 /**
  *
- * @param {import('./key-ast.util.js').AST} ast
- * @returns {Matcher}
+ * @param {import('./key-ast.util.js').AST} ast - AST of parsed key
+ * @returns {Matcher} matcher function
  */
 export function getMatcher (ast) {
   return getMatcherFromTokens(ast.tokens)
@@ -181,15 +180,15 @@ export function getMatcher (ast) {
 
 /**
  * @typedef {object} CaptureExpressionInfo
- * @property { (text: string) => ParameterMatchResult} matchPredicate
+ * @property { (text: string) => ParameterMatchResult} matchPredicate - match predicate
  */
 
 /**
  * @typedef {object} CaptureExpressionsInfoDetail
- * @property {'expression' | 'regex' | 'string' | 'any'} type
- * @property {string} text
- * @property {import('./capture-expression-values.js').CaptureExpressionInfo} expressionInfo
- * @property {(text: string) => boolean} matches
+ * @property {'expression' | 'regex' | 'string' | 'any'} type - detail type
+ * @property {string} text - respective text
+ * @property {import('./capture-expression-values.js').CaptureExpressionInfo} expressionInfo - capture expression information
+ * @property {(text: string) => boolean} matches - predicate that verifies if `text` matches the defined `expressionInfo`
  */
 
 /**
@@ -206,7 +205,7 @@ export function getMatcher (ast) {
 
 /**
  * @typedef {object} MatchResult
- * @property {boolean} isMatch
- * @property {readonly string[]} parameters
- * @property {readonly Formatter[]} defaultFormatters
+ * @property {boolean} isMatch - indicates if the text matches i18n key
+ * @property {readonly string[]} parameters - captured parameter text list
+ * @property {readonly Formatter[]} defaultFormatters - default formatters of parsed i18n key
  */

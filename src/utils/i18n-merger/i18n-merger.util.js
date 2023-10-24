@@ -1,14 +1,14 @@
 import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from '../i18n-normalizer/i18n-normalizer.js'
 
 /**
- * Add merge data to accumulator
- *
+ * Reducer for {@link merge} function, works on data prepared in  {@link mergeReducer}
  * @param {I18nMergeIntermediaryResult} acc - accumulator
- * @param {NormalizedI18nDefinition} i18nDefinition
- * @param {string} language
- * @param {string | URL} locationBase
+ * @param {NormalizedI18nDefinition} i18nDefinition - i18n definition
+ * @param {string} language - i18n definition locale
+ * @param {string | URL} locationBase - i18n definition url location
+ * @returns {I18nMergeIntermediaryResult} updated accumulator
  */
-const mergeLang = (acc, i18nDefinition, language, locationBase) => {
+function mergeLang (acc, i18nDefinition, language, locationBase) {
   const { translations, import: ext } = i18nDefinition
   const strLang = language.toString()
   const definition = acc[strLang] || { import: new Set(), translations: {} }
@@ -28,12 +28,12 @@ const mergeLang = (acc, i18nDefinition, language, locationBase) => {
 }
 
 /**
- * reducer for `merge` function, normalizes i18n to use `mergeLang`
- *
+ * Reducer for {@link merge} function, prepares i18n merge before applying {@link mergeLang}
  * @param {I18nMergeIntermediaryResult} acc - accumulator
- * @param {I18nLangMergeData} mergeData - acc
+ * @param {I18nLangMergeData} mergeData - merge data
+ * @returns {I18nMergeIntermediaryResult} updated accumulator
  */
-const mergeReducer = (acc, mergeData) => {
+function mergeReducer (acc, mergeData) {
   const { location, kind } = mergeData
   const locationStr = typeof location === 'string' ? location : location.href
   if (kind === 'definition') {
@@ -53,11 +53,10 @@ const mergeReducer = (acc, mergeData) => {
 }
 
 /**
- *
- * @param  {...I18nLangMergeData} data
- * @returns {NormalizedI18nDefinitionMap}
+ * @param  {...I18nLangMergeData} data - data to merge
+ * @returns {NormalizedI18nDefinitionMap} merged data
  */
-const merge = (...data) => {
+function merge (...data) {
   const result = data.reduce(mergeReducer, {})
 
   return Object.fromEntries(
@@ -72,11 +71,11 @@ const merge = (...data) => {
 }
 
 /**
- *
- * @param {I18nLangMergeData[]} data
- * @returns
+ * {@link merge} call thunk
+ * @param {I18nLangMergeData[]} data - {@link merge} input
+ * @returns {() => NormalizedI18nDefinitionMap} thunk that calls merge with `data` and memoizes it
  */
-const memoizedMerge = (data) => {
+const mergeThunk = (data) => {
   let buildResult = () => {
     const result = merge(...data)
     buildResult = () => result
@@ -86,15 +85,14 @@ const memoizedMerge = (data) => {
 }
 
 /**
- *
- * @param {I18nLangMergeData[]} data
- * @returns {MergerInstance}
+ * @param {I18nLangMergeData[]} data - current data to merge
+ * @returns {Readonly<MergerInstance>} immutable merger instance
  */
-const mergeInstance = (data) => ({
+const mergeInstance = (data) => Object.freeze({
   addMap: (i18nInfo, location) => mergeInstance([...data, { kind: 'map', data: i18nInfo, location }]),
   addDefinitionOnLanguage: (i18nDef, language, location) => mergeInstance([...data, { kind: 'definition', language, data: i18nDef, location }]),
   addTranslations: (location, language) => mergeInstance([...data, { kind: 'translations', language, location }]),
-  build: memoizedMerge(data),
+  build: mergeThunk(data),
 })
 
 export const builder = mergeInstance([])
@@ -105,32 +103,34 @@ export const builder = mergeInstance([])
 
 /**
  * @typedef {object} I18nMapMergeData
- * @property {'map'} kind
- * @property {I18nDefinitionMap} data
- * @property {URL | string} location
+ * I18n definition map merge data
+ * @property {'map'} kind - merge data type
+ * @property {I18nDefinitionMap} data - i18n definition map data
+ * @property {URL | string} location - i18n definition map location
  */
 
 /**
  * @typedef {object} I18nDefinitionMergeData
- * @property {'definition'} kind
- * @property {I18nDefinition} data
- * @property {URL | string} location
- * @property {Intl.Locale | string} language
+ * @property {'definition'} kind - merge data type
+ * @property {I18nDefinition} data - i18n definition data
+ * @property {URL | string} location - i18n definition location
+ * @property {Intl.Locale | string} language - i18n definition locale
  */
 
 /**
  * @typedef {object} I18nTranslationMergeData
- * @property {'translations'} kind
- * @property {URL | string} location
- * @property {Intl.Locale | string} language
+ * @property {'translations'} kind - merge data type
+ * @property {URL | string} location - translations map location
+ * @property {Intl.Locale | string} language - translations map locale
  */
 
 /**
  * @typedef {object} MergerInstance
- * @property {(i18nInfo: I18nDefinitionMap, location: URL | string) => MergerInstance} addMap
- * @property {(i18nDef: I18nDefinition, language: Intl.Locale | string, location: URL | string) => MergerInstance} addDefinitionOnLanguage
- * @property {(location: URL | string, language: Intl.Locale | string) => MergerInstance} addTranslations
- * @property {() => NormalizedI18nDefinitionMap} build
+ * Constains api to add data to merge or merge with the current data
+ * @property {(i18nInfo: I18nDefinitionMap, location: URL | string) => MergerInstance} addMap - add map of locale to i18n definition to merge
+ * @property {(i18nDef: I18nDefinition, language: Intl.Locale | string, location: URL | string) => MergerInstance} addDefinitionOnLanguage - add i18n definition map in a specific locale to merge
+ * @property {(location: URL | string, language: Intl.Locale | string) => MergerInstance} addTranslations - add url location of a translation map in a specific locale to merge
+ * @property {() => NormalizedI18nDefinitionMap} build - merge current data
  */
 
 /** @typedef {import ('../i18n-normalizer/i18n-normalizer.js').I18nDefinitionMap} I18nDefinitionMap */
