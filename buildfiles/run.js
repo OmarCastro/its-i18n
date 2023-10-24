@@ -14,7 +14,6 @@ const projectPathURL = new URL('../', import.meta.url)
 const pathFromProject = (path) => new URL(path, projectPathURL).pathname
 process.chdir(pathFromProject('.'))
 let updateDevServer = () => {}
-const esLintFilePatterns = ['src/**/*.js', 'buildfiles/**/*.js']
 
 const args = process.argv.slice(2)
 
@@ -192,10 +191,15 @@ async function execBuild () {
 }
 
 async function execlintCodeOnChanged () {
-  logStartStage('lint', 'lint using eslint')
+  logStartStage('linc', 'lint using eslint')
   await lintCode({ onlyChanged: true }, { fix: true })
   logStage('typecheck with typescript')
-  await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
+  const changedFiles = await listChangedFiles()
+  if ([...changedFiles].some(changedFile => changedFile.startsWith('src/'))) {
+    await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
+  } else {
+    process.stdout.write('no files to check...')
+  }
   logEndStage()
 }
 
@@ -336,10 +340,21 @@ async function lintCode ({ onlyChanged }, options) {
     await ESLint.outputFixes(results)
   }
 
-  console.log(formatter.format(results))
+  const filesLinted = results.length
+  process.stdout.write(`linted ${filesLinted} files. `)
+
+  const resultLog = formatter.format(results)
+  if (resultLog) {
+    console.log('')
+    console.log(resultLog)
+  } else {
+    process.stdout.write('OK...')
+  }
 }
 
 async function getLintCodeFilePattern (onlyChanged) {
+  const esLintFilePatterns = ['**/*.js']
+
   if (!onlyChanged) {
     return esLintFilePatterns
   }
