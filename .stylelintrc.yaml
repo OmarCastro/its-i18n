@@ -4,3 +4,4 @@ rules:
   'selector-class-pattern': null
   'declaration-block-single-line-max-declarations': null
   'no-descending-specificity': null
+fix: true
