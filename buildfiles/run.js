@@ -193,6 +193,8 @@ async function execBuild () {
 async function execlintCodeOnChanged () {
   logStartStage('linc', 'lint using eslint')
   const returnCodeLint = await lintCode({ onlyChanged: true }, { fix: true })
+  logStage('lint using stylelint')
+  const returnStyleLint = await lintStyles({ onlyChanged: true })
   let returnCodeTs = 0
   logStage('typecheck with typescript')
   const changedFiles = await listChangedFiles()
@@ -202,16 +204,18 @@ async function execlintCodeOnChanged () {
     process.stdout.write('no files to check...')
   }
   logEndStage()
-  return returnCodeLint + returnCodeTs
+  return returnCodeLint + returnCodeTs + returnStyleLint
 }
 
 async function execlintCode () {
   logStartStage('lint', 'lint using eslint')
   const returnCodeLint = await lintCode({ onlyChanged: false }, { fix: true })
+  logStage('lint using stylelint')
+  const returnStyleLint = await lintStyles({ onlyChanged: false })
   logStage('typecheck with typescript')
   const returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
-  return returnCodeLint + returnCodeTs
+  return returnCodeLint + returnCodeTs + returnStyleLint
 }
 
 async function execGithubBuildWorkflow () {
@@ -331,10 +335,16 @@ function wait (ms) {
     setTimeout(resolve, ms)
   })
 }
+
+// Linters
+
 async function lintCode ({ onlyChanged }, options) {
-  const finalFilePatterns = await getLintCodeFilePattern(onlyChanged)
+  const esLintFilePatterns = ['**/*.js']
+
+  const finalFilePatterns = onlyChanged ? await listChangedFilesMatching(...esLintFilePatterns) : esLintFilePatterns
   if (finalFilePatterns.length <= 0) {
-    return
+    process.stdout.write('no files to lint. ')
+    return 0
   }
   const { ESLint } = await import('eslint')
   const eslint = new ESLint(options)
@@ -360,17 +370,30 @@ async function lintCode ({ onlyChanged }, options) {
   return errorCount ? 1 : 0
 }
 
-async function getLintCodeFilePattern (onlyChanged) {
-  const esLintFilePatterns = ['**/*.js']
-
-  if (!onlyChanged) {
-    return esLintFilePatterns
+async function lintStyles ({ onlyChanged }) {
+  const styleLintFilePatterns = ['**/*.css']
+  const finalFilePatterns = onlyChanged ? await listChangedFilesMatching(...styleLintFilePatterns) : styleLintFilePatterns
+  if (finalFilePatterns.length <= 0) {
+    process.stdout.write('no files to lint. ')
+    return 0
   }
-  const { minimatch } = await import('minimatch')
-  const changedFiles = [...(await listChangedFiles())]
-  const intersection = esLintFilePatterns.flatMap(pattern => minimatch.match(changedFiles, pattern, { matchBase: true }))
-  return [...new Set(intersection)]
+  const { default: stylelint } = await import('stylelint')
+  const result = await stylelint.lint({ files: finalFilePatterns })
+  const filesLinted = result.results.length
+  process.stdout.write(`linted ${filesLinted} files. `)
+
+  const output = stylelint.formatters.string(result.results)
+  if (output) {
+    console.log('')
+    console.log(stylelint.formatters.string(result.results))
+  } else {
+    process.stdout.write('OK...')
+  }
+
+  return result.errored ? 1 : 0
 }
+
+// File Utils
 
 async function * getFiles (dir) {
   const dirents = await fs.readdir(dir, { withFileTypes: true })
@@ -406,6 +429,13 @@ async function execCmd (command, args) {
 
 async function execGitCmd (args) {
   return (await execCmd('git', args)).stdout.trim().toString().split('\n')
+}
+
+async function listChangedFilesMatching (...patterns) {
+  const { minimatch } = await import('minimatch')
+  const changedFiles = [...(await listChangedFiles())]
+  const intersection = patterns.flatMap(pattern => minimatch.match(changedFiles, pattern, { matchBase: true }))
+  return [...new Set(intersection)]
 }
 
 async function listChangedFiles () {
