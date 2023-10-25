@@ -38,11 +38,11 @@ const tasks = {
   },
   linc: {
     description: 'validates the code only on changed files',
-    cb: async () => { await execlintCodeOnChanged(); process.exit(0) },
+    cb: async () => { process.exit(await execlintCodeOnChanged()) },
   },
   lint: {
     description: 'validates the code',
-    cb: async () => { await execlintCode(); process.exit(0) },
+    cb: async () => { process.exit(await execlintCode()) },
   },
   dev: {
     description: 'setup dev environment',
@@ -192,23 +192,26 @@ async function execBuild () {
 
 async function execlintCodeOnChanged () {
   logStartStage('linc', 'lint using eslint')
-  await lintCode({ onlyChanged: true }, { fix: true })
+  const returnCodeLint = await lintCode({ onlyChanged: true }, { fix: true })
+  let returnCodeTs = 0
   logStage('typecheck with typescript')
   const changedFiles = await listChangedFiles()
   if ([...changedFiles].some(changedFile => changedFile.startsWith('src/'))) {
-    await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
+    returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   } else {
     process.stdout.write('no files to check...')
   }
   logEndStage()
+  return returnCodeLint + returnCodeTs
 }
 
 async function execlintCode () {
   logStartStage('lint', 'lint using eslint')
-  await lintCode({ onlyChanged: false }, { fix: true })
+  const returnCodeLint = await lintCode({ onlyChanged: false }, { fix: true })
   logStage('typecheck with typescript')
-  await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
+  const returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
+  return returnCodeLint + returnCodeTs
 }
 
 async function execGithubBuildWorkflow () {
@@ -272,7 +275,9 @@ async function checkNodeModulesFolder () {
 
 function cmdSpawn (command, options = {}) {
   const p = spawn('/bin/sh', ['-c', command], { stdio: 'inherit', ...options })
-  return new Promise((resolve) => { p.on('exit', resolve) })
+  return new Promise((resolve) => {
+    p.on('exit', (code) => resolve(code ?? 1))
+  }).then(code => +code)
 }
 
 async function openDevServer () {
@@ -343,6 +348,8 @@ async function lintCode ({ onlyChanged }, options) {
   const filesLinted = results.length
   process.stdout.write(`linted ${filesLinted} files. `)
 
+  const errorCount = results.reduce((acc, result) => acc + result.errorCount, 0)
+
   const resultLog = formatter.format(results)
   if (resultLog) {
     console.log('')
@@ -350,6 +357,7 @@ async function lintCode ({ onlyChanged }, options) {
   } else {
     process.stdout.write('OK...')
   }
+  return errorCount ? 1 : 0
 }
 
 async function getLintCodeFilePattern (onlyChanged) {
