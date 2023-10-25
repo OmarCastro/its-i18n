@@ -8,6 +8,10 @@ import('../src/custom-elements/i18n-container/i18n-container.element').then(({ d
 
 /** @typedef {import("../src/custom-elements/i18n-container/i18n-container.element").default} I18nElement */
 
+/**
+ * @param {Record<string, any>} exampleObject  - example object data
+ * @param {Element} exampleContainer -  - example element
+ */
 function updateStore (exampleObject, exampleContainer) {
   const store = i18nTanslationStore()
   store.loadTranslations({
@@ -23,8 +27,9 @@ function updateStore (exampleObject, exampleContainer) {
 }
 
 /**
- * @param {Record<string, any>} exampleObject
- * @param {Element} codeView
+ * @param {Record<string, any>} exampleObject - example object data
+ * @param {Element} codeView - element container
+ * @returns {Promise<EditorView>} codemirror EditorView object
  */
 async function transformCodeViewToEditor (exampleObject, codeView) {
   const exampleContainer = codeView.closest('.example')
@@ -52,10 +57,8 @@ async function transformCodeViewToEditor (exampleObject, codeView) {
 }
 
 /**
- *
- * @param {Record<string, any>} exampleObject
- * @param {Element} editorElement
- * @returns
+ * @param {Record<string, any>} exampleObject - example object data
+ * @param {Element} editorElement - editor element
  */
 async function applyExample (exampleObject, editorElement) {
   const exampleContainer = editorElement.closest('.example')
@@ -113,18 +116,23 @@ document.querySelectorAll('.example').forEach(element => {
   })
 })
 
+/**
+ * @param {Event} event - 'input' event object
+ */
 function reactElementNameChange (event) {
   const componentName = event.target.closest('.component-name-edit')
-  if (componentName == null) { return false }
+  if (componentName == null) { return }
   const newText = componentName.textContent
   document.body.querySelectorAll('.component-name-edit').forEach(ref => { if (componentName !== ref) ref.textContent = newText })
   document.body.querySelectorAll('.component-name-ref').forEach(ref => { ref.textContent = newText })
-  return true
 }
 
 document.body.addEventListener('input', (event) => { reactElementNameChange(event) })
 
-/** @param {HTMLCanvasElement} canvas */
+/**
+ * Example canvas code on index.html
+ * @param {HTMLCanvasElement} canvas - canvas element
+ */
 async function paintHelloWorldOnCanvas (canvas) {
   const context = canvas.getContext('2d')
   context.clearRect(0, 0, canvas.width, canvas.height)

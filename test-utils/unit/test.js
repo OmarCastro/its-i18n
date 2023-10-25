@@ -10,13 +10,14 @@
 
 // thee 2 lines are to prevent esbuild to bundle the await imports
 /**
- * @param {string} str
+ * @param {string} str - import path
+ * @returns {Promise<any>} import result
  */
 const importModule = (str) => import(str)
 let importStr
 
 /**
- * @returns {Promise<Test>}
+ * @returns {Promise<Test>} adapted tests
  */
 const fn = async () => {
   if (globalThis.Deno != null) {
@@ -99,9 +100,9 @@ export const test = await fn()
 
 /**
  * @typedef {object} TestAPI
- * @property {typeof import('expect').expect} expect
- * @property {TestAPICall} step
- * @property {Window} dom
+ * @property {typeof import('expect').expect} expect - expect API
+ * @property {TestAPICall} step - test step
+ * @property {Window} dom - dom fixture
  */
 
 /**
