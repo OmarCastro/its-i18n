@@ -29,13 +29,11 @@ for upcoming releases. We do our best to keep main in good shape, with all tests
 features, but no breaking changes. We should be able to release a new minor version from the tip of
 main at any time
 
-## Bugs
+## Issues
 
-### Where to Find Known Issues
-
- We are using GitHub Issues for our public bugs. We keep a close eye on this and try to make it
+ We are using GitHub Issues for our bugs. We keep a close eye on this and try to make it
 clear when we have an internal fix in progress. Before filing a new task, try to make sure your
-problem doesn’t already exist.
+problem does not already exist.
 
 
 ## Contribution Prerequisites
@@ -57,6 +55,12 @@ After cloning its-i18n, you can run several commands, the first time you run any
   - runs tests
   - launch the development server
   - opens documentation in a web browser
-  - watch for file changes so that it build, test, check code styles and refresh documentation in the browser
+  - watch for file changes so that it build, test, check code styles and refresh the page in the browser
+  - you can exit the same way you exit a command line application, Ctrl+C on the terminal 
 - `npm run help` shows the list of supported tasks with their description
 - `npm run build:github-action` is like `npm run build` but checks the style code before building, used for github actions
+
+## Style Guide
+
+The code uses [Javascript Standard Style](https://standardjs.com/) with type check using typescript and JSDocs. Run `npm run linc` after making any changes to the code if not already using `npm run dev`. It shall fix formatting issues as well as notify issues about the code rules as well as code smells.
+
