@@ -200,7 +200,7 @@ queryAll('[ss:toc]').forEach(element => {
   const ol = document.createElement('ol')
   /** @type {[HTMLElement, HTMLElement][]} */
   const path = []
-  for (const element of queryAll(':is(h1, h2, h3, h4, h5, h6):not(.no-toc)')) {
+  for (const element of queryAll(':is(h2, h3, h4, h5, h6):not(.no-toc), h1.yes-toc')) {
     tocUtils.getOrCreateId(element)
     const parent = tocUtils.getParentOL(element, path) || ol
     const li = tocUtils.createMenuItem(element)
