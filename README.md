@@ -13,8 +13,8 @@
     <source srcset="https://img.shields.io/github/forks/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
     <img src="https://img.shields.io/github/forks/OmarCastro/its-i18n?style=for-the-badge&logo=github&logoColor=%23333&labelColor=%23ccc">
 </picture></a><a href="https://codeclimate.com/github/OmarCastro/its-i18n" aria-label="view code climate" title="view code climate"><picture>
-    <source srcset="https://img.shields.io/codeclimate/maintainability/OmarCastro/its-i18n?style=for-the-badge&logo=codeclimate&logoColor=%23ccc&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
-    <img src="https://img.shields.io/codeclimate/maintainability/OmarCastro/its-i18n?style=for-the-badge&logo=codeclimate&logoColor=%23333&labelColor=%23ccc">
+    <source srcset="https://img.shields.io/codeclimate/maintainability/OmarCastro/its-i18n?style=for-the-badge&logo=codeclimate&logoColor=%23F6F8FA&labelColor=%23333" media="(prefers-color-scheme: dark)"> 
+    <img src="https://img.shields.io/codeclimate/maintainability/OmarCastro/its-i18n?style=for-the-badge&logo=codeclimate&logoColor=%23333&labelColor=%23F6F8F8">
 </picture></a>
 
 A library used to apply i18n on html automatically
@@ -44,4 +44,18 @@ customElements.define('i18n-container', element)
 
 ### Examples
 
-You can see the examples [on the github page](https://omarcastro.github.io/its-i18n/#examples) as well t interact with them
+You can see the examples [on the github page](https://omarcastro.github.io/its-i18n/#examples) and interact with them
+
+### Contributing
+
+TLDR version of https://omarcastro.github.io/its-i18n/contributing:
+
+- Have NodeJs & Git installed
+
+```bash
+git clone https://omarcastro.github.io/its-i18n/
+cd its-i18n
+npm run dev
+```
+
+`npm ci` runs automatically on `npm run dev` when node_modules is absent on 
