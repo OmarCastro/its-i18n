@@ -51,6 +51,7 @@
     "expect": "^29.7.0",
     "html-minifier": "^4.0.0",
     "image-size": "^1.0.2",
+    "js-yaml": "^4.1.0",
     "jsdom": "^22.1.0",
     "marked": "^9.1.2",
     "minimatch": "^9.0.3",

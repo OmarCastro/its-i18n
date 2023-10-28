@@ -22,7 +22,6 @@ const helpTask = {
   cb: async () => { console.log(helpText()); process.exit(0) },
 
 }
-
 const tasks = {
   build: {
     description: 'builds the project',
@@ -197,6 +196,8 @@ async function execlintCodeOnChanged () {
   const returnStyleLint = await lintStyles({ onlyChanged: true })
   logStage('validating json')
   const returnJsonLint = await validateJson({ onlyChanged: true })
+  logStage('validating yaml')
+  const returnYamlLint = await validateYaml({ onlyChanged: true })
   let returnCodeTs = 0
   logStage('typecheck with typescript')
   const changedFiles = await listChangedFiles()
@@ -206,7 +207,7 @@ async function execlintCodeOnChanged () {
     process.stdout.write('no files to check...')
   }
   logEndStage()
-  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint
+  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
 async function execlintCode () {
@@ -216,10 +217,12 @@ async function execlintCode () {
   const returnStyleLint = await lintStyles({ onlyChanged: false })
   logStage('validating json')
   const returnJsonLint = await validateJson({ onlyChanged: false })
+  logStage('validating yaml')
+  const returnYamlLint = await validateYaml({ onlyChanged: false })
   logStage('typecheck with typescript')
   const returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
-  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint
+  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
 async function execGithubBuildWorkflow () {
@@ -397,17 +400,33 @@ async function lintStyles ({ onlyChanged }) {
 }
 
 async function validateJson ({ onlyChanged }) {
-  const jsonFilePatterns = ['*.json']
-  const fileList = onlyChanged ? await listChangedFilesMatching(...jsonFilePatterns) : await listNonIgnoredFiles({ patterns: jsonFilePatterns })
+  return await validateFiles({
+    patterns: ['*.json'],
+    onlyChanged,
+    validation: async (file) => JSON.parse(await fs.readFile(file, 'utf8')),
+  })
+}
+
+async function validateYaml ({ onlyChanged }) {
+  const { load } = await import('js-yaml')
+  return await validateFiles({
+    patterns: ['*.yml', '*.yaml'],
+    onlyChanged,
+    validation: async (file) => load(await fs.readFile(file, 'utf8')),
+  })
+}
+
+async function validateFiles ({ patterns, onlyChanged, validation }) {
+  const fileList = onlyChanged ? await listChangedFilesMatching(...patterns) : await listNonIgnoredFiles({ patterns })
   if (fileList.length <= 0) {
-    process.stdout.write('no JSON files to lint. ')
+    process.stdout.write('no files to lint. ')
     return 0
   }
   let errorCount = 0
   const outputLines = []
   for (const file of fileList) {
     try {
-      JSON.parse(await fs.readFile(file, 'utf8'))
+      await validation(file)
     } catch (e) {
       errorCount++
       outputLines.push(`error in file "${file}": ${e.message}`)
@@ -477,7 +496,7 @@ async function listNonIgnoredFiles ({ ignorePath = '.gitignore', patterns } = {}
 
   const fileList = listFiles('.')
   if (!patterns) { return fileList }
-  const intersection = patterns.flatMap(pattern => minimatch.match(fileList, pattern, { matchBase: true }))
+  const intersection = patterns.flatMap(pattern => minimatch.match(fileList, pattern, { matchBase: true, dot: true }))
   return [...new Set(intersection)]
 }
 
