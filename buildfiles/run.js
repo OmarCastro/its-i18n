@@ -195,6 +195,8 @@ async function execlintCodeOnChanged () {
   const returnCodeLint = await lintCode({ onlyChanged: true }, { fix: true })
   logStage('lint using stylelint')
   const returnStyleLint = await lintStyles({ onlyChanged: true })
+  logStage('validating json')
+  const returnJsonLint = await validateJson({ onlyChanged: true })
   let returnCodeTs = 0
   logStage('typecheck with typescript')
   const changedFiles = await listChangedFiles()
@@ -204,7 +206,7 @@ async function execlintCodeOnChanged () {
     process.stdout.write('no files to check...')
   }
   logEndStage()
-  return returnCodeLint + returnCodeTs + returnStyleLint
+  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint
 }
 
 async function execlintCode () {
@@ -212,10 +214,12 @@ async function execlintCode () {
   const returnCodeLint = await lintCode({ onlyChanged: false }, { fix: true })
   logStage('lint using stylelint')
   const returnStyleLint = await lintStyles({ onlyChanged: false })
+  logStage('validating json')
+  const returnJsonLint = await validateJson({ onlyChanged: false })
   logStage('typecheck with typescript')
   const returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
   logEndStage()
-  return returnCodeLint + returnCodeTs + returnStyleLint
+  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint
 }
 
 async function execGithubBuildWorkflow () {
@@ -374,7 +378,7 @@ async function lintStyles ({ onlyChanged }) {
   const styleLintFilePatterns = ['**/*.css']
   const finalFilePatterns = onlyChanged ? await listChangedFilesMatching(...styleLintFilePatterns) : styleLintFilePatterns
   if (finalFilePatterns.length <= 0) {
-    process.stdout.write('no files to lint. ')
+    process.stdout.write('no stylesheets to lint. ')
     return 0
   }
   const { default: stylelint } = await import('stylelint')
@@ -384,13 +388,40 @@ async function lintStyles ({ onlyChanged }) {
 
   const output = stylelint.formatters.string(result.results)
   if (output) {
-    console.log('')
-    console.log(stylelint.formatters.string(result.results))
+    console.log('\n' + output)
   } else {
     process.stdout.write('OK...')
   }
 
   return result.errored ? 1 : 0
+}
+
+async function validateJson ({ onlyChanged }) {
+  const jsonFilePatterns = ['*.json']
+  const fileList = onlyChanged ? await listChangedFilesMatching(...jsonFilePatterns) : await listNonIgnoredFiles({ patterns: jsonFilePatterns })
+  if (fileList.length <= 0) {
+    process.stdout.write('no JSON files to lint. ')
+    return 0
+  }
+  let errorCount = 0
+  const outputLines = []
+  for (const file of fileList) {
+    try {
+      JSON.parse(await fs.readFile(file, 'utf8'))
+    } catch (e) {
+      errorCount++
+      outputLines.push(`error in file "${file}": ${e.message}`)
+    }
+  }
+  process.stdout.write(`validated ${fileList.length} files. `)
+  const output = outputLines.join('\n')
+  if (output) {
+    console.log('\n' + outputLines)
+  } else {
+    process.stdout.write('OK...')
+  }
+
+  return errorCount ? 1 : 0
 }
 
 // File Utils
@@ -429,6 +460,31 @@ async function execCmd (command, args) {
 
 async function execGitCmd (args) {
   return (await execCmd('git', args)).stdout.trim().toString().split('\n')
+}
+
+async function listNonIgnoredFiles ({ ignorePath = '.gitignore', patterns } = {}) {
+  const { minimatch } = await import('minimatch')
+  const { join } = await import('node:path')
+  const { statSync, readdirSync } = await import('node:fs')
+  const ignorePatterns = await getIgnorePatternsFromFile(ignorePath)
+  const ignoreMatchers = ignorePatterns.map(pattern => minimatch.filter(pattern, { matchBase: true }))
+  const listFiles = (dir) => readdirSync(dir).reduce(function (list, file) {
+    const name = join(dir, file)
+    if (file === '.git' || ignoreMatchers.some(match => match(name))) { return list }
+    const isDir = statSync(name).isDirectory()
+    return list.concat(isDir ? listFiles(name) : [name])
+  }, [])
+
+  const fileList = listFiles('.')
+  if (!patterns) { return fileList }
+  const intersection = patterns.flatMap(pattern => minimatch.match(fileList, pattern, { matchBase: true }))
+  return [...new Set(intersection)]
+}
+
+async function getIgnorePatternsFromFile (filePath) {
+  const content = await fs.readFile(filePath, 'utf8')
+  const lines = content.split('\n').filter(line => !line.startsWith('#') && line.trim() !== '')
+  return [...new Set(lines)]
 }
 
 async function listChangedFilesMatching (...patterns) {
