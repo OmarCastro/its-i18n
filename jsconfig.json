@@ -19,10 +19,8 @@
         "lib": [
             "DOM",
             "DOM.Iterable",
-            "ESNext",
-          ],
-        
-    
+            "ESNext"
+          ]
     },
     "include": [
         "src/**/*.js",
@@ -32,6 +30,6 @@
         "**/*.spec.ts",
         "**/*.spec.js",
         "**/*.test.ts",
-        "**/*.test.js",
+        "**/*.test.js"
     ]
 }
