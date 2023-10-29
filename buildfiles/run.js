@@ -20,7 +20,6 @@ const args = process.argv.slice(2)
 const helpTask = {
   description: 'show this help',
   cb: async () => { console.log(helpText()); process.exit(0) },
-
 }
 const tasks = {
   build: {
@@ -47,9 +46,17 @@ const tasks = {
     description: 'setup dev environment',
     cb: async () => { await execDevEnvironment(); process.exit(0) },
   },
+  'dev:open': {
+    description: 'setup dev environment and opens dev server in browser',
+    cb: async () => { await execDevEnvironment({ openBrowser: true }); process.exit(0) },
+  },
   'dev-server': {
     description: 'launch dev server',
     cb: async () => { await openDevServer(); await wait(2 ** 30) },
+  },
+  'dev-server:open': {
+    description: 'launch dev server and opens in browser',
+    cb: async () => { await openDevServer({ openBrowser: true }); await wait(2 ** 30) },
   },
   help: helpTask,
   '--help': helpTask,
@@ -76,8 +83,8 @@ async function main () {
 
 await main()
 
-async function execDevEnvironment () {
-  await openDevServer()
+async function execDevEnvironment ({ openBrowser = false } = {}) {
+  await openDevServer({ openBrowser })
   await Promise.all([execlintCodeOnChanged(), execTests()])
   await execBuild()
 
@@ -291,9 +298,8 @@ function cmdSpawn (command, options = {}) {
   }).then(code => +code)
 }
 
-async function openDevServer () {
+async function openDevServer ({ openBrowser = false } = {}) {
   const { default: serve } = await import('wonton')
-  const { default: open } = await import('open')
 
   const certFilePath = '.tmp/dev-server/cert.crt'
   const keyFilePath = '.tmp/dev-server/cert.key'
@@ -334,7 +340,11 @@ async function openDevServer () {
   }
   serve.start(params)
   updateDevServer = serve.update
-  open(`https://${host}:${port}/build/docs`)
+
+  if (openBrowser) {
+    const { default: open } = await import('open')
+    open(`https://${host}:${port}/build/docs`)
+  }
 }
 
 function wait (ms) {

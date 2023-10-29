@@ -55,7 +55,7 @@ TLDR version of https://omarcastro.github.io/its-i18n/contributing:
 ```bash
 git clone https://omarcastro.github.io/its-i18n/
 cd its-i18n
-npm run dev
+npm run dev:open
 ```
 
-`npm ci` runs automatically on `npm run dev` when node_modules is absent on 
+`npm ci` runs automatically when `npm run dev:open` (or any of the npm scripts) when node_modules is absent on, if you do not wish to open the browser, run `npm run dev` instead

@@ -45,18 +45,19 @@ problem does not already exist.
 
 After cloning its-i18n, you can run several commands, the first time you run any of the following commands, it will automatically install the dependencies.
 
-- `npm run lint` checks the code style.
+- `npm run lint` checks code style and validates assets.
 - `npm run linc` is like `npm run lint` but faster because it only checks files that differ in your branch.
 - `npm test` runs all unit tests.
 - `npm run build` creates a build folder with dist and documentation.
 - `npm run dev-server` launch a server for development
+- `npm run dev-server:open` runs `npm run dev-server` and opens the documentation in a web browser
 - `npm run dev` setups the whole development environment.
   - builds the project
   - runs tests
   - launch the development server
-  - opens documentation in a web browser
   - watch for file changes so that it build, test, check code styles and refresh the page in the browser
   - you can exit the same way you exit a command line application, Ctrl+C on the terminal 
+- `npm run dev:open` runs `npm run dev` and opens the documentation in a web browser
 - `npm run help` shows the list of supported tasks with their description
 - `npm run build:github-action` is like `npm run build` but checks the style code before building, used for github actions
 
