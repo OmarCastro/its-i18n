@@ -59,3 +59,7 @@ npm run dev:open
 ```
 
 `npm ci` runs automatically when `npm run dev:open` (or any of the npm scripts) when node_modules is absent on, if you do not wish to open the browser, run `npm run dev` instead
+
+# Playground
+
+You can play with the library by going to the `playground/` folder of by using an [online IDE](https://stackblitz.com/github/OmarCastro/its-i18n/tree/main/playground?file=index.html)
