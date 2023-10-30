@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- More documentation
+- How to contribute
+- Playground
+
 ## [0.3.1] - 2023-10-11
 
 ### Fixed
