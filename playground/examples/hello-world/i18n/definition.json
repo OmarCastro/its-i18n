@@ -1,8 +1,28 @@
 {
     "af": "af.json",
+    "ak": "ak.json",
     "am": "am.json",
+    "as": "as.json",
+    "az": "az.json",
     "ar": "ar.json",
+    "be": "be.json",
+    "bg": "bg.json",
+    "bm": "bm.json",
+    "bn": "bn.json",
+    "bs": "bs.json",
+    "bs": "bs.json",
+    "bs": "bs.json",
+    "ca": "ca.json",
+    "cs": "cs.json",
+    "da": "cd.json",
     "en": "en.json",
-    "sq": "sq.json"
+    "eu": "eu.json",
+    "fr": "fr.json",
+    "hr": "hr.json",
+    "hy": "hy.json",
+    "my": "my.json",
+    "nl": "nl.json",
+    "sq": "sq.json",
+    "zh": "zh.json"
 }
 
