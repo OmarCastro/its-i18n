@@ -11,8 +11,8 @@ export async function importTranslations (url, baseUrl) {
   return normalizeResult.result
 }
 
-/** @type {import('./provider.js').ImportI18nJson} */
-export async function importI18nJson (url, baseUrl) {
+/** @type {import('./provider.js').ImportDefinitionMap} */
+export async function importDefinitionMap (url, baseUrl) {
   const absoluteUrl = new URL(url, baseUrl)
   const response = await fetch(absoluteUrl)
   const json = await response.json()
@@ -24,5 +24,5 @@ export async function importI18nJson (url, baseUrl) {
 
 provide({
   importTranslations,
-  importI18nJson,
+  importDefinitionMap,
 })

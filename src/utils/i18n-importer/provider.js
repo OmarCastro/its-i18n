@@ -1,6 +1,6 @@
 const defaultImplementation = Object.freeze({
-  importTranslations: () => ((console.error('importLanguage not implemented'), Promise.resolve({}))),
-  importI18nJson: () => ((console.error('importLanguage not implemented'), Promise.resolve({}))),
+  importTranslations: () => ((console.error('importTranslations not implemented'), Promise.resolve({}))),
+  importDefinitionMap: () => ((console.error('importLanguage not implemented'), Promise.resolve({}))),
 })
 
 /** @type {Implementation} */
@@ -15,8 +15,8 @@ export function provide (newImpl) {
   if (typeof newImpl?.importTranslations === 'function') {
     implementation.importTranslations = newImpl.importTranslations
   }
-  if (typeof newImpl?.importI18nJson === 'function') {
-    implementation.importI18nJson = newImpl.importI18nJson
+  if (typeof newImpl?.importDefinitionMap === 'function') {
+    implementation.importDefinitionMap = newImpl.importDefinitionMap
   }
 }
 
@@ -37,7 +37,7 @@ export function provide (newImpl) {
 /**
  * @typedef {object} Implementation
  * @property {ImportTranslations} importTranslations - {@link ImportTranslations} implementation function
- * @property {ImportI18nJson} importI18nJson - {@link ImportTranslations} implementation function
+ * @property {ImportDefinitionMap} importDefinitionMap - {@link ImportTranslations} implementation function
  */
 
 /**
@@ -50,7 +50,7 @@ export function provide (newImpl) {
  */
 
 /**
- * @callback ImportI18nJson
+ * @callback ImportDefinitionMap
  *
  * Imports a {@link I18nDefinitionMap} from an URL
  * @param {string} url - target URL

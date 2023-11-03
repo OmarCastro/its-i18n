@@ -4,8 +4,7 @@ import { implementation } from './provider.js'
 export const importTranslations = (url, base) => implementation.importTranslations(url, base)
 
 /** @type {ImportI18nJson} */
-export const importI18nJson = (url, base) => implementation.importI18nJson(url, base)
+export const importDefinitionMap = (url, base) => implementation.importDefinitionMap(url, base)
 
 /** @typedef {import('./provider.js').ImportTranslations} ImportTranslations */
-/** @typedef {import('./provider.js').ImportI18nJson} ImportI18nJson */
-/** @typedef {import('./provider.js').I18nDefinitionMap} I18nDefinitionMap */
+/** @typedef {import('./provider.js').ImportDefinitionMap} ImportI18nJson */

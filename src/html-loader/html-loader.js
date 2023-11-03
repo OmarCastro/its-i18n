@@ -1,4 +1,4 @@
-import { importI18nJson } from '../utils/i18n-importer/i18n-importer.js'
+import { importDefinitionMap } from '../utils/i18n-importer/i18n-importer.js'
 import { i18nTanslationStore } from '../utils/store/translation-store.js'
 import { builder } from '../utils/i18n-merger/i18n-merger.util.js'
 
@@ -20,7 +20,7 @@ async function loadLocaleMaps ({ document, location, merger }) {
   const deferredMapPromises = localeMaps.flatMap((link) => {
     const href = link.getAttribute('href')
     if (!href) return []
-    return [importI18nJson(href, locationHref).then((result) => ({ result, location: new URL(href, locationHref) }))]
+    return [importDefinitionMap(href, locationHref).then((result) => ({ result, location: new URL(href, locationHref) }))]
   })
 
   const promiseResults = await Promise.allSettled(deferredMapPromises)
