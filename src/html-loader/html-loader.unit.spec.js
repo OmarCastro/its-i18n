@@ -92,7 +92,7 @@ test('an HTML page with i18n-translation-map links, loadI18n should return a sto
   `
 
   provide({
-    importI18nJson (url, base) {
+    importDefinitionMap (url, base) {
       return Promise.resolve({})
     },
     importTranslations (url, base) {
@@ -194,7 +194,7 @@ const i18nImporterImplFromLocation = (locHref) => {
     if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
     return filesystem[file]
   }
-  return { importI18nJson: importFile, importTranslations: importFile }
+  return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
 const filesystem = {

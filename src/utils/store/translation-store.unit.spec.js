@@ -123,7 +123,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
 
     const base = import.meta.url
     const location = './import/i18n.json'
-    const json = await impl.importI18nJson(location, base)
+    const json = await impl.importDefinitionMap(location, base)
 
     const store = i18nTanslationStore()
     store.loadTranslations({
@@ -145,7 +145,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     const basePathFolder = './import-outer/base'
     const base = import.meta.url
     const location = `${basePathFolder}/i18n.json`
-    const json = await impl.importI18nJson(location, base)
+    const json = await impl.importDefinitionMap(location, base)
 
     const store = i18nTanslationStore()
     store.loadTranslations({
@@ -180,7 +180,7 @@ test('Given a storeData loaded from "import/i18n.json", when getting translation
 
   const base = import.meta.url
   const location = './import/i18n.json'
-  const json = await impl.importI18nJson(location, base)
+  const json = await impl.importDefinitionMap(location, base)
 
   const store = i18nTanslationStore()
   store.loadTranslations({
@@ -325,7 +325,7 @@ const i18nImporterImplFromLocation = (locHref) => {
     if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
     return filesystem[file]
   }
-  return { importI18nJson: importFile, importTranslations: importFile }
+  return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
 const filesystem = {

@@ -1,7 +1,7 @@
 import { test } from '../../../test-utils/unit/test.js'
-import { importI18nJson, importTranslations } from './implementation.js'
+import { importDefinitionMap, importTranslations } from './implementation.js'
 
-test('Given `fetch` returns a valid, normalized json, `importI18nJson` should return the same json', async ({ expect }) => {
+test('Given `fetch` returns a valid, normalized json, `importDefinitionMap` should return the same json', async ({ expect }) => {
   const oldFetch = fetch
   const fetchResult = {
     en: { import: ['./translations.en.json'], translations: {} },
@@ -13,13 +13,13 @@ test('Given `fetch` returns a valid, normalized json, `importI18nJson` should re
       json: () => Promise.resolve(fetchResult),
     })
 
-  const result = await importI18nJson('.', import.meta.url)
+  const result = await importDefinitionMap('.', import.meta.url)
   expect(result).toEqual(fetchResult)
 
   globalThis.fetch = oldFetch
 })
 
-test('Given `fetch` returns a non normalized json, `importI18nJson` should return a normalized translations', async ({ expect }) => {
+test('Given `fetch` returns a non normalized json, `importDefinitionMap` should return a normalized translations', async ({ expect }) => {
   const oldFetch = fetch
   const fetchResult = {
     en: { import: './translations.en.json' },
@@ -31,7 +31,7 @@ test('Given `fetch` returns a non normalized json, `importI18nJson` should retur
       json: () => Promise.resolve(fetchResult),
     })
 
-  const result = await importI18nJson('.', import.meta.url)
+  const result = await importDefinitionMap('.', import.meta.url)
   expect(result).toEqual({
     en: { import: ['./translations.en.json'], translations: {} },
     es: { import: ['./translations.es.json'], translations: {} },
@@ -41,7 +41,7 @@ test('Given `fetch` returns a non normalized json, `importI18nJson` should retur
   globalThis.fetch = oldFetch
 })
 
-test('Given `fetch` returns a json with errors, `importI18nJson` should return a corrected and normalized i18n definition and log erros', async ({ expect }) => {
+test('Given `fetch` returns a json with errors, `importDefinitionMap` should return a corrected and normalized i18n definition and log erros', async ({ expect }) => {
   const oldFetch = fetch
   const fetchResult = {
     en: { import: ['./translations.en.json', null, {}] },
@@ -54,7 +54,7 @@ test('Given `fetch` returns a json with errors, `importI18nJson` should return a
     })
 
   const importMetaUrl = 'http://localhost:8080'
-  const result = await importI18nJson('.', importMetaUrl)
+  const result = await importDefinitionMap('.', importMetaUrl)
   expect(result).toEqual({
     en: { import: ['./translations.en.json'], translations: {} },
     es: { import: ['./translations.es.json'], translations: {} },

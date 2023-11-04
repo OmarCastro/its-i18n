@@ -98,7 +98,7 @@ const i18nImporterImplFromLocation = (locHref) => {
     if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
     return filesystem[file]
   }
-  return { importI18nJson: importFile, importTranslations: importFile }
+  return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
 const filesystem = {
