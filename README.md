@@ -53,7 +53,7 @@ TLDR version of https://omarcastro.github.io/its-i18n/contributing:
 - Have NodeJs & Git installed
 
 ```bash
-git clone https://omarcastro.github.io/its-i18n/
+git clone https://github.com/OmarCastro/its-i18n.git
 cd its-i18n
 npm run dev:open
 ```
