@@ -38,7 +38,7 @@ problem does not already exist.
 
 ## Contribution Prerequisites
 
-- You have Node installed at latest stable.
+- You have NodeJS installed at latest stable.
 - You are familiar with Git.
 
 ## Development Workflow
@@ -63,5 +63,5 @@ After cloning its-i18n, you can run several commands, the first time you run any
 
 ## Style Guide
 
-The code uses [Javascript Standard Style](https://standardjs.com/) with type check using typescript and JSDocs. Run `npm run linc` after making any changes to the code if not already using `npm run dev`. It shall fix formatting issues as well as notify issues about the code rules as well as code smells.
+The code uses [Javascript Standard Style](https://standardjs.com/) with type check using [Typescript and JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html). Run `npm run linc` after making any changes to the code if not already using `npm run dev`. It shall fix formatting issues as well as notify issues about the code rules as well as code smells.
 
