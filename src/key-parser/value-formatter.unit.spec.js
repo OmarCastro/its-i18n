@@ -65,9 +65,9 @@ test('Given a relative formatter, getFormatter result should format the number w
     'fr-FR': formatter.format([], frLocale, []),
     'ja-JP': formatter.format([], jpLocale, []),
   }).toEqual({
-    'en-US': 'unix epoch started 54 years ago',
-    'en-GB': 'unix epoch started 54 years ago',
-    'fr-FR': 'unix epoch started il y a 54 ans',
-    'ja-JP': 'unix epoch started 54 年前',
+    'en-US': 'unix epoch started 55 years ago',
+    'en-GB': 'unix epoch started 55 years ago',
+    'fr-FR': 'unix epoch started il y a 55 ans',
+    'ja-JP': 'unix epoch started 55 年前',
   })
 })
