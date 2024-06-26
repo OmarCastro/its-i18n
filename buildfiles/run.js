@@ -1,7 +1,24 @@
 #!/usr/bin/env -S node --input-type=module
 /* eslint-disable camelcase, max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
+/*
+This file is purposely large to easily move the code to multiple projects, its build code, not production.
+To help navigate this file is divided by sections:
+@section 1 init
+@section 2 tasks
+@section 3 jobs
+@section 4 utils
+@section 5 Dev Server
+@section 6 linters
+@section 7 minifiers
+@section 8 exec utilities
+@section 9 filesystem utilities
+@section 10 npm utilities
+@section 11 badge utilities
+@section 12 module graph utilities
+@section 13 build tools plugins
+*/
 import process from 'node:process'
-import fs from 'node:fs/promises'
+import fs, { readFile as fsReadFile, writeFile } from 'node:fs/promises'
 import { resolve, basename } from 'node:path'
 import { existsSync, readFileSync } from 'node:fs'
 import { promisify } from 'node:util'
@@ -9,6 +26,9 @@ import { exec as baseExec, execFile as baseExecFile, spawn } from 'node:child_pr
 
 const exec = promisify(baseExec)
 const execFile = promisify(baseExecFile)
+const readFile = (path) => fsReadFile(path, { encoding: 'utf8' })
+
+// @section 1 init
 
 const projectPathURL = new URL('../', import.meta.url)
 const pathFromProject = (path) => new URL(path, projectPathURL).pathname
@@ -16,6 +36,8 @@ process.chdir(pathFromProject('.'))
 let updateDevServer = () => {}
 
 const args = process.argv.slice(2)
+
+// @section 2 tasks
 
 const helpTask = {
   description: 'show this help',
@@ -115,12 +137,18 @@ async function execTests () {
   const rmTmp = rm_rf(REPORTS_TMP_DIR)
   const rmBak = rm_rf(COVERAGE_BACKUP_DIR)
 
-  const badges = cmdSpawn('node buildfiles/scripts/build-badges.js')
+  await Promise.allSettled([
+    makeBadgeForCoverages(pathFromProject('reports/coverage/unit')),
+    makeBadgeForCoverages(pathFromProject('reports/coverage/final')),
+    makeBadgeForTestResult(pathFromProject('reports/test-results')),
+    makeBadgeForLicense(pathFromProject('reports')),
+    makeBadgeForNPMVersion(pathFromProject('reports')),
+  ])
 
   const files = Array.from(await getFiles(`${COVERAGE_DIR}/unit`))
   const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('buildfiles/assets/coverage-report-base.css', path))
   const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('buildfiles/assets/coverage-report-prettify.css', path))
-  await Promise.all([rmTmp, rmBak, badges, ...cpBase, ...cpPrettify])
+  await Promise.all([rmTmp, rmBak, ...cpBase, ...cpPrettify])
 
   await rm_rf('build/docs/reports')
   await mkdir_p('build/docs')
@@ -283,12 +311,6 @@ function logEndStage () {
 function logStartStage (jobname, stage) {
   logStage.currentJobName = jobname
   process.stdout.write(`[${jobname}] ${stage}...`)
-}
-
-async function checkNodeModulesFolder () {
-  if (existsSync(pathFromProject('node_modules'))) { return }
-  console.log('node_modules absent running "npm ci"...')
-  await cmdSpawn('npm ci')
 }
 
 function cmdSpawn (command, options = {}) {
@@ -533,4 +555,286 @@ async function listChangedFiles () {
 
 function isRunningFromNPMScript () {
   return JSON.parse(readFileSync(pathFromProject('./package.json'))).name === process.env.npm_package_name
+}
+
+// @section 10 npm utilities
+
+async function checkNodeModulesFolder () {
+  if (existsSync(pathFromProject('node_modules'))) { return }
+  console.log('node_modules absent running "npm ci"...')
+  await cmdSpawn('npm ci')
+}
+
+async function getLatestPublishedVersion () {
+  const pkg = await readPackageJson()
+
+  const version = await exec(`npm view ${pkg.name} version`)
+  return version.stdout.trim()
+}
+
+async function readPackageJson () {
+  return await readFile(pathFromProject('package.json')).then(str => JSON.parse(str))
+}
+
+// @section 11 badge utilities
+
+function getBadgeColors () {
+  getBadgeColors.cache ??= {
+    green: '#007700',
+    yellow: '#777700',
+    orange: '#aa0000',
+    red: '#aa0000',
+    blue: '#007ec6',
+  }
+  return getBadgeColors.cache
+}
+
+function asciiIconSvg (asciicode) {
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cstyle%3Etext %7Bfont-size: 10px; fill: %23333;%7D @media (prefers-color-scheme: dark) %7Btext %7B fill: %23ccc; %7D%7D %3C/style%3E%3Ctext x='0' y='10'%3E${asciicode}%3C/text%3E%3C/svg%3E`
+}
+
+async function makeBadge (params) {
+  const { default: libMakeBadge } = await import('badge-maker/lib/make-badge.js')
+  return libMakeBadge({
+    style: 'for-the-badge',
+    ...params,
+  })
+}
+
+function getLightVersionOfBadgeColor (color) {
+  const colors = getBadgeColors()
+  getLightVersionOfBadgeColor.cache ??= {
+    [colors.green]: '#90e59a',
+    [colors.yellow]: '#dd4',
+    [colors.orange]: '#fa7',
+    [colors.red]: '#f77',
+    [colors.blue]: '#acf',
+  }
+  return getLightVersionOfBadgeColor.cache[color]
+}
+
+function badgeColor (pct) {
+  const colors = getBadgeColors()
+  if (pct > 80) { return colors.green }
+  if (pct > 60) { return colors.yellow }
+  if (pct > 40) { return colors.orange }
+  if (pct > 20) { return colors.red }
+  return 'red'
+}
+
+async function svgStyle () {
+  const { document } = await loadDom()
+  const style = document.createElement('style')
+  style.innerHTML = `
+  text { fill: #333; }
+  .icon {fill: #444; }
+  rect.label { fill: #ccc; }
+  rect.body { fill: var(--light-fill); }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #fff; }
+    .icon {fill: #ccc; }
+    rect.label { fill: #555; stroke: none; }
+    rect.body { fill: var(--dark-fill); }
+  }
+  `.replaceAll(/\n+\s*/g, '')
+  return style
+}
+
+async function applyA11yTheme (svgContent, options = {}) {
+  const { document } = await loadDom()
+  const { body } = document
+  body.innerHTML = svgContent
+  const svg = body.querySelector('svg')
+  if (!svg) { return svgContent }
+  svg.querySelectorAll('text').forEach(el => el.removeAttribute('fill'))
+  if (options.replaceIconToText) {
+    const img = svg.querySelector('image')
+    if (img) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+      text.innerHTML = options.replaceIconToText
+      text.setAttribute('transform', 'scale(.15)')
+      text.classList.add('icon')
+      text.setAttribute('x', '90')
+      text.setAttribute('y', '125')
+      img.replaceWith(text)
+    }
+  }
+  const rects = Array.from(svg.querySelectorAll('rect'))
+  rects.slice(0, 1).forEach(el => {
+    el.classList.add('label')
+    el.removeAttribute('fill')
+  })
+  const colors = getBadgeColors()
+  let color = colors.red
+  rects.slice(1).forEach(el => {
+    color = el.getAttribute('fill') || colors.red
+    el.removeAttribute('fill')
+    el.classList.add('body')
+    el.style.setProperty('--dark-fill', color)
+    el.style.setProperty('--light-fill', getLightVersionOfBadgeColor(color))
+  })
+  svg.prepend(await svgStyle())
+
+  return svg.outerHTML
+}
+
+async function makeBadgeForCoverages (path) {
+  const json = await readFile(`${path}/coverage-summary.json`).then(str => JSON.parse(str))
+  const svg = await makeBadge({
+    label: 'coverage',
+    message: `${json.total.lines.pct}%`,
+    color: badgeColor(json.total.lines.pct),
+    logo: asciiIconSvg('🛡︎'),
+  })
+
+  const badgeWrite = writeFile(`${path}/coverage-badge.svg`, svg)
+  const a11yBadgeWrite = writeFile(`${path}/coverage-badge-a11y.svg`, await applyA11yTheme(svg, { replaceIconToText: '🛡︎' }))
+  await Promise.all([badgeWrite, a11yBadgeWrite])
+}
+
+async function makeBadgeForTestResult (path) {
+  const json = await readFile(`${path}/test-results.json`).then(str => JSON.parse(str))
+  const tests = (json?.suites ?? []).flatMap(suite => suite.specs)
+  const passedTests = tests.filter(test => test.ok)
+  const testAmount = tests.length
+  const passedAmount = passedTests.length
+  const passed = passedAmount === testAmount
+  const svg = await makeBadge({
+    label: 'tests',
+    message: `${passedAmount} / ${testAmount}`,
+    color: passed ? '#007700' : '#aa0000',
+    logo: asciiIconSvg('✔'),
+    logoWidth: 16,
+  })
+  const badgeWrite = writeFile(`${path}/test-results-badge.svg`, svg)
+  const a11yBadgeWrite = writeFile(`${path}/test-results-badge-a11y.svg`, await applyA11yTheme(svg, { replaceIconToText: '✔' }))
+  await Promise.all([badgeWrite, a11yBadgeWrite])
+}
+
+async function makeBadgeForLicense (path) {
+  const pkg = await readPackageJson()
+
+  const svg = await makeBadge({
+    label: ' license',
+    message: pkg.license,
+    color: '#007700',
+    logo: asciiIconSvg('🏛'),
+  })
+
+  const badgeWrite = writeFile(`${path}/license-badge.svg`, svg)
+  const a11yBadgeWrite = writeFile(`${path}/license-badge-a11y.svg`, await applyA11yTheme(svg, { replaceIconToText: '🏛' }))
+  await Promise.all([badgeWrite, a11yBadgeWrite])
+}
+
+async function makeBadgeForNPMVersion (path) {
+  const version = await getLatestPublishedVersion()
+
+  const svg = await makeBadge({
+    label: 'npm',
+    message: version,
+    color: '#007ec6',
+  })
+
+  const badgeWrite = writeFile(`${path}/npm-version-badge.svg`, svg)
+  const a11yBadgeWrite = writeFile(`${path}/npm-version-badge-a11y.svg`, await applyA11yTheme(svg))
+  await Promise.all([badgeWrite, a11yBadgeWrite])
+}
+
+async function loadDom () {
+  if (!loadDom.cache) {
+    loadDom.cache = import('jsdom').then(({ JSDOM }) => {
+      const jsdom = new JSDOM('<body></body>', { url: import.meta.url })
+      const window = jsdom.window
+      const DOMParser = window.DOMParser
+      /** @type {Document} */
+      const document = window.document
+      return { window, DOMParser, document }
+    })
+  }
+  return loadDom.cache
+}
+
+// @section 12 module graph utilities
+
+async function createModuleGraphSvg (moduleGrapnJson) {
+  const { default: { graphlib, layout } } = await import('@dagrejs/dagre')
+  const { default: anafanafo } = await import('anafanafo')
+  const padding = 5
+  const svgStokeMargin = 5
+  const inputs = moduleGrapnJson.inputs
+
+  const graph = new graphlib.Graph()
+
+  // Set an object for the graph label
+  graph.setGraph({ rankdir: 'LR', edgesep: 30, ranksep: 60 })
+
+  // Default to assigning a new object as a label for each new edge.
+  graph.setDefaultEdgeLabel(function () { return {} })
+
+  const inputsNodeMetrics = Object.fromEntries(
+    Object.entries(inputs).map(([file]) => {
+      const textWidthPx = anafanafo(file, { font: 'bold 11px Helvetica' })
+      const textHeighthPx = 11
+      const height = textHeighthPx + padding * 2
+      const width = textWidthPx + padding * 2
+      graph.setNode(file, { label: file,  width: width + svgStokeMargin, height: height + svgStokeMargin })
+      return [file, {
+        textWidthPx, textHeighthPx, height, width,
+      }]
+    }),
+  )
+
+  Object.entries(inputs).forEach(([file, info]) => {
+    const { imports } = info
+    imports.forEach(({ path }) => graph.setEdge(file, path))
+  })
+
+  layout(graph)
+
+  let maxWidth = 0
+  let maxHeight = 0
+
+  const inputsSvg = Object.entries(inputs).map(([file, info], index) => {
+    const { height, width } = inputsNodeMetrics[file]
+    const { x, y } = graph.node(file)
+    maxWidth = Math.max(maxWidth, x + width)
+    maxHeight = Math.max(maxHeight, y + height)
+    return {
+      text: `<text x="${x}" y="${y}">${file}</text>`,
+      rect: `<rect rx="4" ry="4" width="${width}" x="${x - width / 2}" y="${y - height / 2}" height="${height}"/>`,
+    }
+  })
+
+  const lineArrowMarker = '<marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" orient="auto">' +
+  '<path d="M 0 0 L 10 5 L 0 10 L 2 5 z" /></marker>'
+  const marker = graph.edgeCount() > 0 ? lineArrowMarker : ''
+  const defs = marker ? `<defs>${marker}</defs>` : ''
+
+  const inputsLinesSvg = graph.edges().map(e => {
+    const allPoints = [graph.node(e.v), ...graph.edge(e).points]
+    const points = allPoints.map(({ x, y }) => `${x},${y}`).join(' ')
+    return `<polyline class="outer" stroke-width="3" points="${points}"/><polyline points="${points}" marker-end="url(#arrowhead)"/><polyline points="${points}"/>`
+  })
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="NPM: 0.4.0" viewBox="0 0 ${maxWidth} ${maxHeight}">
+  <style>
+    text { fill: #222; }
+    rect { fill: #ddd; stroke: #222 }
+    polyline {stroke: #ddd; stroke-linejoin: round} 
+    polyline.outer {stroke: #222;} 
+    #arrowhead path {stroke: #222; fill: #ddd; stroke-linejoin: round} 
+    @media (prefers-color-scheme: dark) {
+      text { fill: #eee; }
+      rect { fill: #444; stroke:#eee }
+      polyline {stroke: #222; } 
+      polyline.outer {stroke: #eee;}   
+      #arrowhead path {stroke: #eee; fill: #222; } 
+    }</style>
+  <title>Module graph</title>${defs}
+  <g shape-rendering="geometricPrecision" fill="none" >${inputsLinesSvg}</g>
+  <g fill="#555" stroke="#fff" shape-rendering="geometricPrecision">${inputsSvg.map(({ rect: _ }) => _).join('')}</g>
+  <g font-family="Helvetica,sans-serif" text-rendering="geometricPrecision" font-size="11" dominant-baseline="middle" text-anchor="middle">
+  ${inputsSvg.map(({ text: _ }) => _).join('')}
+  </g>
+  </svg>`
 }
