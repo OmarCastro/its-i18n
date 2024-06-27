@@ -145,7 +145,7 @@ async function execTests () {
     makeBadgeForNPMVersion(pathFromProject('reports')),
   ])
 
-  const files = Array.from(await getFiles(`${COVERAGE_DIR}/unit`))
+  const files = getFilesAsArray(`${COVERAGE_DIR}/unit`)
   const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('buildfiles/assets/coverage-report-base.css', path))
   const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('buildfiles/assets/coverage-report-prettify.css', path))
   await Promise.all([rmTmp, rmBak, ...cpBase, ...cpPrettify])
@@ -313,13 +313,6 @@ function logStartStage (jobname, stage) {
   process.stdout.write(`[${jobname}] ${stage}...`)
 }
 
-function cmdSpawn (command, options = {}) {
-  const p = spawn('/bin/sh', ['-c', command], { stdio: 'inherit', ...options })
-  return new Promise((resolve) => {
-    p.on('exit', (code) => resolve(code ?? 1))
-  }).then(code => +code)
-}
-
 async function openDevServer ({ openBrowser = false } = {}) {
   const { default: serve } = await import('wonton')
 
@@ -475,28 +468,16 @@ async function validateFiles ({ patterns, onlyChanged, validation }) {
   return errorCount ? 1 : 0
 }
 
-// File Utils
+// @section 8 exec utilities
 
-async function * getFiles (dir) {
-  const dirents = await fs.readdir(dir, { withFileTypes: true })
-  for (const dirent of dirents) {
-    const res = resolve(dir, dirent.name)
-    if (dirent.isDirectory()) {
-      yield * getFiles(res)
-    } else {
-      yield res
-    }
-  }
-}
-
-async function * watchDirs (...dirs) {
-  const { watch } = await import('chokidar')
-  let currentResolver = () => {}
-  console.log(`watching ${dirs}`)
-  watch(dirs).on('change', (filename, stats) => currentResolver({ filename, stats }))
-  while (true) {
-    yield new Promise(resolve => { currentResolver = resolve })
-  }
+/**
+ * @param {string} command
+ * @param {import('node:child_process').ExecFileOptions} options
+ * @returns {Promise<number>} code exit
+ */
+function cmdSpawn (command, options = {}) {
+  const p = spawn('/bin/sh', ['-c', command], { stdio: 'inherit', ...options })
+  return new Promise((resolve) => { p.on('exit', resolve) })
 }
 
 async function execCmd (command, args) {
@@ -511,6 +492,57 @@ async function execCmd (command, args) {
 
 async function execGitCmd (args) {
   return (await execCmd('git', args)).stdout.trim().toString().split('\n')
+}
+
+// @section 9 filesystem utilities
+
+async function * getFiles (dir) {
+  const dirents = await fs.readdir(dir, { withFileTypes: true })
+  for (const dirent of dirents) {
+    const res = resolve(dir, dirent.name)
+    if (dirent.isDirectory()) {
+      yield * getFiles(res)
+    } else {
+      yield res
+    }
+  }
+}
+
+async function getFilesAsArray (dir) {
+  const arr = []
+  for await (const i of getFiles(dir)) arr.push(i)
+  return arr
+}
+/**
+ *
+ * @param  {...string} dirs
+ * @yields {Promise<{filenames: string[]}>}
+ * @returns {AsyncGenerator<Promise<{filenames: string[]}>>} iterator of changed filenames
+ */
+async function * watchDirs (...dirs) {
+  const { watch } = await import('chokidar')
+  const nothingResolver = () => {}
+  let currentResolver = nothingResolver
+  let batch = []
+  console.log(`watching ${dirs}`)
+  watch(dirs).on('change', (filename) => {
+    batch.push(filename)
+    if (currentResolver !== nothingResolver) {
+      currentResolver({ filenames: batch })
+      batch = []
+      currentResolver = nothingResolver
+    }
+  })
+  while (true) {
+    yield new Promise(resolve => {
+      if (batch.length > 0) {
+        resolve({ filenames: batch })
+        batch = []
+      } else {
+        currentResolver = resolve
+      }
+    })
+  }
 }
 
 async function listNonIgnoredFiles ({ ignorePath = '.gitignore', patterns } = {}) {
