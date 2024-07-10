@@ -180,6 +180,7 @@ async function execBuild () {
     entryPoints: ['src/entrypoint/browser.js'],
     outfile: '.tmp/build/dist/i18n.element.min.js',
     format: 'esm',
+    metafile: true,
     plugins: [await getESbuildPlugin()],
   })
 
@@ -201,6 +202,13 @@ async function execBuild () {
   })
 
   await Promise.all([esbuild1, esbuild2, esbuild3])
+
+  const metafile = (await esbuild1).metafile
+
+  await mkdir_p('reports')
+  await writeFile('reports/module-graph.json', JSON.stringify(metafile, null, 2))
+  const svg = await createModuleGraphSvg(metafile)
+  await writeFile('reports/module-graph.svg', svg)
 
   logStage('copy reports')
 
@@ -261,6 +269,8 @@ async function execGithubBuildWorkflow () {
   await execBuild()
 }
 
+// @section 4 utils
+
 function helpText () {
   const fromNPM = isRunningFromNPMScript()
 
@@ -272,7 +282,7 @@ function helpText () {
 
 Tasks: 
   ${tasksToShow.map(([key, value]) => `${key.padEnd(maxTaskLength, ' ')}  ${value.description}`).join('\n  ')}
-  ${helpArgs.padEnd(maxTaskLength, ' ')}  ${helpTask.description}`
+  ${'help, --help, -h'.padEnd(maxTaskLength, ' ')}  ${helpTask.description}`
 }
 
 /** @param {string[]} paths  */
@@ -289,7 +299,10 @@ async function mkdir_p (...paths) {
  * @param {string} src
    @param {string} dest  */
 async function cp_R (src, dest) {
-  await fs.cp(src, dest, { recursive: true })
+  await cmdSpawn(`cp -r '${src}' '${dest}'`)
+
+  // this command is 1000 times slower that running the command, for that reason it is not used (30 000ms vs 30ms)
+  // await fs.cp(src, dest, { recursive: true })
 }
 
 async function mv (src, dest) {
@@ -301,13 +314,20 @@ function logStage (stage) {
 }
 
 function logEndStage () {
-  console.log('done')
+  const startTime = logStage.perfMarks[logStage.currentMark]
+  console.log(startTime ? `done (${Date.now() - startTime}ms)` : 'done')
 }
 
 function logStartStage (jobname, stage) {
+  const markName = 'stage ' + stage
   logStage.currentJobName = jobname
-  process.stdout.write(`[${jobname}] ${stage}...`)
+  logStage.currentMark = markName
+  logStage.perfMarks ??= {}
+  stage && process.stdout.write(`[${jobname}] ${stage}...`)
+  logStage.perfMarks[logStage.currentMark] = Date.now()
 }
+
+// @section 5 Dev server
 
 async function openDevServer ({ openBrowser = false } = {}) {
   const { default: serve } = await import('wonton')
@@ -364,7 +384,7 @@ function wait (ms) {
   })
 }
 
-// Linters
+// @section 6 linters
 
 async function lintCode ({ onlyChanged }, options) {
   const esLintFilePatterns = ['**/*.js']
@@ -409,8 +429,9 @@ async function lintStyles ({ onlyChanged }) {
   const result = await stylelint.lint({ files: finalFilePatterns })
   const filesLinted = result.results.length
   process.stdout.write(`linted ${filesLinted} files. `)
+  const stringFormatter = await stylelint.formatters.string
 
-  const output = stylelint.formatters.string(result.results)
+  const output = stringFormatter(result.results)
   if (output) {
     console.log('\n' + output)
   } else {
@@ -463,7 +484,6 @@ async function validateFiles ({ patterns, onlyChanged, validation }) {
 
   return errorCount ? 1 : 0
 }
-
 // @section 7 minifiers
 
 async function minifyHtml (htmlText) {
