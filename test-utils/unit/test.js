@@ -1,4 +1,4 @@
-/* eslint-disable no-empty-pattern, max-lines-per-function */
+/* eslint-disable no-empty-pattern */
 // @ts-nocheck
 /**
  * this file adapts the test to their own environment

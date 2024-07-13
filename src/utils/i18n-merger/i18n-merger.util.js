@@ -66,7 +66,7 @@ function merge (...data) {
         import: [...ext],
         translations,
       },
-    ]),
+    ])
   )
 }
 

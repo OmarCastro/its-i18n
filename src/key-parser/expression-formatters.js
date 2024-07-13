@@ -89,7 +89,7 @@ const baseInUnitRelativeTimeFormatter = Object.fromEntries(
         return relativeTimeFormatInUnit(locale, unit, date.valueOf())
       },
     }]
-  }),
+  })
 )
 
 /** @type {Record<string, Formatter>} */
@@ -101,7 +101,7 @@ const baseDurationInUnitRelativeTimeFormatter = Object.fromEntries(
         return relativeTimeDurationFormatInUnit(locale, unit, date.valueOf())
       },
     }]
-  }),
+  })
 )
 
 /** @type {Record<string, Formatter>} */
@@ -113,7 +113,7 @@ const baseToUnitRelativeTimeFormatter = Object.fromEntries(
         return relativeTimeFormatToUnit(locale, unit, date.valueOf())
       },
     }]
-  }),
+  })
 )
 
 const relativeTimeFormatters = (() => {

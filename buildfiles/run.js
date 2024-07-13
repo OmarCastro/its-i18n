@@ -112,7 +112,7 @@ async function execDevEnvironment ({ openBrowser = false } = {}) {
 
   const watcher = watchDirs(
     new URL('src', projectPathURL).pathname,
-    new URL('docs', projectPathURL).pathname,
+    new URL('docs', projectPathURL).pathname
   )
 
   for await (const change of watcher) {
@@ -928,11 +928,11 @@ async function createModuleGraphSvg (moduleGrapnJson) {
       const textHeighthPx = 11
       const height = textHeighthPx + padding * 2
       const width = textWidthPx + padding * 2
-      graph.setNode(file, { label: file,  width: width + svgStokeMargin, height: height + svgStokeMargin })
+      graph.setNode(file, { label: file, width: width + svgStokeMargin, height: height + svgStokeMargin })
       return [file, {
         textWidthPx, textHeighthPx, height, width,
       }]
-    }),
+    })
   )
 
   Object.entries(inputs).forEach(([file, info]) => {

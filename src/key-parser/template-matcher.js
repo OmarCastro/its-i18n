@@ -3,7 +3,7 @@ import { escape } from '../utils/algorithms/regex.utils.js'
 import { captureExpressions } from './capture-expression-values.js'
 
 const falsePredicate = () => false
-/** @type {readonly []} */
+/** @type {Readonly<[]> } */
 const emptyArray = Object.freeze([])
 
 /** @type {ParameterMatchResult} */

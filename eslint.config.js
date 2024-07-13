@@ -28,8 +28,8 @@ export default [
       sourceType: 'module',
     },
     rules: {
-      "sonarjs/cognitive-complexity": ["error", 10],
-      "max-lines-per-function": ["warn", 75],
-    }
+      'sonarjs/cognitive-complexity': ['error', 10],
+      'max-lines-per-function': ['warn', 75],
+    },
   },
 ]

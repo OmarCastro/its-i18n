@@ -68,7 +68,7 @@ export class I18nContainerElement extends HTMLElement {
  * @returns {Promise<Element | null>[]} list of promises of element attribute changes
  */
 function applyI18nAttributesUpdate (element, locale, attributeEntries) {
-  const promises = /** @type Promise<Element | null>[] */([])
+  const promises = /** @type {Promise<Element | null>[]} */([])
   for (const [attribute, i18nKey] of attributeEntries) {
     const promise = translate(i18nKey, locale, element).then((result) => {
       if (element.getAttribute(attribute) === result) {
