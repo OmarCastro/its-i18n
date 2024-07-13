@@ -102,9 +102,9 @@ const i18nImporterImplFromLocation = (locHref) => {
 }
 
 const filesystem = {
-  get 'i18n-definition-map.json' () { return import('./api.unit.spec.js--filesystem/i18n-definition-map.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.en.json' ()        { return import('./api.unit.spec.js--filesystem/languages.en.json',        { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.es.json' ()        { return import('./api.unit.spec.js--filesystem/languages.es.json',        { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.it.json' ()        { return import('./api.unit.spec.js--filesystem/languages.it.json',        { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.pt.json' ()        { return import('./api.unit.spec.js--filesystem/languages.pt.json',        { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'i18n-definition-map.json' () { return import('./api.unit.spec.js--filesystem/i18n-definition-map.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.en.json' ()        { return import('./api.unit.spec.js--filesystem/languages.en.json',        { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.es.json' ()        { return import('./api.unit.spec.js--filesystem/languages.es.json',        { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.it.json' ()        { return import('./api.unit.spec.js--filesystem/languages.it.json',        { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'languages.pt.json' ()        { return import('./api.unit.spec.js--filesystem/languages.pt.json',        { with: { type: 'json' }}).then(({ default: value }) => value) },
 }

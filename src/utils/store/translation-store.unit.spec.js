@@ -329,13 +329,13 @@ const i18nImporterImplFromLocation = (locHref) => {
 }
 
 const filesystem = {
-  get 'import/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/i18n.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.en.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.es.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.pt.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/i18n.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.en.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.es.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.pt.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
 
-  get 'import-outer/base/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/base/i18n.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import-outer/languages/en/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.en.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import-outer/languages/en/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.es.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import-outer/languages/en/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.pt.json', { assert: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/base/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/base/i18n.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/languages/en/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.en.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/languages/en/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.es.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+  get 'import-outer/languages/en/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.pt.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
 }
