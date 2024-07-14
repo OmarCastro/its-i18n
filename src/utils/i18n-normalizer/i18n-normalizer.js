@@ -223,11 +223,15 @@ const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('
 
 /** @typedef {Record<string, string>} Translations */
 
-/** @typedef { { import: string[] , translations: Translations}} NormalizedI18nDefinition */
+/**
+ * @typedef {object} NormalizedI18nDefinition
+ * @property {string[]} import - Additional files to import to the definition
+ * @property {Translations} translations - translation map
+ */
 
 /** @typedef {Record<string, NormalizedI18nDefinition>} NormalizedI18nDefinitionMap */
 
-/** @typedef {string | string[] | { import?: string[] | string, translations: Translations} | { import: string[] | string, translations?: Translations}} I18nDefinition */
+/** @typedef {string | string[] | { "import"?: string[] | string, translations: Translations} | { "import": string[] | string, translations?: Translations}} I18nDefinition */
 
 /** @typedef {Record<string, I18nDefinition>} I18nDefinitionMap */
 

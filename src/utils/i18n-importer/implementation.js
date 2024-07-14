@@ -1,7 +1,13 @@
 import { normalizeI18nDefinitionMap, normalizeTranslations } from '../i18n-normalizer/i18n-normalizer.js'
 import { provide } from './provider.js'
+/** @import { Translations, I18nDefinitionMap } from './i18n-importer.js' */
 
-/** @type {import('./provider.js').ImportTranslations} */
+/**
+ * Imports translations from an URL
+ * @param {string | URL} url - translations URL
+ * @param {string | URL} baseUrl - base URL to search if it is a relative URL
+ * @returns {Promise<Translations>} translations map
+ */
 export async function importTranslations (url, baseUrl) {
   const absoluteUrl = new URL(url, baseUrl)
   const response = await fetch(absoluteUrl)
@@ -11,7 +17,12 @@ export async function importTranslations (url, baseUrl) {
   return normalizeResult.result
 }
 
-/** @type {import('./provider.js').ImportDefinitionMap} */
+/**
+ * Imports an i18n definition map from an URL
+ * @param {string | URL} url - definition file URL
+ * @param {string | URL} baseUrl - base URL to search if it is a relative URL
+ * @returns {Promise<I18nDefinitionMap>} i18n definition map
+ */
 export async function importDefinitionMap (url, baseUrl) {
   const absoluteUrl = new URL(url, baseUrl)
   const response = await fetch(absoluteUrl)
