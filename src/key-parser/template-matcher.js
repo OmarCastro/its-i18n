@@ -206,6 +206,6 @@ export function getMatcher (ast) {
 /**
  * @typedef {object} MatchResult
  * @property {boolean} isMatch - indicates if the text matches i18n key
- * @property {readonly string[]} parameters - captured parameter text list
- * @property {readonly Formatter[]} defaultFormatters - default formatters of parsed i18n key
+ * @property {Readonly<string[]>} parameters - captured parameter text list
+ * @property {Readonly<Formatter[]>} defaultFormatters - default formatters of parsed i18n key
  */

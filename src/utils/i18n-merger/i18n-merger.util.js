@@ -1,4 +1,5 @@
 import { normalizeI18nDefinition, normalizeI18nDefinitionMap } from '../i18n-normalizer/i18n-normalizer.js'
+/** @import {I18nDefinitionMap, Translations, I18nDefinition, NormalizedI18nDefinition, NormalizedI18nDefinitionMap} from '../i18n-normalizer/i18n-normalizer.js'  */
 
 /**
  * Reducer for {@link merge} function, works on data prepared in  {@link mergeReducer}
@@ -97,7 +98,7 @@ const mergeInstance = (data) => Object.freeze({
 
 export const builder = mergeInstance([])
 
-/** @typedef {{[language: string]: {import: Set<string>,translations: Translations}}} I18nMergeIntermediaryResult */
+/** @typedef {{[language: string]: {"import": Set<string>,translations: Translations}}} I18nMergeIntermediaryResult */
 
 /** @typedef {I18nMapMergeData | I18nDefinitionMergeData | I18nTranslationMergeData } I18nLangMergeData */
 
@@ -132,9 +133,3 @@ export const builder = mergeInstance([])
  * @property {(location: URL | string, language: Intl.Locale | string) => MergerInstance} addTranslations - add url location of a translation map in a specific locale to merge
  * @property {() => NormalizedI18nDefinitionMap} build - merge current data
  */
-
-/** @typedef {import ('../i18n-normalizer/i18n-normalizer.js').I18nDefinitionMap} I18nDefinitionMap */
-/** @typedef {import ('../i18n-normalizer/i18n-normalizer.js').Translations} Translations */
-/** @typedef {import ('../i18n-normalizer/i18n-normalizer.js').I18nDefinition} I18nDefinition */
-/** @typedef {import ('../i18n-normalizer/i18n-normalizer.js').NormalizedI18nDefinition} NormalizedI18nDefinition */
-/** @typedef {import ('../i18n-normalizer/i18n-normalizer.js').NormalizedI18nDefinitionMap} NormalizedI18nDefinitionMap */

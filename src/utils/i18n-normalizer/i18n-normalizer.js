@@ -229,13 +229,20 @@ const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('
  * @property {Translations} translations - translation map
  */
 
-/** @typedef {Record<string, NormalizedI18nDefinition>} NormalizedI18nDefinitionMap */
+/** @typedef {{[locale: string]: NormalizedI18nDefinition}} NormalizedI18nDefinitionMap */
 
 /** @typedef {string | string[] | { "import"?: string[] | string, translations: Translations} | { "import": string[] | string, translations?: Translations}} I18nDefinition */
 
-/** @typedef {Record<string, I18nDefinition>} I18nDefinitionMap */
+/** @typedef {{[locale: string]: I18nDefinition}} I18nDefinitionMap */
 
-/** @typedef {{ path: string, message: string}[]} ErrorList */
+/** @typedef {NormalizationIssue[]} ErrorList */
+
+/**
+ * @typedef {object} NormalizationIssue
+ * An issue found when normalizing i18n configurations
+ * @property {string} path - configuration path where the issue is located
+ * @property {string} message - the issue description
+ */
 
 /**
  * @typedef {object} NormalizationResult

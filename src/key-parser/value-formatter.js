@@ -1,8 +1,10 @@
 import { states } from './key-ast.util.js'
 import { formatters as expressionFormatters } from './expression-formatters.js'
 import { isInteger } from '../utils/algorithms/number.utils.js'
+/** @import {AST, Token} from './key-ast.util.js' */
+/** @import {CaptureExpressionInfo, FormatCall as DefaultFormatter} from './capture-expression-values.js' */
 
-/** @type {readonly never[]} */
+/** @type { Readonly<never[]>} */
 const emptyArray = Object.freeze([])
 
 /**
@@ -117,13 +119,13 @@ const positionFormatter = (position) => (acc) => {
 /**
  *
  * @param {FormatterReducer[]} fragmentedFormatters - list of formatter reducers
- * @param {readonly string[]} parameters - parameter list
+ * @param {Strings} parameters - parameter list
  * @param {Intl.Locale} locale - locale to format data
- * @param {readonly DefaultFormatter[]} [defaultFormatters] - default formatter
+ * @param {DefaultFormatters} [defaultFormatters] - default formatter
  * @returns {string} format result
  */
 const formatFromReducers = (fragmentedFormatters, parameters, locale, defaultFormatters = []) => {
-  /** @type {FormatterReducerAcc} */
+  /** @type {FormatterReducerAccumulator} */
   let reducerAcc = {
     parameters,
     defaultFormatters,
@@ -226,11 +228,6 @@ export function getFormatter (ast) {
   return formatterWithFormat(guaranteeFormatterEndsWithString({ strings, formatters }))
 }
 
-/** @typedef {import('./key-ast.util.js').AST} AST */
-/** @typedef {import('./key-ast.util.js').Token} Token */
-/** @typedef {import('./capture-expression-values.js').CaptureExpressionInfo} CaptureExpressionInfo */
-/** @typedef {import('./capture-expression-values.js').FormatCall} DefaultFormatter */
-
 /**
  * @typedef {object} CaptureExpressionsInfoDetail
  * @property {'expression' | 'string'} type - type of detail
@@ -238,13 +235,13 @@ export function getFormatter (ast) {
  */
 
 /**
- * @typedef {object} FormatterReducerAcc
+ * @typedef {object} FormatterReducerAccumulator
  *
  * Formatter reducer accumulator, used when piping in the result with an expression (e.g. `{0 | relative time}`)
- * @property {readonly string[]} parameters
+ * @property {Strings} parameters
  *  Parameters used in the i18n key, e.g. when translating "On 2023-01-01T20:00:00 I bought 10 fireworks"
  *  on key "On {date} I bought {number} fireworks", the parameters are going to be ["2023-01-01T20:00:00", "10"]
- * @property {readonly DefaultFormatter[]}  defaultFormatters
+ * @property {DefaultFormatters}  defaultFormatters
  *   The default formatter to use for each parameter in `parameters`
  * @property {string}       result - The current result on accumulator, is the final result after passing all reducers
  * @property {Intl.Locale}  locale - Locale used when formatting the text
@@ -253,16 +250,20 @@ export function getFormatter (ast) {
  */
 
 /**
- * @typedef {(previous: FormatterReducerAcc) => FormatterReducerAcc} FormatterReducer
+ * @typedef {(previous: FormatterReducerAccumulator) => FormatterReducerAccumulator} FormatterReducer
  */
 
 /**
- * @typedef {(parameters: readonly string[], locale: Intl.Locale, defaultFormatters?: readonly DefaultFormatter[]) => string} Formatter
+ * @typedef {(parameters: Strings, locale: Intl.Locale, defaultFormatters?: DefaultFormatters) => string} Formatter
  */
 
 /**
  * @typedef {object} TemplateFormatter
- * @property {readonly string[]} strings - raw strings
- * @property {readonly Formatter[]} formatters - formatters of each capture token
- * @property {(parameters: readonly string[], locale: Intl.Locale, defaultFormatters?: readonly DefaultFormatter[]) => string} format - format function
+ * @property {Strings} strings - raw strings
+ * @property {Formatters} formatters - formatters of each capture token
+ * @property {(parameters: Strings, locale: Intl.Locale, defaultFormatters?: DefaultFormatters) => string} format - format function
  */
+
+/** @typedef {Readonly<string[]>} Strings - raw string array, immutable */
+/** @typedef {Readonly<Formatter[]>} Formatters - formatters of each capture token */
+/** @typedef {Readonly<DefaultFormatter[]>} DefaultFormatters - default formatters of each capture token */
