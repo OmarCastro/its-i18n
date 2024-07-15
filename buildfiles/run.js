@@ -259,8 +259,9 @@ async function execlintCode () {
   logStage('validating yaml')
   const returnYamlLint = await validateYaml({ onlyChanged: false })
   logStage('typecheck with typescript')
+  console.log('')
   const returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
-  logEndStage()
+  process.stdout.write('[lint] typecheck with typescript '); logEndStage()
   return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
