@@ -153,7 +153,7 @@ promises.push(...queryAll('link[href][ss:repeat-glob]').map(async (element) => {
       link.setAttribute(name, value)
     }
     link.removeAttribute('ss:repeat-glob')
-    link.setAttribute('href', filename)
+    link.setAttribute('href', relativePath)
     element.insertAdjacentElement('afterend', link)
   }
   element.remove()
