@@ -3,10 +3,9 @@ import { i18nTanslationStore } from '../src/utils/store/translation-store.js'
 import '../src/utils/i18n-importer/implementation.js'
 import { translate } from '../src/js-api/api.js'
 import { ElementLangObserver } from '../src/element-lang-observer/element-lang-observer.util.js'
+/** @import {I18nContainerElement as I18nElement} from "../src/custom-elements/i18n-container/i18n-container.element.js" */
 
 import('../src/custom-elements/i18n-container/i18n-container.element').then(({ default: I18nElement }) => customElements.define('i18n-container', I18nElement))
-
-/** @typedef {import("../src/custom-elements/i18n-container/i18n-container.element").default} I18nElement */
 
 /**
  * @param {Record<string, any>} exampleObject  - example object data
@@ -35,8 +34,9 @@ async function transformCodeViewToEditor (exampleObject, codeView) {
   const exampleContainer = codeView.closest('.example')
   const lang = codeView.getAttribute('data-lang')
   const { createEditorView } = await import('./code-editor.lazy.js')
+  const textContent = codeView.querySelector(':scope > pre')?.textContent ?? codeView.textContent ?? ''
   const editorView = createEditorView({
-    doc: codeView.textContent || '',
+    doc: textContent,
     onChange: (e) => {
       try {
         const value = e.state.doc.toString()
@@ -75,7 +75,7 @@ async function applyExample (exampleObject, editorElement) {
     editorElement.removeEventListener('click', eventListener)
     const editorView = await transformCodeViewToEditor(exampleObject, editorElement)
     const { clientX, clientY } = event
-    requestAnimationFrame(() => {
+    queueMicrotask(() => {
       editorView.focus()
       const anchor = editorView.posAtCoords({ x: clientX, y: clientY })
       anchor != null && editorView.dispatch({ selection: { anchor } })
