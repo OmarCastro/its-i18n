@@ -250,11 +250,20 @@ export function getFormatter (ast) {
  */
 
 /**
- * @typedef {(previous: FormatterReducerAccumulator) => FormatterReducerAccumulator} FormatterReducer
+ * @callback FormatterReducer
+ * @param {FormatterReducerAccumulator} previous - reducer previous value
+ * @returns {FormatterReducerAccumulator} next value
  */
 
 /**
- * @typedef {(parameters: Strings, locale: Intl.Locale, defaultFormatters?: DefaultFormatters) => string} Formatter
+ * @callback Formatter
+ *  A placeholder formatter
+ * @param {Strings} parameters -
+ *     Placeholder parameters, the placeholder may be empty ({}), may contain one parameter that is a string ({"text"}) or a capture expression position ({ 0 })
+ * additional parameters allows to define how to convert the previous parameter result ({0 | relative time})
+ * @param {Intl.Locale} locale - locale to format
+ * @param {DefaultFormatters} [defaultFormatters] - default formatter
+ * @returns {string} formatted string
  */
 
 /**
