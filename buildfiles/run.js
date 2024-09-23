@@ -13,9 +13,10 @@ To help navigate this file is divided by sections:
 @section 8 exec utilities
 @section 9 filesystem utilities
 @section 10 npm utilities
-@section 11 badge utilities
-@section 12 module graph utilities
-@section 13 build tools plugins
+@section 11 versioning utilities
+@section 12 badge utilities
+@section 13 module graph utilities
+@section 14 build tools plugins
 */
 import process from 'node:process'
 import fs, { readFile as fsReadFile, writeFile } from 'node:fs/promises'
@@ -43,6 +44,7 @@ const helpTask = {
   description: 'show this help',
   cb: async () => { console.log(helpText()); process.exit(0) },
 }
+
 const tasks = {
   build: {
     description: 'builds the project',
@@ -105,6 +107,8 @@ async function main () {
 
 await main()
 
+// @section 3 jobs
+
 async function execDevEnvironment ({ openBrowser = false } = {}) {
   await openDevServer({ openBrowser })
   await Promise.all([execlintCodeOnChanged(), execTests()])
@@ -143,6 +147,8 @@ async function execTests () {
     makeBadgeForTestResult(pathFromProject('reports/test-results')),
     makeBadgeForLicense(pathFromProject('reports')),
     makeBadgeForNPMVersion(pathFromProject('reports')),
+    makeBadgeForRepo(pathFromProject('reports')),
+    makeBadgeForRelease(pathFromProject('reports')),
   ])
 
   const files = await getFilesAsArray(`${COVERAGE_DIR}/unit`)
@@ -150,6 +156,7 @@ async function execTests () {
   const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('buildfiles/assets/coverage-report-prettify.css', path))
   await Promise.all([rmTmp, rmBak, ...cpBase, ...cpPrettify])
 
+  logStage('copy reports to documentation')
   await rm_rf('build/docs/reports')
   await mkdir_p('build/docs')
   await cp_R('reports', 'build/docs/reports')
@@ -302,7 +309,7 @@ async function mkdir_p (...paths) {
 async function cp_R (src, dest) {
   await cmdSpawn(`cp -r '${src}' '${dest}'`)
 
-  // this command is 1000 times slower that running the command, for that reason it is not used (30 000ms vs 30ms)
+  // this command is a 1000 times slower that running the command, for that reason it is not used (30 000ms vs 30ms)
   // await fs.cp(src, dest, { recursive: true })
 }
 
@@ -485,6 +492,7 @@ async function validateFiles ({ patterns, onlyChanged, validation }) {
 
   return errorCount ? 1 : 0
 }
+
 // @section 7 minifiers
 
 async function minifyHtml (htmlText) {
@@ -634,25 +642,32 @@ async function getFilesAsArray (dir) {
   return arr
 }
 /**
- *
+ * Watch firectories for file changes
  * @param  {...string} dirs
  * @yields {Promise<{filenames: string[]}>}
  * @returns {AsyncGenerator<Promise<{filenames: string[]}>>} iterator of changed filenames
  */
 async function * watchDirs (...dirs) {
-  const { watch } = await import('chokidar')
+  const { watch } = await import('node:fs')
   const nothingResolver = () => {}
   let currentResolver = nothingResolver
   let batch = []
   console.log(`watching ${dirs}`)
-  watch(dirs).on('change', (filename) => {
+
+  /** @type {import('node:fs').WatchListener<string>} */
+  const handler = (eventType, filename) => {
+    if (eventType !== 'change' || filename == null) { return }
     batch.push(filename)
     if (currentResolver !== nothingResolver) {
       currentResolver({ filenames: batch })
       batch = []
       currentResolver = nothingResolver
     }
-  })
+  }
+  for (const dir of dirs) {
+    watch(dir, { recursive: true }, handler)
+  }
+
   while (true) {
     yield new Promise(resolve => {
       if (batch.length > 0) {
@@ -728,21 +743,49 @@ async function readPackageJson () {
   return await readFile(pathFromProject('package.json')).then(str => JSON.parse(str))
 }
 
-// @section 11 badge utilities
+// @section 11 versioning utilities
+
+async function getLatestReleasedVersion () {
+  const changelogContent = await readFile(pathFromProject('CHANGELOG.md'))
+  const versions = changelogContent.split('\n')
+    .map(line => {
+      const match = line.match(/^## \[([0-9]+\.[[0-9]+\.[[0-9]+)]\s+-\s+([^\s]+)/)
+      if (!match) {
+        return null
+      }
+      return { version: match[1], releaseDate: match[2] }
+    }).filter(version => !!version)
+  const releasedVersions = versions.filter(version => {
+    return version.releaseDate.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)
+  })
+  return releasedVersions[0]
+}
+
+// @section 12 badge utilities
 
 function getBadgeColors () {
   getBadgeColors.cache ??= {
-    green: '#007700',
+    green: '#060',
     yellow: '#777700',
     orange: '#aa0000',
     red: '#aa0000',
-    blue: '#007ec6',
+    blue: '#05a',
   }
   return getBadgeColors.cache
 }
 
+function svgToDataURI (svg) {
+  const svgURI = svg
+    .replaceAll('<', '%3C')
+    .replaceAll('>', '%3E')
+    .replaceAll('{', '%7B')
+    .replaceAll('}', '%7D')
+    .replaceAll('#', '%23')
+  return `data:image/svg+xml,${svgURI}`
+}
+
 function asciiIconSvg (asciicode) {
-  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cstyle%3Etext %7Bfont-size: 10px; fill: %23333;%7D @media (prefers-color-scheme: dark) %7Btext %7B fill: %23ccc; %7D%7D %3C/style%3E%3Ctext x='0' y='10'%3E${asciicode}%3C/text%3E%3C/svg%3E`
+  return svgToDataURI(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><style>text {font-size: 10px; fill: #333;} @media (prefers-color-scheme: dark) {text { fill: #ccc; }} </style><text x='0' y='10'>${asciicode}</text></svg>`)
 }
 
 async function makeBadge (params) {
@@ -881,14 +924,42 @@ async function makeBadgeForLicense (path) {
 async function makeBadgeForNPMVersion (path) {
   const version = await getLatestPublishedVersion()
 
+  const npmIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21"><style>g {fill: #333;stroke:#333;} @media (prefers-color-scheme: dark) {g { fill: #ccc;stroke:#ccc; }} </style><g><rect x="2" y="2" width="17" height="17" fill="transparent" stroke-width="4"/><rect x="10" y="7" width="4" height="11" stroke-width="0"/></g></svg>'
+
   const svg = await makeBadge({
     label: 'npm',
     message: version,
-    color: '#007ec6',
+    color: getBadgeColors().blue,
+    logo: svgToDataURI(npmIconSvg),
   })
 
   const badgeWrite = writeFile(`${path}/npm-version-badge.svg`, svg)
   const a11yBadgeWrite = writeFile(`${path}/npm-version-badge-a11y.svg`, await applyA11yTheme(svg))
+  await Promise.all([badgeWrite, a11yBadgeWrite])
+}
+
+async function makeBadgeForRepo (path) {
+  const svg = await makeBadge({
+    label: 'Code Repository',
+    message: 'Github',
+    color: getBadgeColors().blue,
+    logo: asciiIconSvg('❮❯'),
+  })
+  const badgeWrite = writeFile(`${path}/repo-badge.svg`, svg)
+  const a11yBadgeWrite = writeFile(`${path}/repo-badge-a11y.svg`, await applyA11yTheme(svg, { replaceIconToText: '❮❯' }))
+  await Promise.all([badgeWrite, a11yBadgeWrite])
+}
+
+async function makeBadgeForRelease (path) {
+  const releaseVersion = await getLatestReleasedVersion()
+  const svg = await makeBadge({
+    label: 'Release',
+    message: releaseVersion ? releaseVersion.version : 'Unreleased',
+    color: getBadgeColors().blue,
+    logo: asciiIconSvg('⛴'),
+  })
+  const badgeWrite = writeFile(`${path}/repo-release.svg`, svg)
+  const a11yBadgeWrite = writeFile(`${path}/repo-release-a11y.svg`, await applyA11yTheme(svg, { replaceIconToText: '⛴' }))
   await Promise.all([badgeWrite, a11yBadgeWrite])
 }
 
@@ -906,7 +977,7 @@ async function loadDom () {
   return loadDom.cache
 }
 
-// @section 12 module graph utilities
+// @section 13 module graph utilities
 
 async function createModuleGraphSvg (moduleGrapnJson) {
   const { default: { graphlib, layout } } = await import('@dagrejs/dagre')
@@ -991,7 +1062,7 @@ async function createModuleGraphSvg (moduleGrapnJson) {
   </svg>`
 }
 
-// @section 13 build tools plugins
+// @section 14 build tools plugins
 
 /**
  * @returns {Promise<import('esbuild').Plugin>} - esbuild plugin
