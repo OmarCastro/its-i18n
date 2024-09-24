@@ -62,7 +62,6 @@
     "prismjs": "^1.29.0",
     "stylelint": "^16.9.0",
     "stylelint-config-standard": "^36.0.1",
-    "typescript": "^5.6.2",
-    "wonton": "^2.3.0"
+    "typescript": "^5.6.2"
   }
 }
