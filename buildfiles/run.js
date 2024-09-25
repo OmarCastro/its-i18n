@@ -128,6 +128,8 @@ async function execDevEnvironment ({ openBrowser = false } = {}) {
 }
 
 async function execTests () {
+  logStartStage('test', 'run tests')
+
   const COVERAGE_DIR = 'reports/coverage'
   const REPORTS_TMP_DIR = 'reports/.tmp'
   const COVERAGE_TMP_DIR = `${REPORTS_TMP_DIR}/coverage`
