@@ -2,6 +2,7 @@ import globals from 'globals'
 import neostandard from 'neostandard'
 import sonarjs from 'eslint-plugin-sonarjs'
 import jsdoc from 'eslint-plugin-jsdoc'
+import cspellESLintPluginRecommended from '@cspell/eslint-plugin/recommended'
 
 export default [
   {
@@ -17,6 +18,7 @@ export default [
   ...neostandard(),
   jsdoc.configs['flat/recommended-typescript-flavor'],
   sonarjs.configs.recommended,
+  cspellESLintPluginRecommended,
   {
     languageOptions: {
       globals: {
@@ -30,6 +32,14 @@ export default [
     rules: {
       'sonarjs/cognitive-complexity': ['error', 10],
       'max-lines-per-function': ['warn', 75],
+      '@cspell/spellchecker': ['warn', { cspell: { words: ['untick', 'millis'] } }]
     },
   },
+  {
+    ignores: ['src'],
+    rules: {
+      '@cspell/spellchecker': 0
+    }
+
+  }
 ]
