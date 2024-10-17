@@ -57,7 +57,7 @@ function normalizesImportValue (importVal) {
 }
 
 /**
- * Normalize Translations, eliminatin invalid entries
+ * Normalize Translations, eliminating invalid entries
  * @param {Translations} [translations] - translation data
  * @returns {{ result: Translations; errors: ErrorList }} normalized data with a list of errors found
  */
@@ -74,7 +74,7 @@ export function normalizeTranslations (translations) {
 
   for (const [key, value] of Object.entries(translations)) {
     if (typeof value !== 'string') {
-      errors.push({ path: properyPath(key), message: `expected string instead of ${typeOf(value)}` })
+      errors.push({ path: propertyPath(key), message: `expected string instead of ${typeOf(value)}` })
       continue
     }
     validEntries.push([key, value])
@@ -112,11 +112,11 @@ export function normalizeI18nDefinition (data) {
   }
 
   const errors = []
-  const hasimport = Object.hasOwn(data, 'import')
+  const hasImport = Object.hasOwn(data, 'import')
   const hasTranslations = Object.hasOwn(data, 'translations')
 
   const importValue = (() => {
-    if (!hasimport) { return [] }
+    if (!hasImport) { return [] }
     const importValueResult = normalizesImportValue(data.import)
     errors.push(...importValueResult.errors.map(({ path, message }) => ({ path: mergePath('.import', path), message })))
     return importValueResult.result
@@ -129,7 +129,7 @@ export function normalizeI18nDefinition (data) {
     return translationsValueResult.result
   })()
 
-  if (hasimport || hasTranslations) {
+  if (hasImport || hasTranslations) {
     return {
       result: { import: importValue, translations: translationsValue },
       errors,
@@ -152,13 +152,13 @@ export function normalizeI18nDefinitionMap (data) {
   const warnings = []
   const normalizedEntries = []
 
-  for (const [localeString, i18nDefninition] of Object.entries(data)) {
+  for (const [localeString, i18nDefinition] of Object.entries(data)) {
     let locale
     try {
       locale = new Intl.Locale(localeString)
     } catch {
       errors.push({
-        path: properyPath(localeString),
+        path: propertyPath(localeString),
         message: `invalid locale "${localeString}", it will be ignored`,
       })
       continue
@@ -168,21 +168,21 @@ export function normalizeI18nDefinitionMap (data) {
     if (baseName !== localeString) {
       if (data[baseName]) {
         errors.push({
-          path: properyPath(localeString),
+          path: propertyPath(localeString),
           message: `invalid locale "${localeString}", it also conflicts with correct locale "${baseName}", it will be ignored`,
         })
         continue
       }
 
       warnings.push({
-        path: properyPath(localeString),
+        path: propertyPath(localeString),
         message: `invalid locale "${localeString}", fixed to locale "${baseName}"`,
       })
     }
 
-    const normalizedResult = normalizeI18nDefinition(i18nDefninition)
+    const normalizedResult = normalizeI18nDefinition(i18nDefinition)
     if (normalizedResult.errors.length) {
-      const propPath = properyPath(localeString)
+      const propPath = propertyPath(localeString)
       errors.push(...normalizedResult.errors.map(({ path, message }) => ({ path: mergePath(propPath, path), message })))
     }
 
@@ -194,7 +194,7 @@ export function normalizeI18nDefinitionMap (data) {
 
 /**
  * @param {unknown} targetVar - target object
- * @returns {string} type of object, returns "null" istead of "object" for null value
+ * @returns {string} type of object, returns "null" instead of "object" for null value
  */
 const typeOf = (targetVar) => targetVar == null ? String(targetVar) : typeof targetVar
 
@@ -209,10 +209,10 @@ const isPlainObject = (value) => value?.constructor === Object
  * @param {string} propName - object property key
  * @returns {string} .`propName` for simple popery names, otherwise .[`propName`]
  */
-const properyPath = (propName) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
+const propertyPath = (propName) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propName}` : `.[${JSON.stringify(propName)}]`
 
 /**
- * Merge 2 propery paths
+ * Merge 2 property paths
  * @param {string} prop1 - target property path
  * @param {string} prop2 - property path to merge with target
  * @returns {string} merged property path

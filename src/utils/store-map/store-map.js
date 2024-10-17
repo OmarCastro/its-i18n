@@ -1,7 +1,7 @@
-import { i18nTanslationStore } from '../store/translation-store.js'
+import { i18nTranslationStore } from '../store/translation-store.js'
 import { traverseUpDom } from '../algorithms/traverse-up-dom.js'
 
-const fallbackStore = i18nTanslationStore()
+const fallbackStore = i18nTranslationStore()
 
 /** @type {StoreSearchResult} */
 export const noStoresFound = Object.freeze({

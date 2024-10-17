@@ -1,5 +1,6 @@
 #!/usr/bin/env -S node --input-type=module
 /* eslint-disable camelcase, max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
+/* eslint @cspell/spellchecker: ['warn', {cspell: {words: ['minifiers', 'linc', 'metafile', 'buildfiles', 'graphlib','dagre','dagrejs','anafanafo', 'xlink', 'ACMRTUB', 'rankdir', 'edgesep', 'ranksep'] }}] */
 /*
 This file is purposely large to easily move the code to multiple projects, its build code, not production.
 To help navigate this file is divided by sections:
@@ -60,11 +61,11 @@ const tasks = {
   },
   linc: {
     description: 'validates the code only on changed files',
-    cb: async () => { process.exit(await execlintCodeOnChanged()) },
+    cb: async () => { process.exit(await execLintCodeOnChanged()) },
   },
   lint: {
     description: 'validates the code',
-    cb: async () => { process.exit(await execlintCode()) },
+    cb: async () => { process.exit(await execLintCode()) },
   },
   dev: {
     description: 'setup dev environment',
@@ -111,7 +112,7 @@ await main()
 
 async function execDevEnvironment ({ openBrowser = false } = {}) {
   await openDevServer({ openBrowser })
-  await Promise.all([execlintCodeOnChanged(), execTests()])
+  await Promise.all([execLintCodeOnChanged(), execTests()])
   await execBuild()
 
   const watcher = watchDirs(
@@ -123,7 +124,7 @@ async function execDevEnvironment ({ openBrowser = false } = {}) {
     console.log(`file "${change.filename}" changed`)
     await Promise.all([execBuild(), execTests()])
     updateDevServer()
-    await execlintCodeOnChanged()
+    await execLintCodeOnChanged()
   }
 }
 
@@ -237,7 +238,7 @@ async function execBuild () {
   logEndStage()
 }
 
-async function execlintCodeOnChanged () {
+async function execLintCodeOnChanged () {
   logStartStage('linc', 'lint using eslint')
   const returnCodeLint = await lintCode({ onlyChanged: true }, { fix: true })
   logStage('lint using stylelint')
@@ -258,7 +259,7 @@ async function execlintCodeOnChanged () {
   return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
-async function execlintCode () {
+async function execLintCode () {
   logStartStage('lint', 'lint using eslint')
   const returnCodeLint = await lintCode({ onlyChanged: false }, { fix: true })
   logStage('lint using stylelint')
@@ -328,12 +329,12 @@ function logEndStage () {
   console.log(startTime ? `done (${Date.now() - startTime}ms)` : 'done')
 }
 
-function logStartStage (jobname, stage) {
+function logStartStage (jobName, stage) {
   const markName = 'stage ' + stage
-  logStage.currentJobName = jobname
+  logStage.currentJobName = jobName
   logStage.currentMark = markName
   logStage.perfMarks ??= {}
-  stage && process.stdout.write(`[${jobname}] ${stage}...`)
+  stage && process.stdout.write(`[${jobName}] ${stage}...`)
   logStage.perfMarks[logStage.currentMark] = Date.now()
 }
 
@@ -529,8 +530,8 @@ async function minifyDOM (domElement) {
     if (['html', 'head'].includes(tag)) {
       return { ...minificationState, whitespaceMinify: 'remove-blank' }
     }
-    // in the <body>, the default whitespace behaviour is to merge multiple whitespaces to 1,
-    // there will stil have some whitespace that will be merged, but at this point, there is
+    // in the <body>, the default whitespace behavior is to merge multiple whitespaces to 1,
+    // there will still have some whitespace that will be merged, but at this point, there is
     // little benefit to remove even more duplicated whitespace
     if (['body'].includes(tag)) {
       return { ...minificationState, whitespaceMinify: '1-space' }
@@ -594,8 +595,8 @@ async function execGitCmd (args) {
 // @section 9 filesystem utilities
 
 async function * getFiles (dir) {
-  const dirents = await fs.readdir(dir, { withFileTypes: true })
-  for (const dirent of dirents) {
+  const dirs = await fs.readdir(dir, { withFileTypes: true })
+  for (const dirent of dirs) {
     const res = resolve(dir, dirent.name)
     if (dirent.isDirectory()) {
       yield * getFiles(res)
@@ -611,7 +612,7 @@ async function getFilesAsArray (dir) {
   return arr
 }
 /**
- * Watch firectories for file changes
+ * Watch directories for file changes
  * @param  {...string} dirs
  * @yields {Promise<{filenames: string[]}>}
  * @returns {AsyncGenerator<Promise<{filenames: string[]}>>} iterator of changed filenames
@@ -753,8 +754,8 @@ function svgToDataURI (svg) {
   return `data:image/svg+xml,${svgURI}`
 }
 
-function asciiIconSvg (asciicode) {
-  return svgToDataURI(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><style>text {font-size: 10px; fill: #333;} @media (prefers-color-scheme: dark) {text { fill: #ccc; }} </style><text x='0' y='10'>${asciicode}</text></svg>`)
+function asciiIconSvg (asciiCode) {
+  return svgToDataURI(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><style>text {font-size: 10px; fill: #333;} @media (prefers-color-scheme: dark) {text { fill: #ccc; }} </style><text x='0' y='10'>${asciiCode}</text></svg>`)
 }
 
 async function makeBadge (params) {
@@ -948,12 +949,12 @@ async function loadDom () {
 
 // @section 13 module graph utilities
 
-async function createModuleGraphSvg (moduleGrapnJson) {
+async function createModuleGraphSvg (moduleGraphJson) {
   const { default: { graphlib, layout } } = await import('@dagrejs/dagre')
   const { default: anafanafo } = await import('anafanafo')
   const padding = 5
   const svgStokeMargin = 5
-  const inputs = moduleGrapnJson.inputs
+  const inputs = moduleGraphJson.inputs
 
   const graph = new graphlib.Graph()
 
@@ -1038,7 +1039,7 @@ async function createModuleGraphSvg (moduleGrapnJson) {
  */
 async function getESbuildPlugin () {
   return {
-    name: 'assetsBuid',
+    name: 'assetsBuild',
     async setup (build) {
       build.onLoad({ filter: /\.element.css$/ }, async (args) => {
         return {

@@ -2,7 +2,7 @@ import { importTranslations } from '../i18n-importer/i18n-importer.js'
 import { normalizeI18nDefinitionMap } from '../i18n-normalizer/i18n-normalizer.js'
 
 const emptyObj = Object.freeze({})
-const intialDataStore = Object.freeze({
+const initialDataStore = Object.freeze({
   languages: emptyObj,
   location: '',
 })
@@ -104,14 +104,14 @@ const StorePrototype = {
     memoizedTranslations[locale.baseName] = result
     return result
   },
-  data: intialDataStore,
+  data: initialDataStore,
 }
 
 /**
  * Creates a translation store
  * @returns {TranslationStore} new translation store
  */
-export function i18nTanslationStore () {
+export function i18nTranslationStore () {
   return Object.create(StorePrototype)
 }
 

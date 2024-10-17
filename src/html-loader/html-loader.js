@@ -1,5 +1,5 @@
 import { importDefinitionMap } from '../utils/i18n-importer/i18n-importer.js'
-import { i18nTanslationStore } from '../utils/store/translation-store.js'
+import { i18nTranslationStore } from '../utils/store/translation-store.js'
 import { builder } from '../utils/i18n-merger/i18n-merger.util.js'
 
 /**
@@ -79,7 +79,7 @@ export async function loadI18n ({ document, location } = window) {
   location = typeof location === 'string' ? new URL(location) : location
   const localeMapMerger = await loadLocaleMaps({ document, location, merger: builder })
   const finalMerger = loadTranslations({ document, location, merger: localeMapMerger })
-  const store = i18nTanslationStore()
+  const store = i18nTranslationStore()
 
   store.loadTranslations({
     location: location.href,

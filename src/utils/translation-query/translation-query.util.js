@@ -47,15 +47,15 @@ const translationOptimizations = new WeakMap()
  * @returns {TranslationQueryOptimization} translation query optimization object
  */
 function getOrInitOptimizations (translations) {
-  let optmization = translationOptimizations.get(translations)
-  if (!optmization) {
-    optmization = {
+  let optimization = translationOptimizations.get(translations)
+  if (!optimization) {
+    optimization = {
       cache: {},
       optimizedMap: optimizeTranslationForQueries(translations),
     }
-    translationOptimizations.set(translations, optmization)
+    translationOptimizations.set(translations, optimization)
   }
-  return optmization
+  return optimization
 }
 
 /**
@@ -134,7 +134,7 @@ export function queryFromTranslations (key, translations) {
 }
 
 /**
- * Gets the tranlate function from value template and match result, in case match Result is undefined
+ * Gets the translate function from value template and match result, in case match Result is undefined
  * it will assume it came from a literal key match
  * @param {string} valueTemplate target match result
  * @param {MatchResult} [match] target match result
@@ -187,7 +187,7 @@ function translatorFromValue (valueTemplate, match) {
  * @property {string}             targetKey      - key used to search translation
  * @property {Translations}       translations   - translation map used for search
  * @property {boolean}            found          - boolean that tells whether the key was found
- * @property {string}             valueTemplate  - template of found value from query, emptry string if not found
+ * @property {string}             valueTemplate  - template of found value from query, empty string if not found
  * @property {TranslateFunction}  translate      - translate function based on locale, returns target key if not found
  */
 
@@ -214,5 +214,5 @@ function translatorFromValue (valueTemplate, match) {
  * An optimized template key entry with already parsed key as to avoid parsing it again every query
  * @property {string}                      key       - target translation key
  * @property {ReturnType<typeof parseKey>} parsedKey - parsed target translation key information for faster matches
- * @property {string}                      value     - respective value of Tranlation key
+ * @property {string}                      value     - respective value of translation key
  */
