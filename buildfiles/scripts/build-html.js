@@ -1,4 +1,6 @@
 /* eslint-disable max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
+/* eslint @cspell/spellchecker: ['warn', {cspell: {words: ['contenteditable', 'Dirents'] }}] */
+
 import Prism from 'prismjs'
 import { minimatch } from 'minimatch'
 import { imageSize } from 'image-size'
@@ -302,8 +304,8 @@ function minifyDOM (domElement) {
     if (['html', 'head'].includes(tag)) {
       return { ...minificationState, whitespaceMinify: 'remove-blank' }
     }
-    // in the <body>, the default whitespace behaviour is to merge multiple whitespaces to 1,
-    // there will stil have some whitespace that will be merged, but at this point, there is
+    // in the <body>, the default whitespace behavior is to merge multiple whitespaces to 1,
+    // there will still have some whitespace that will be merged, but at this point, there is
     // little benefit to remove even more duplicated whitespace
     if (['body'].includes(tag)) {
       return { ...minificationState, whitespaceMinify: '1-space' }
