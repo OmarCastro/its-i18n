@@ -10,7 +10,7 @@ const emptyArray = Object.freeze([])
 /**
  * Add or replace format method from templateFormatter object
  * @param {Omit<TemplateFormatter, 'format'>} templateFormatter - target TemplateFormatter object
- * @returns {TemplateFormatter} TemplateFormatter object with updated `format` fuction
+ * @returns {TemplateFormatter} TemplateFormatter object with updated `format` function
  */
 const formatterWithFormat = (templateFormatter) => ({
   ...templateFormatter,
@@ -28,7 +28,7 @@ const formatterWithFormat = (templateFormatter) => ({
  * Returns a formatter that returns the `value` content
  *
  * Used when the value does not have parameters
- * @param {string} value - value contant
+ * @param {string} value - value constant
  * @returns {TemplateFormatter} resulting template formatter
  */
 const formatSimpleKey = (value) => ({
@@ -86,7 +86,7 @@ function parseCaptureKey (captureToken) {
  * Formatter to use for simple capture expressions (e.g. `{0}`)
  * @type {FormatterReducer}
  */
-function applyDefaultformatter (acc) {
+function applyDefaultFormatter (acc) {
   if (acc.defaultFormatters && typeof acc.position === 'number') {
     return {
       ...acc,
@@ -180,7 +180,7 @@ function getFormatterFromCaptureToken (token) {
     }
   }
   if (fragmentedFormatters.length <= 1) {
-    fragmentedFormatters.push(applyDefaultformatter)
+    fragmentedFormatters.push(applyDefaultFormatter)
   }
 
   return (parameters, locale, defaultFormatters) => formatFromReducers(fragmentedFormatters, parameters, locale, defaultFormatters)

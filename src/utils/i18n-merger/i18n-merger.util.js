@@ -127,7 +127,7 @@ export const builder = mergeInstance([])
 
 /**
  * @typedef {object} MergerInstance
- * Constains api to add data to merge or merge with the current data
+ * Contains api to add data to merge or merge with the current data
  * @property {(i18nInfo: I18nDefinitionMap, location: URL | string) => MergerInstance} addMap - add map of locale to i18n definition to merge
  * @property {(i18nDef: I18nDefinition, language: Intl.Locale | string, location: URL | string) => MergerInstance} addDefinitionOnLanguage - add i18n definition map in a specific locale to merge
  * @property {(location: URL | string, language: Intl.Locale | string) => MergerInstance} addTranslations - add url location of a translation map in a specific locale to merge

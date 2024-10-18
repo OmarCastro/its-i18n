@@ -5,7 +5,7 @@ import { formatters } from './expression-formatters.js'
 const defaultFormat = formatters['as is'].format
 
 /** @type {CaptureExpressionMap} */
-const baseCapureExpressions = {
+const baseCaptureExpressions = {
   number: {
     value: 400,
     matchPredicate: () => (text) => isNumeric(text),
@@ -25,7 +25,7 @@ const baseCapureExpressions = {
 }
 
 /** @type {CaptureExpressionMap} */
-const specialCapureExpressions = {
+const specialCaptureExpressions = {
   string: {
     value: 1 << 20,
     matchPredicate: (match) => (text) => match === text,
@@ -82,13 +82,13 @@ const baseTimeCaptureExpressions = {
     isConstant: false,
   },
 }
-/** @type {Record<string, RelativeTimeCaptureExpresionPrefix>} */
-const relativeTimeCaptureExpresionPrefix = {
+/** @type {Record<string, RelativeTimeCaptureExpressionPrefix>} */
+const relativeTimeCaptureExpressionPrefix = {
   past: {
     additionalvalue: 50,
     defaultMatchPredicate: (prev) => () => {
       const predicate = prev()
-      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) <= 0
+      return (text) => predicate(text) && timeIntervalCaptureExpressionPrefix.millisecond.currentTimeCompare(text) <= 0
     },
   },
 
@@ -96,7 +96,7 @@ const relativeTimeCaptureExpresionPrefix = {
     additionalvalue: 100,
     defaultMatchPredicate: (prev) => () => {
       const predicate = prev()
-      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.second.currentTimeCompare(text) === 0
+      return (text) => predicate(text) && timeIntervalCaptureExpressionPrefix.second.currentTimeCompare(text) === 0
     },
   },
 
@@ -104,13 +104,13 @@ const relativeTimeCaptureExpresionPrefix = {
     additionalvalue: 50,
     defaultMatchPredicate: (prev) => () => {
       const predicate = prev()
-      return (text) => predicate(text) && timeIntervalCaptureExpresionPrefix.millisecond.currentTimeCompare(text) > 0
+      return (text) => predicate(text) && timeIntervalCaptureExpressionPrefix.millisecond.currentTimeCompare(text) > 0
     },
   },
 }
 
-/** @type {Record<string, TimeIntervalCaptureExpresionPrefix>} */
-const timeIntervalCaptureExpresionPrefix = {
+/** @type {Record<string, TimeIntervalCaptureExpressionPrefix>} */
+const timeIntervalCaptureExpressionPrefix = {
   millisecond: {
     additionalvalue: 33,
     currentTimeCompare: (text) => {
@@ -162,13 +162,13 @@ const timeIntervalCaptureExpresionPrefix = {
       const date = new Date(isNumeric(text) ? (+text) * 1000 : parseISO8601(text))
       const dateNow = new Date(timeNowFrame())
       const yearNow = dateNow.getFullYear()
-      const yeardiff = date.getFullYear() - yearNow
-      if (yeardiff !== 0) { return yeardiff }
-      const onejan = new Date(yearNow, 0, 1)
-      const onejanDay = onejan.getDay()
-      const onejanTimeStamp = onejan.valueOf()
-      const weekNow = Math.ceil((((dateNow.valueOf() - onejanTimeStamp) / 86400000) + onejanDay + 1) / 7)
-      const week = Math.ceil((((date.valueOf() - onejanTimeStamp) / 86400000) + onejanDay + 1) / 7)
+      const yearDiff = date.getFullYear() - yearNow
+      if (yearDiff !== 0) { return yearDiff }
+      const oneJan = new Date(yearNow, 0, 1)
+      const oneJanDay = oneJan.getDay()
+      const oneJanTimeStamp = oneJan.valueOf()
+      const weekNow = Math.ceil((((dateNow.valueOf() - oneJanTimeStamp) / 86400000) + oneJanDay + 1) / 7)
+      const week = Math.ceil((((date.valueOf() - oneJanTimeStamp) / 86400000) + oneJanDay + 1) / 7)
       return week - weekNow
     },
 
@@ -201,7 +201,7 @@ function buildTimeCaptureExpressions () {
   const { entries, fromEntries } = Object
   return fromEntries(entries(baseTimeCaptureExpressions).flatMap(([baseKey, baseInfo]) => {
     const result = [[baseKey, baseInfo]]
-    for (const [relativePrefixKey, relativePrefixInfo] of entries(relativeTimeCaptureExpresionPrefix)) {
+    for (const [relativePrefixKey, relativePrefixInfo] of entries(relativeTimeCaptureExpressionPrefix)) {
       const infoWithRelTime = {
         ...baseInfo,
         value: baseInfo.value + relativePrefixInfo.additionalvalue,
@@ -211,11 +211,11 @@ function buildTimeCaptureExpressions () {
         `${relativePrefixKey} ${baseKey}`,
         infoWithRelTime,
       ])
-      for (const [intervalKey, intervalnfo] of entries(timeIntervalCaptureExpresionPrefix)) {
+      for (const [intervalKey, intervalInfo] of entries(timeIntervalCaptureExpressionPrefix)) {
         result.push([
           `${relativePrefixKey} ${intervalKey} ${baseKey}`, {
             ...infoWithRelTime,
-            value: infoWithRelTime.value + intervalnfo.additionalvalue,
+            value: infoWithRelTime.value + intervalInfo.additionalvalue,
           }])
       }
     }
@@ -225,9 +225,9 @@ function buildTimeCaptureExpressions () {
 }
 
 export const captureExpressions = {
-  special: specialCapureExpressions,
+  special: specialCaptureExpressions,
   named: {
-    ...baseCapureExpressions,
+    ...baseCaptureExpressions,
     ...buildTimeCaptureExpressions(),
   },
 }
@@ -239,7 +239,7 @@ export const captureExpressions = {
  *
  * Capture expression information used by key parser, as to get the correct matcher
  * based on the ket priority.
- * @property {number}                value - Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
+ * @property {number}                value - Priority value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {MatchPredicateCreator} matchPredicate - Match predicate creator. The resulting match predicate is based on the `parameters` used
  *                                                    (e.g. creating a matcher from a regex pattern).
  * @property {FormatCall}            defaultFormat - Default format to be used when no formatter is explicitly applied.
@@ -252,13 +252,13 @@ export const captureExpressions = {
 /** @typedef {(...parameters: string[]) => MatchPredicate} MatchPredicateCreator */
 
 /**
- * @typedef {object} TimeIntervalCaptureExpresionPrefix
- * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
+ * @typedef {object} TimeIntervalCaptureExpressionPrefix
+ * @property {number}                additionalvalue - Additional Priority value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {(timeStr: string) => number} currentTimeCompare - compare text formatted date to current time. returns negative number when `timeStr` is in the past, positive in the future, 0 in the present
  */
 
 /**
- * @typedef {object} RelativeTimeCaptureExpresionPrefix
- * @property {number}                additionalvalue - Additional Prioriy value of the capture expression, the higher value, the key is used when conflicting keys are found.
+ * @typedef {object} RelativeTimeCaptureExpressionPrefix
+ * @property {number}                additionalvalue - Additional Priority value of the capture expression, the higher value, the key is used when conflicting keys are found.
  * @property {(prev: MatchPredicateCreator) => MatchPredicateCreator} defaultMatchPredicate - predicate to use when no no time unit is defined (e.g. present **day** date).
  */

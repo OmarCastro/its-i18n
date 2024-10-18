@@ -86,7 +86,7 @@ function applyI18nAttributesUpdate (element, locale, attributeEntries) {
 /**
  * @param {Element} element - target element
  * @param {Intl.Locale} locale - locale to translate attributes
- * @param {typeof orderedContentAttributeDetails[number] & { key: string }} contentDetails - content detais applien on {@link getContentDetailsToUpdate}
+ * @param {typeof orderedContentAttributeDetails[number] & { key: string }} contentDetails - content details applied on {@link getContentDetailsToUpdate}
  * @returns {Promise<Element | null>[]} list of promises of element content changes
  */
 function applyI18nContentUpdate (element, locale, contentDetails) {
@@ -145,7 +145,7 @@ function updateI18nOnElements (iterable) {
 }
 
 /**
- * Translte the text content
+ * Translates the `text` content
  * @param {string} text - target text
  * @param {Intl.Locale} locale - language to translate to
  * @param {Element} context - the element where the translation is done

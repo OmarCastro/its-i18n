@@ -32,13 +32,13 @@ export default [
     rules: {
       'sonarjs/cognitive-complexity': ['error', 10],
       'max-lines-per-function': ['warn', 75],
-      '@cspell/spellchecker': ['warn', { cspell: { words: ['untick', 'millis'] } }]
+      '@cspell/spellchecker': 0
     },
   },
   {
-    ignores: ['src'],
+    files: ['src/**/*.js'],
     rules: {
-      '@cspell/spellchecker': 0
+      '@cspell/spellchecker': ['warn', { cspell: { words: ['untick', 'millis', 'sonarjs', 'quotemeta'] } }]
     }
 
   }

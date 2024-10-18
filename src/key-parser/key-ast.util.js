@@ -112,7 +112,7 @@ const stateMachine = (() => {
 })()
 
 /**
- * Parses the string into an Abstract Syntac Tree (AST)
+ * Parses the string into an Abstract Syntax Tree (AST)
  * @param {string} key - target sting
  * @returns {AST} the parsed AST of the target key
  */
@@ -122,13 +122,13 @@ export function getAST (key) {
   let currentMachineState = stateMachine[currentState]
 
   /** @type {AST_In_Progress} */
-  const rootnode = {
+  const rootNode = {
     tokens: [],
   }
 
   /** @type {TmpToken} */
   let currentToken = {
-    parentNode: rootnode,
+    parentNode: rootNode,
     start: 0,
     end: 0,
     type: states.normal,
@@ -154,8 +154,8 @@ export function getAST (key) {
     if (currentToken.type === states.escape) {
       const { parentNode } = currentToken
 
-      if (parentNode === rootnode) {
-        currentToken = /** @type {TmpToken} */(rootnode.tokens.pop())
+      if (parentNode === rootNode) {
+        currentToken = /** @type {TmpToken} */(rootNode.tokens.pop())
         return
       }
       currentToken = /** @type {TmpToken} */(parentNode)
@@ -166,7 +166,7 @@ export function getAST (key) {
 
     const { parentNode } = currentToken
 
-    if (parentNode === rootnode) {
+    if (parentNode === rootNode) {
       parentNode.tokens.push(currentToken)
       currentToken = {
         parentNode,
@@ -210,10 +210,10 @@ export function getAST (key) {
 
       currentToken.end = i
       if (currentToken.end > currentToken.start) {
-        rootnode.tokens.push(currentToken)
+        rootNode.tokens.push(currentToken)
       }
       currentToken = {
-        parentNode: rootnode,
+        parentNode: rootNode,
         start: i,
         end: i,
         type: nextState,
@@ -234,7 +234,7 @@ export function getAST (key) {
 
   currentToken.end = key.length
   if (currentToken.end > currentToken.start) {
-    rootnode.tokens.push(currentToken)
+    rootNode.tokens.push(currentToken)
   }
 
   /** @type {(a: TmpToken) => Token} */
@@ -253,7 +253,7 @@ export function getAST (key) {
 
   return {
     key,
-    tokens: rootnode.tokens.map(toToken),
+    tokens: rootNode.tokens.map(toToken),
   }
 }
 
@@ -263,20 +263,20 @@ export function getAST (key) {
  * syntactic structure of a piece of source code, as produced by a parser.
  * It shows the hierarchy of the elements in the code and the relationships between them.
  * @property {string} key - the target key used to create the key
- * @property {Token[]} tokens - the direct descentdant of the root tree
+ * @property {Token[]} tokens - the direct descendant of the root tree
  */
 
 /**
  * @typedef {object} AST_In_Progress
  * A "work in progress" AST, it is just a object used to build the {@see AST}
- * @property {TmpToken[]} tokens - the direct descentdant of the root tree
+ * @property {TmpToken[]} tokens - the direct descendant of the root tree
  */
 
 /**
  * @typedef {object} Token
  * Represents a Node in the {@link AST}
- * @property {number} start - text ocurrent starting position (start index), number is inclusive
- * @property {number} end - text ocurrent ending position (end index), number is exclusive
+ * @property {number} start - text occurrence starting position (start index), number is inclusive
+ * @property {number} end - text occurrence ending position (end index), number is exclusive
  * @property {StateValues} type - the node type
  * @property {string} text - substring of the {@link AST.key} with `start` and `end`
  * @property {Token[]} childTokens - direct child tokens of the node
@@ -286,8 +286,8 @@ export function getAST (key) {
  * @typedef {object} TmpToken
  * Temporary {@link Token}, used to create the final {@link Token}
  * @property {AST_In_Progress | TmpToken} parentNode - parent node
- * @property {number} start - text ocurrent starting position (start index), number is inclusive
- * @property {number} end - text ocurrent ending position (end index), number is exclusive
+ * @property {number} start - text occurrence starting position (start index), number is inclusive
+ * @property {number} end - text occurrence ending position (end index), number is exclusive
  * @property {StateValues} type - the node type
  * @property {TmpToken[]} childTokens - direct child temporary tokens of the node
  */

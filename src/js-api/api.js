@@ -9,7 +9,7 @@ import { loadI18n } from '../html-loader/html-loader.js'
 /**
  * Translates i18n key
  * @param {string} key - target key
- * @param {Context} [context] - context for tranlations
+ * @param {Context} [context] - context for translations
  * @returns {Promise<string>} future translated key
  */
 export async function translate (key, context) {
@@ -80,18 +80,18 @@ async function i18nFromStoreAndLocale (key, store, localeString) {
  * @typedef {object} DOMContext
  * Translate based on information of an DOM element
  * @property {Element} element - target element
- * @property {string | Intl.Locale} [locale] - target language to translate, finds the languange from element if not defined
+ * @property {string | Intl.Locale} [locale] - target language to translate, finds the language from element if not defined
  */
 
 /**
  * @typedef {object} StoreContext
  * Translate based on a store
  * @property {import("../utils/store/translation-store.js").TranslationStore} store - target store
- * @property {string | Intl.Locale} [locale] - target language to translate, finds the languange from DOM document if not defined
+ * @property {string | Intl.Locale} [locale] - target language to translate, finds the language from DOM document if not defined
  */
 
 /**
  * @typedef {object} LocaleContext
  * Translate based on initially loaded i8n data in the window
- * @property {string | Intl.Locale} [locale] - target language to translate, finds the languange from DOM document if not defined
+ * @property {string | Intl.Locale} [locale] - target language to translate, finds the language from DOM document if not defined
  */

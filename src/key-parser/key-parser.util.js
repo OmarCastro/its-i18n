@@ -72,16 +72,16 @@ export function parseKey (key) {
 
 /**
  * @typedef {object} ParseResult
- * Representes the result of parsing a defined key
+ * Represents the result of parsing a defined key
  * @property {[number, number]} priority
  *   Defines the key priority.
  *
- *   When finding conflicting keys the one with the hightes priority is choosen
+ *   When finding conflicting keys the one with the hightest priority is chosen
  *
  *   The priority is defined by specificity, the more specific, the highest
  *   priority it has.
  *
- *   The specificy is defined by 2 factors:
+ *   The specificity is defined by 2 factors:
  *   - the lesser number of parameter
  *   - the specificity of each parameter
  *

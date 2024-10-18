@@ -1,6 +1,6 @@
 // @ts-check
 /**
- *   A strictier sanitizer that allows only text related tags and attributes as to allow any sort of content formatting,
+ *   A stricter sanitizer that allows only text related tags and attributes as to allow any sort of content formatting,
  * makes no sense to use pictures or forms as html content in i18n, you translate mostly text, so you use data-i18n on the
  * form elements instead of using html as translation value.
  */
@@ -219,7 +219,7 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
 
 /**
  * @typedef RemovedAttr
- * @property {string}     name - removed attribte name
+ * @property {string}     name - removed attribute name
  * @property {Element}    from - target Element where the attribute was removed
  */
 
@@ -244,7 +244,7 @@ const _initDocument = (html) => {
 }
 
 /**
- * @param {object}        param                   - funciton parameters
+ * @param {object}        param                   - function parameters
  * @param {Element}       param.currentElement    - current element being sanitized
  * @param {Element[]}     param.removedElements   - list of removed elements, mutable
  * @param {RemovedAttr[]} param.removedAttributes - list of removed attributes, mutable

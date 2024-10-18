@@ -144,7 +144,7 @@ export function i18nTranslationStore () {
  * Data to used to save in {@link TranslationStore}, it will be normalized to  {@link StoreData} on {@link TranslationStore.loadTranslations} call
  * @property {(data: StoreDataEntry) => void} loadTranslations - loads translations in data
  * @property {TranslationsFromLanguage} translationsFromLanguage - get stored translations from a locale
- * @property {StoreData} data - Store data where all infomation is saved with loadTranslations()
+ * @property {StoreData} data - Store data where all information is saved with loadTranslations()
  */
 
 /**

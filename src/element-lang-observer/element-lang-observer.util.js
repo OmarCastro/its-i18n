@@ -1,7 +1,7 @@
 import { getLanguageFromElement } from '../utils/algorithms/get-lang-from-element.util.js'
 import { IterableWeakMap, IterableWeakSet } from '../utils/algorithms/iterable-weak-struct.js'
 
-/** @type {IterableWeakMap<Node, ObserveInfomation>} */
+/** @type {IterableWeakMap<Node, ObserveInformation>} */
 const rootNodes = new IterableWeakMap()
 
 const data = Symbol('ElementLangObserverData')
@@ -132,9 +132,9 @@ function createObserver (targetNode) {
  * @param {Element} element - element to trigger when `rootNode` detects a language change
  */
 function traverseRootNode (rootNode, element) {
-  const observeInfomation = rootNodes.get(rootNode)
-  if (observeInfomation) {
-    observeInfomation.observingElements.add(element)
+  const observeInformation = rootNodes.get(rootNode)
+  if (observeInformation) {
+    observeInformation.observingElements.add(element)
   } else {
     rootNodes.set(rootNode, {
       observer: createObserver(rootNode),
@@ -193,7 +193,7 @@ export function unobserveLangFromElement (element, observer) {
 }
 
 /**
- * @typedef {object} ObserveInfomation
+ * @typedef {object} ObserveInformation
  * @property {IterableWeakSet<Element>} observingElements - the elements that will react when `targetNode` detects a language change
  * @property {MutationObserver} observer - mutationObserver applied to `targetNode`
  * @property {WeakRef<Node>} targetNode - rootNode of the current DOM (<html> or ShadowRoot)

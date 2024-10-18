@@ -23,7 +23,7 @@ export const importDefinitionMap = (url, base) => implementation.importDefinitio
 /**
  * @typedef {object} I18nDefinition
  * @property {string | string[]} [import]    - Additional files to import to the definition
- * @property {Translations}      translations - translaion map
+ * @property {Translations}      translations - translation map
  */
 
 /**
