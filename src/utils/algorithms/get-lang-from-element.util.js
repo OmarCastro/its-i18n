@@ -15,7 +15,7 @@ function getFallbackLanguage (element) {
 }
 
 /**
- * @param {Element} element - element with invaling lang attribute
+ * @param {Element} element - element with invalid lang attribute
  * @param {string} invalidLanguage - the invalid language detected
  * @returns {string} corrected language
  */

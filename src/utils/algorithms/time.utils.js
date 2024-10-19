@@ -16,7 +16,7 @@ export function parseISO8601 (text) {
  * Returns current time and memoizes it for the duration of a frame
  *
  * This function exists because many operations related to relative time
- * relies on current time, calling Date.now() continuosly not only returns
+ * relies on current time, calling Date.now() continuously not only returns
  * different result each call, it is expensive. Calling it continuously
  * will affect performance
  *

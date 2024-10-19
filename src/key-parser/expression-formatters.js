@@ -297,13 +297,13 @@ function relativeTimeFormatToUnit (locale, toUnit, d1, d2 = timeNowFrame()) {
  * @callback FormatCall
  * @param {string}       text   - text input
  * @param {Intl.Locale}  locale - internationalization locale
- * @returns {string}     fomatted text
+ * @returns {string}     formatted text
  */
 
 /**
  * @typedef {object} Formatter
  * @property {FormatCall} format   - format function
- * @property {boolean} [isconstant] - flag to tell if format function returns the same result given the same input
+ * @property {boolean} [isConstant] - flag to tell if format function returns the same result given the same input
  */
 
 export const formatters = {

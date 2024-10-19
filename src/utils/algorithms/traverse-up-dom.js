@@ -20,7 +20,7 @@ export function * traverseUpDom (targetElement) {
 }
 
 /**
- * Traverse up in the document DOM closest element by passing shadow DOM, passing throug slots
+ * Traverse up in the document DOM closest element by passing shadow DOM, passing through slots
  * @param {Element} targetElement - first element to yield from the generator
  * @yields {Element} one element for each subsequent assigned slot or ancestor
  */

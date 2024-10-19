@@ -1,7 +1,7 @@
 import { traverseUpDomWithSlots } from './traverse-up-dom.js'
 
 /**
- * Check wheter the element is translatable
+ * Check whether the element is translatable
  *
  * It respects the `translate` global attribute:
  *
@@ -10,7 +10,7 @@ import { traverseUpDomWithSlots } from './traverse-up-dom.js'
  * > Text node children are to be translated when the page is localized,
  * > or whether to leave them unchanged.
  *
- * The tranlate will apply to all elements, including non-HTML elements
+ * The translate will apply to all elements, including non-HTML elements
  * @see https://html.spec.whatwg.org/multipage/dom.html#attr-translate
  * @param {Element} element - t
  * @returns {boolean} true if element is translatable, false otherwise
