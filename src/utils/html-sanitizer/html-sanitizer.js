@@ -1,4 +1,4 @@
-/* eslint @cspell/spellchecker: ['warn', {cspell: {dictionaries: ['html'], words: ['autopictureinpicture','controlslist','disablepictureinpicture','disableremoteplayback','pubdate']}}] */
+/* eslint @cspell/spellchecker: ['warn', {cspell: {dictionaries: ['html']}}] */
 /**
  *   A stricter sanitizer that allows only text related tags and attributes as to allow any sort of content formatting,
  * makes no sense to use pictures or forms as html content in i18n, you translate mostly text, so you use data-i18n on the
@@ -112,7 +112,6 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
   'alt',
   'autocapitalize',
   'autocomplete',
-  'autopictureinpicture',
   'autoplay',
   'background',
   'bgcolor',
@@ -128,7 +127,6 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
   'cols',
   'colspan',
   'controls',
-  'controlslist',
   'coords',
   'crossorigin',
   'datetime',
@@ -136,8 +134,6 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
   'default',
   'dir',
   'disabled',
-  'disablepictureinpicture',
-  'disableremoteplayback',
   'download',
   'draggable',
   'enctype',
@@ -181,7 +177,6 @@ export const ALLOWED_STANDARD_ATTRS = new Set([
   'playsinline',
   'poster',
   'preload',
-  'pubdate',
   'radiogroup',
   'readonly',
   'rel',
