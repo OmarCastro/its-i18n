@@ -1,14 +1,21 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { i18nTranslationStore } from './translation-store.js'
 import { provide } from '../i18n-importer/provider.js'
+/** @import {TestAPICall} from '../../../test-utils/unit/test.js' */
+/** @import {Implementation} from '../i18n-importer/provider.js' */
+/** @import {I18nDefinitionMap} from '../i18n-importer/i18n-importer.js' */
 
 test('Given a new store, when loadTranslations ', async ({ step: originalStep, expect }) => {
   const translations = {
     'untranslated text': 'untranslated text',
   }
 
+  /**
+   * @param {I18nDefinitionMap} languages 
+   */
   const storeDataWithLangs = (languages) => ({ location: 'http://example.com', languages })
 
+  /** @type {{ error: any[], warn: any[] }} */
   const consoleCalls = { error: [], warn: [] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
@@ -20,6 +27,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
     consoleCalls.error.push(args)
   }
 
+  /** @type {TestAPICall} */
   const step = async (...args) => {
     consoleCalls.error.length = 0
     consoleCalls.warn.length = 0
@@ -100,6 +108,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
 })
 
 test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect }) => {
+  /** @type {{ error: any[], warn: any[] }} */
   const consoleCalls = { error: [], warn: [] }
   const originalConsoleWarn = console.warn
   const originalConsoleError = console.error
@@ -113,7 +122,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
     consoleCalls.error.push(args)
   }
 
-  /** @type {import('../../../test-utils/unit/test.js').TestAPICall} */
+  /** @type {TestAPICall} */
   const step = async (...args) => {
     consoleCalls.error.length = 0
     consoleCalls.warn.length = 0
@@ -325,18 +334,28 @@ test('Given a completed storeData with specific locales, when getting translatio
 /**
  * 
  * @param {string} locHref 
- * @returns 
+ * @returns {Implementation}
  */
 const i18nImporterImplFromLocation = (locHref) => {
+  /**
+   * @param {string | URL} url 
+   * @param {string | URL} base 
+   * @returns {Promise<{[key:string]: any}>}
+   */
   function importFile(url, base){
     const href = new URL(url, base).href
     if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
     const file = href.substring(locHref.length)
-    if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
-    return filesystem[file]
+    if(Object.hasOwn(filesystem, file)) { 
+      return filesystem[/**@type {keyof typeof filesystem}*/(file)]
+      
+    }
+    throw Error(`${href} mapped to ${file} not found`)
   }
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
+
+
 
 const filesystem = {
   get 'import/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/i18n.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
