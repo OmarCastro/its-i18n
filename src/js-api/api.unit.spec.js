@@ -1,7 +1,7 @@
 import { test } from '../../test-utils/unit/test.js'
 import { provide } from '../utils/i18n-importer/provider.js'
 import { translate } from './api.js'
-import { i18nTanslationStore } from '../utils/store/translation-store.js'
+import { i18nTranslationStore } from '../utils/store/translation-store.js'
 import { unsetStoreOnElement } from '../utils/store-map/store-map.js'
 
 const html = String.raw
@@ -78,7 +78,7 @@ test('Given a store, translate() should search only from that store', async ({ d
   const location = 'http://localhost/'
 
   provide(i18nImporterImplFromLocation(location))
-  const store = i18nTanslationStore()
+  const store = i18nTranslationStore()
   store.loadTranslations({
     location: location+'i18n-definition-map.json',
     languages: await filesystem['i18n-definition-map.json']
