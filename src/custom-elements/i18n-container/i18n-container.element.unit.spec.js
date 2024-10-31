@@ -146,15 +146,24 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
   })
 })
 
+/**
+ * 
+ * @param {string} locHref 
+ */
 const i18nImporterImplFromLocation = (locHref) => {
-  function importFile(url, base){
-    const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-    const file = href.substring(locHref.length)
-    if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
-    return filesystem[file]
-  }
-  return { importDefinitionMap: importFile, importTranslations: importFile }
+  /**
+ * @param {string | URL} url 
+ * @param {string | URL} base 
+ * @returns {Promise<{[key:string]: any}>}
+ */
+function importFile(url, base){
+  const href = new URL(url, base).href
+  if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
+  const file = href.substring(locHref.length)
+  if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
+  return filesystem[/**@type {keyof typeof filesystem}*/(file)]
+}
+return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
 const filesystem = {

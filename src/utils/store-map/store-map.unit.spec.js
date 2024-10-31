@@ -1,20 +1,14 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.js'
 import { i18nTranslationStore } from '../store/translation-store.js'
-import { selectors } from 'playwright'
+import assert from 'node:assert';
 
 const html = String.raw
 /**
  *  Queries from document or fails test if element not found
  * @type {(context: Document | ShadowRoot) => (selector: string) => Element }
  */
-const queryFrom = (context) => (selector) => {
-  const result = context.querySelector(selector)
-  if(!result){
-    throw Error(`Error query: no element found with selector ${selector}`)
-  }
-  return result
-}
+
 
 test('Given a simple document without any store set on any element, getStoresInfoFromElement must return a noMoreStoresFound result', ({ dom, expect }) => {
   // prepare
@@ -30,10 +24,9 @@ test('Given a simple document without any store set on any element, getStoresInf
       </div>
   `
 
-  const query = queryFrom(document)
-  const level1Div = query('.level-1')
-  const level4Div = query('.level-4')
-
+  const level1Div = document.querySelector('.level-1')
+  const level4Div = document.querySelector('.level-4')
+  assert(level1Div != null && level4Div != null)
   // act
   const result1 = Array.from(getStoresInfoFromElement(level1Div))
   const result2 = Array.from(getStoresInfoFromElement(level4Div))
@@ -79,28 +72,31 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ dom,
     </div>
 `
 
-const query = queryFrom(document)
-  const level1Div = query('.level-1')
-  const level2Div = query('.level-2')
-  const level3Div = query('.level-3')
-  const level4Div = query('.level-4')
+  const level1Div = document.querySelector('.level-1')
+  const level2Div = document.querySelector('.level-2')
+  const level3Div = document.querySelector('.level-3')
+  const level4Div = document.querySelector('.level-4')
+  assert(level1Div != null && level2Div != null && level3Div != null && level4Div != null)
+
   const shadowRootLv2 = level2Div.attachShadow({ mode: 'open' })
   shadowRootLv2.innerHTML = level2ShadowDomHtml
 
-  const shadow2Query = queryFrom(shadowRootLv2)
-  const shadow2level1Div = shadow2Query('.shadow-level-1')
-  const shadow2level2Div = shadow2Query('.shadow-level-2')
-  const shadow2level12Div = shadow2Query('.shadow-level-1-2')
+  const shadow2level1Div = shadowRootLv2.querySelector('.shadow-level-1')
+  const shadow2level2Div = shadowRootLv2.querySelector('.shadow-level-2')
+  const shadow2level12Div = shadowRootLv2.querySelector('.shadow-level-1-2')
+  assert(shadow2level1Div != null && shadow2level2Div != null && shadow2level12Div != null )
 
   const shadowRootLv3 = level3Div.attachShadow({ mode: 'closed' })
   shadowRootLv3.innerHTML = level3ClosedShadowDomHtml
 
-  const shadow3level3Div = queryFrom(shadowRootLv3)('.shadow-level-3')
+  const shadow3level3Div = shadowRootLv3.querySelector('.shadow-level-3')
 
   const subShadowRoot = shadow2level1Div.attachShadow({ mode: 'open' })
   subShadowRoot.innerHTML = level2SubShadowDomHtml
 
-  const subshadow2level2Div = queryFrom(subShadowRoot)('.shadow-level-2')
+  const subshadow2level2Div = subShadowRoot.querySelector('.shadow-level-2')
+
+  assert(shadow3level3Div != null && subshadow2level2Div != null )
 
   const level1Store = i18nTranslationStore()
   level1Store.loadTranslations({

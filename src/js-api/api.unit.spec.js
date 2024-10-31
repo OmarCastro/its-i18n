@@ -1,8 +1,9 @@
 import { test } from '../../test-utils/unit/test.js'
-import { provide } from '../utils/i18n-importer/provider.js'
 import { translate } from './api.js'
 import { i18nTranslationStore } from '../utils/store/translation-store.js'
 import { unsetStoreOnElement } from '../utils/store-map/store-map.js'
+import assert from 'node:assert';
+import { provide } from '../utils/i18n-importer/provider.js'
 
 const html = String.raw
 
@@ -22,6 +23,7 @@ test('Given an HTML page with i18n-locale-map links, i18n should get values from
     `
 
   const canvas = document.querySelector('canvas')
+  assert(canvas != null)
 
   provide(i18nImporterImplFromLocation(location.href))
 
@@ -46,7 +48,8 @@ test('Given an HTML page with i18n-locale-map links, i18n should get values from
     expect(await translate('not found', {locale: 'pt'})).toEqual('not found')
   })
 
-  delete globalThis.document
+  // @ts-ignore
+  delete globalThis.document 
   unsetStoreOnElement(document.documentElement)
 })
 
@@ -69,7 +72,7 @@ test('Given an HTML page with i18n-locale-map links, i18n should load store when
   expect(await translate('not found', {locale: 'pt'})).toEqual('not found')
 
 
-
+  // @ts-ignore
   delete globalThis.document
   unsetStoreOnElement(document.documentElement)
 })
@@ -86,19 +89,28 @@ test('Given a store, translate() should search only from that store', async ({ d
   expect(await translate('hello world', {locale: 'pt', store})).toEqual('olá mundo')
   expect(await translate('not found', {locale: 'pt', store})).toEqual('not found')
 
-
+  // @ts-ignore
   delete globalThis.document
 })
 
+/**
+ * 
+ * @param {string} locHref 
+ */
 const i18nImporterImplFromLocation = (locHref) => {
-  function importFile(url, base){
-    const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found, base location is ${locHref}`) }
-    const file = href.substring(locHref.length)
-    if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
-    return filesystem[file]
-  }
-  return { importDefinitionMap: importFile, importTranslations: importFile }
+  /**
+ * @param {string | URL} url 
+ * @param {string | URL} base 
+ * @returns {Promise<{[key:string]: any}>}
+ */
+function importFile(url, base){
+  const href = new URL(url, base).href
+  if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
+  const file = href.substring(locHref.length)
+  if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
+  return filesystem[/**@type {keyof typeof filesystem}*/(file)]
+}
+return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
 const filesystem = {
