@@ -1,6 +1,8 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { i18nTranslationStore } from './translation-store.js'
 import { provide } from '../i18n-importer/provider.js'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 /** @import {TestAPICall} from '../../../test-utils/unit/test.js' */
 /** @import {Implementation} from '../i18n-importer/provider.js' */
 /** @import {I18nDefinitionMap} from '../i18n-importer/i18n-importer.js' */
@@ -340,15 +342,13 @@ const i18nImporterImplFromLocation = (locHref) => {
   /**
    * @param {string | URL} url 
    * @param {string | URL} base 
-   * @returns {Promise<{[key:string]: any}>}
    */
   function importFile(url, base){
     const href = new URL(url, base).href
     if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-    const file = href.substring(locHref.length)
-    if(Object.hasOwn(filesystem, file)) { 
-      return filesystem[/**@type {keyof typeof filesystem}*/(file)]
-      
+    const file = /**@type {filesystem[number]}*/(href.substring(locHref.length))
+    if(filesystem.includes(file)) { 
+      return filesystemContents[file]
     }
     throw Error(`${href} mapped to ${file} not found`)
   }
@@ -356,15 +356,19 @@ const i18nImporterImplFromLocation = (locHref) => {
 }
 
 
-
-const filesystem = {
-  get 'import/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/i18n.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.en.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.es.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import/translations.pt.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-
-  get 'import-outer/base/i18n.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/base/i18n.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import-outer/languages/en/translations.en.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/en/translations.en.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import-outer/languages/en/translations.es.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/es/translations.es.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'import-outer/languages/en/translations.pt.json' () { return import('./translation-store.unit.spect.ts--filesystem/import-outer/languages/pt/translations.pt.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-}
+const fsDir = new URL(import.meta.url).pathname + '--filesystem'
+/**
+ * @param {string} path
+ */
+const readJson = (path) => readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+const filesystem = /** @type {const} */([
+  'import/i18n.json',
+  'import/translations.en.json',
+  'import/translations.es.json',
+  'import/translations.pt.json',
+  'import-outer/base/i18n.json',
+  'import-outer/languages/en/translations.en.json',
+  'import-outer/languages/es/translations.es.json',
+  'import-outer/languages/pt/translations.pt.json',
+])
+const filesystemContents = Object.fromEntries(filesystem.map(path => [path, readJson(path)]))
