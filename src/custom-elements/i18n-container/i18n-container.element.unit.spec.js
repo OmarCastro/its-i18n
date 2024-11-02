@@ -2,6 +2,7 @@ import { test } from '../../../test-utils/unit/test.js'
 import { provide } from '../../utils/i18n-importer/provider.js'
 import { loadI18n } from '../../html-loader/html-loader.js'
 import { setStoreFromElement } from '../../utils/store-map/store-map.js'
+import assert from 'node:assert';
 
 const html = String.raw
 
@@ -12,19 +13,14 @@ let defineWebComponent = async () => {
   defineWebComponent = () => Promise.resolve()
 }
 
-function getPromiseFromEvent (item, event) {
-  let func = () => {}
-  /** @type {PromiseLike<void>} */
-  const obj = {
-    then: (newFunc) => {
-      func = newFunc
-    },
-  }
-  item.addEventListener(event, () => func())
-  return obj
+/**
+ * @param {Element} element 
+ */
+const getPromiseFrom18nApplyEvent = (element) => {
+  const {promise, resolve} = Promise.withResolvers()
+  element.addEventListener('i18n-apply', () => resolve(void 0))
+  return promise
 }
-
-const getPromiseFrom18nApplyEvent = (item) => getPromiseFromEvent(item, 'i18n-apply')
 
 test('Given an HTML page with i18n-translation-map links and es lang on body, x-i18n should apply spanish i18n to its chidren correctly', async ({ dom, expect }) => {
   await defineWebComponent()
@@ -51,9 +47,11 @@ test('Given an HTML page with i18n-translation-map links and es lang on body, x-
 `
 
   const component = document.body.querySelector('.component')
+  assert(component != null)
   await getPromiseFrom18nApplyEvent(component)
 
   const target = document.querySelector('.target-1')
+  assert(target != null)
 
   await expect(target.getAttribute('data-i18n')).toEqual('I counted 4 sheeps')
   await expect(target.textContent).toEqual('conté 4 ovejas')
@@ -86,10 +84,12 @@ test('Given an HTML page with i18n-translation-map links and "pt" lang on body a
 `
 
   const component = document.body.querySelector('.component')
+  assert(component != null)
   await getPromiseFrom18nApplyEvent(component)
 
   const target = document.querySelector('.target-1')
   const targetEn = document.querySelector('.target-1-en')
+  assert(target != null && targetEn != null)
 
   await expect(target.getAttribute('data-html')).toEqual('contei 20 ovelhas')
   await expect(targetEn.getAttribute('data-html')).toEqual('I counted 30 sheeps')
@@ -123,12 +123,14 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
 `
 
   const component = document.body.querySelector('.component')
+  assert(component != null)
   await getPromiseFrom18nApplyEvent(component)
 
   const target1 = document.querySelector('.target-1')
   const target2 = document.querySelector('.target-2')
   const target3 = document.querySelector('.target-3')
   const target4 = document.querySelector('.target-4')
+  assert(target1 != null && target2 != null && target3 != null && target4 != null)
 
   await step('"data-i18n-attr-*" has higher priority than "data-i18n--*"', async () => {
     await expect(target1.getAttribute('data-attr')).toEqual('I counted 4 sheeps')
@@ -152,24 +154,37 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
  */
 const i18nImporterImplFromLocation = (locHref) => {
   /**
- * @param {string | URL} url 
- * @param {string | URL} base 
- * @returns {Promise<{[key:string]: any}>}
- */
-function importFile(url, base){
-  const href = new URL(url, base).href
-  if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-  const file = href.substring(locHref.length)
-  if(!Object.hasOwn(filesystem, file)) { throw Error(`${href} mapped to ${file} not found`)  }
-  return filesystem[/**@type {keyof typeof filesystem}*/(file)]
-}
-return { importDefinitionMap: importFile, importTranslations: importFile }
+   * @param {string | URL} url 
+   * @param {string | URL} base 
+   */
+  function importFile(url, base){
+    const href = new URL(url, base).href
+    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
+    const file = /**@type {filesystem[number]}*/(href.substring(locHref.length))
+    if(filesystem.includes(file)) { 
+      return filesystemContents[file]
+    }
+    throw Error(`${href} mapped to ${file} not found`)
+  }
+  return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
-const filesystem = {
-  get 'i18n-definition-map.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/i18n-definition-map.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.en.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.en.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.es.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.es.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.it.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.it.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
-  get 'languages.pt.json' () { return import('./i18n-container.element.unit.spec.js--filesystem/languages.pt.json', { with: { type: 'json' }}).then(({ default: value }) => value) },
+
+
+const fsDir = new URL(import.meta.url).pathname + '--filesystem'
+/**
+ * @param {string} path
+ */
+const readJson = async (path) => {
+  const { readFile } = await import('node:fs/promises')
+  const { join } = await import('node:path')
+  return await readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
 }
+const filesystem = /** @type {const} */([
+  'i18n-definition-map.json',
+  'languages.en.json',
+  'languages.es.json',
+  'languages.it.json',
+  'languages.pt.json',
+])
+const filesystemContents = Object.fromEntries(filesystem.map(path => [path, readJson(path)]))

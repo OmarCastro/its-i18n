@@ -1,8 +1,6 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { i18nTranslationStore } from './translation-store.js'
 import { provide } from '../i18n-importer/provider.js'
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 /** @import {TestAPICall} from '../../../test-utils/unit/test.js' */
 /** @import {Implementation} from '../i18n-importer/provider.js' */
 /** @import {I18nDefinitionMap} from '../i18n-importer/i18n-importer.js' */
@@ -360,7 +358,11 @@ const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 /**
  * @param {string} path
  */
-const readJson = (path) => readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+const readJson = async (path) => {
+  const { readFile } = await import('node:fs/promises')
+  const { join } = await import('node:path')
+  return await readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+}
 const filesystem = /** @type {const} */([
   'import/i18n.json',
   'import/translations.en.json',
