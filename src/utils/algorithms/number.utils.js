@@ -13,5 +13,5 @@ export function isNumeric (str) {
  * @returns {boolean} true if `str`is an integer, false otherwise
  */
 export function isInteger (str) {
-  return typeof str === 'string' && /^[+-]?[0-9]+$/.test(str)
+  return typeof str === 'string' && /^[+-]?\d+$/.test(str)
 }

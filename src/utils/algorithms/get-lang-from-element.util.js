@@ -47,7 +47,7 @@ export function getLanguageFromElement (element) {
         return language
       }
       return `${language}-${region}`
-    } catch (e) {
+    } catch {
       return handleInvalidLanguage(node, langValue)
     }
   }

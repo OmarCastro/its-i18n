@@ -197,6 +197,8 @@ export function getAST (key) {
 
     if (nextState === PREVIOUS_IGNORE) {
       upOneLevel(i - 1)
+      /* eslint-disable-next-line sonarjs/updated-loop-counter -- the idea is
+       to handle the current letter as if it is in another state */
       i--
       continue
     }
@@ -204,6 +206,7 @@ export function getAST (key) {
     if (currentState === NORMAL) {
       // at this point the next state is always `states.capture`
       if (key.charCodeAt(i + 1) === ch) {
+        /* eslint-disable-next-line sonarjs/updated-loop-counter -- this loop update is what escapes the "{" */
         i++
         continue
       }
