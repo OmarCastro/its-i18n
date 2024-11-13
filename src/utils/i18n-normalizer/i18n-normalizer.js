@@ -217,7 +217,7 @@ const propertyPath = (propName) => /^[a-z][a-z\d]*$/i.test(propName) ? `.${propN
  * @param {string} prop2 - property path to merge with target
  * @returns {string} merged property path
  */
-const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('.[') ? prop2.substring(1) : prop2)
+const mergePath = (prop1, prop2) => prop1 + (prop2 === '.' || prop2.startsWith('.[') ? prop2.slice(1) : prop2)
 
 /// Type definitions
 

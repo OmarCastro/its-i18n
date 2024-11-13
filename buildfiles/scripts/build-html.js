@@ -34,7 +34,7 @@ const projectPath = new URL('../../', import.meta.url)
 const docsPath = new URL('docs', projectPath).pathname
 const docsOutputPath = new URL('.tmp/build/docs', projectPath).pathname
 
-const fs = await import('fs')
+const fs = await import('node:fs')
 
 const data = fs.readFileSync(`${docsPath}/${process.argv[2]}`, 'utf8')
 
@@ -156,7 +156,7 @@ promises.push(...queryAll('link[href][ss:repeat-glob]').map(async (element) => {
     }
     link.removeAttribute('ss:repeat-glob')
     link.setAttribute('href', relativePath)
-    element.insertAdjacentElement('afterend', link)
+    element.after(link)
   }
   element.remove()
 }))
@@ -218,7 +218,7 @@ fs.writeFileSync(`${docsOutputPath}/${process.argv[2]}`, minifiedHtml)
 function dedent (templateStrings, ...values) {
   const matches = []
   const strings = typeof templateStrings === 'string' ? [templateStrings] : templateStrings.slice()
-  strings[strings.length - 1] = strings[strings.length - 1].replace(/\r?\n([\t ]*)$/, '')
+  strings[strings.length - 1] = strings.at(-1).replace(/\r?\n([\t ]*)$/, '')
   for (const string of strings) {
     const match = string.match(/\n[\t ]+/g)
     match && matches.push(...match)
@@ -321,7 +321,7 @@ function minifyDOM (domElement) {
     const { whitespaceMinify } = minificationState
     // we have to make a copy of the iterator for traversal, because we cannot
     // iterate through what we'll be modifying at the same time
-    const values = [...currentElement?.childNodes?.values()]
+    const values = [...currentElement?.childNodes?.values() ?? []]
     for (const node of values) {
       if (node.nodeType === COMMENT_NODE) {
       // remove comments node

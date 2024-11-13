@@ -547,7 +547,7 @@ async function minifyDOM (domElement) {
     const { whitespaceMinify } = minificationState
     // we have to make a copy of the iterator for traversal, because we cannot
     // iterate through what we'll be modifying at the same time
-    const values = [...currentElement?.childNodes?.values()]
+    const values = [...currentElement?.childNodes?.values() ?? []]
     for (const node of values) {
       if (node.nodeType === COMMENT_NODE) {
       // remove comments node
@@ -715,7 +715,7 @@ async function readPackageJson () {
 
 // @section 11 versioning utilities
 
-async function getLatestReleasedVersion () {
+async function listReleasedVersions () {
   const changelogContent = await readFile(pathFromProject('CHANGELOG.md'))
   const versions = changelogContent.split('\n')
     .map(line => {
@@ -725,9 +725,13 @@ async function getLatestReleasedVersion () {
       }
       return { version: match[1], releaseDate: match[2] }
     }).filter(version => !!version)
-  const releasedVersions = versions.filter(version => {
+  return versions.filter(version => {
     return version.releaseDate.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)
   })
+}
+
+async function getLatestReleasedVersion () {
+  const releasedVersions = await listReleasedVersions()
   return releasedVersions[0]
 }
 

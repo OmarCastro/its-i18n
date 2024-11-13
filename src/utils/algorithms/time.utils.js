@@ -7,7 +7,6 @@ export function parseISO8601 (text) {
   if (typeof text !== 'string') {
     return NaN
   }
-  /* eslint-disable-next-line sonarjs/regex-complexity -- ISO 8601 Regexp is that complex */
   const iso8601Regex =
     /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
   return !text.match(iso8601Regex) ? NaN : Date.parse(text)

@@ -21,7 +21,7 @@ export const states = Object.freeze({
  * @param {string} char - target string char
  * @returns {number} the Unicode value of the character
  */
-const ch = (char) => char.charCodeAt(0)
+const ch = (char) => char.codePointAt(0) ?? 0
 
 const defaultNextState = (() => {
   const state = /** @type {StateValues[]} */ ([])
@@ -185,7 +185,7 @@ export function getAST (key) {
   const length = key.length
   const { previous: PREVIOUS, previous_ignore: PREVIOUS_IGNORE, normal: NORMAL } = states
   for (let i = 0; i < length; i++) {
-    const ch = key.charCodeAt(i)
+    const ch = key.codePointAt(i) ?? -1
 
     const nextState = currentMachineState[ch] ?? defaultNextState[currentState]
     if (nextState == null || nextState === currentState) continue
@@ -197,16 +197,15 @@ export function getAST (key) {
 
     if (nextState === PREVIOUS_IGNORE) {
       upOneLevel(i - 1)
-      /* eslint-disable-next-line sonarjs/updated-loop-counter -- the idea is
-       to handle the current letter as if it is in another state */
+      /* updated-loop-counter -- the idea is to handle the current letter as if it is in another state */
       i--
       continue
     }
 
     if (currentState === NORMAL) {
       // at this point the next state is always `states.capture`
-      if (key.charCodeAt(i + 1) === ch) {
-        /* eslint-disable-next-line sonarjs/updated-loop-counter -- this loop update is what escapes the "{" */
+      if (key.codePointAt(i + 1) === ch) {
+        /* updated-loop-counter -- this loop update is what escapes the "{" */
         i++
         continue
       }
@@ -242,7 +241,7 @@ export function getAST (key) {
 
   /** @type {(a: TmpToken) => Token} */
   const toToken = ({ start, end, type, childTokens }) => {
-    const substring = key.substring(start, end)
+    const substring = key.slice(start, end)
     const text = type === states.normal ? substring.replaceAll('{{', '{') : substring
 
     return {
