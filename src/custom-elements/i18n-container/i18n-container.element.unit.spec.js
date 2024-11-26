@@ -17,9 +17,13 @@ let defineWebComponent = async () => {
  * @param {Element} element 
  */
 const getPromiseFrom18nApplyEvent = (element) => {
-  const {promise, resolve} = Promise.withResolvers()
-  element.addEventListener('i18n-apply', () => resolve(void 0))
-  return promise
+  let resolve = () => {}
+  /** @type {PromiseLike<void>} */
+  const obj = {
+    then: (newResolve) => { resolve = newResolve },
+  }
+  element.addEventListener('i18n-apply', () => resolve())
+  return obj
 }
 
 test('Given an HTML page with i18n-translation-map links and es lang on body, x-i18n should apply spanish i18n to its chidren correctly', async ({ dom, expect }) => {
