@@ -1,5 +1,5 @@
 import { setStoreFromElement } from '../src/utils/store-map/store-map.js'
-import { i18nTanslationStore } from '../src/utils/store/translation-store.js'
+import { i18nTranslationStore } from '../src/utils/store/translation-store.js'
 import '../src/utils/i18n-importer/implementation.js'
 import { translate } from '../src/js-api/api.js'
 import { ElementLangObserver } from '../src/element-lang-observer/element-lang-observer.util.js'
@@ -12,7 +12,7 @@ import('../src/custom-elements/i18n-container/i18n-container.element').then(({ d
  * @param {Element} exampleContainer -  - example element
  */
 function updateStore (exampleObject, exampleContainer) {
-  const store = i18nTanslationStore()
+  const store = i18nTranslationStore()
   store.loadTranslations({
     location: window.location.href,
     languages: Object.fromEntries(Object.entries(exampleObject).map(([lang, translations]) => [lang, { translations }])),

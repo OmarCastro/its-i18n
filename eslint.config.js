@@ -3,8 +3,10 @@ import js from '@eslint/js'
 import neostandard from 'neostandard'
 import sonarjs from 'eslint-plugin-sonarjs'
 import jsdoc from 'eslint-plugin-jsdoc'
+// eslint-disable-next-line
 import cspellESLintPluginRecommended from '@cspell/eslint-plugin/recommended'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
+import eslintPluginImportX from 'eslint-plugin-import-x'
 
 export default [
   {
@@ -21,6 +23,7 @@ export default [
   js.configs.recommended,
   jsdoc.configs['flat/recommended-typescript-flavor'],
   sonarjs.configs.recommended,
+  eslintPluginImportX.flatConfigs.recommended,
   cspellESLintPluginRecommended,
   {
     plugins: {
@@ -53,6 +56,11 @@ export default [
     rules: {
       '@cspell/spellchecker': ['warn', { cspell: { words: ['untick', 'millis', 'sonarjs', 'quotemeta'] } }]
     }
-
+  },
+  {
+    files: ['smoke-test/**/*.js'],
+    rules: {
+      'import-x/no-unresolved': 0
+    }
   }
 ]
