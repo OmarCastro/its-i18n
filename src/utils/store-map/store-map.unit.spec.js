@@ -1,14 +1,13 @@
 import { test } from '../../../test-utils/unit/test.js'
 import { getStoresInfoFromElement, noStoresFound, setStoreFromElement, unsetStoreOnElement } from './store-map.js'
 import { i18nTranslationStore } from '../store/translation-store.js'
-import assert from 'node:assert';
+import assert from 'node:assert'
 
 const html = String.raw
 /**
  *  Queries from document or fails test if element not found
  * @type {(context: Document | ShadowRoot) => (selector: string) => Element }
  */
-
 
 test('Given a simple document without any store set on any element, getStoresInfoFromElement must return a noMoreStoresFound result', ({ dom, expect }) => {
   // prepare
@@ -84,7 +83,7 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ dom,
   const shadow2level1Div = shadowRootLv2.querySelector('.shadow-level-1')
   const shadow2level2Div = shadowRootLv2.querySelector('.shadow-level-2')
   const shadow2level12Div = shadowRootLv2.querySelector('.shadow-level-1-2')
-  assert(shadow2level1Div != null && shadow2level2Div != null && shadow2level12Div != null )
+  assert(shadow2level1Div != null && shadow2level2Div != null && shadow2level12Div != null)
 
   const shadowRootLv3 = level3Div.attachShadow({ mode: 'closed' })
   shadowRootLv3.innerHTML = level3ClosedShadowDomHtml
@@ -96,7 +95,7 @@ test('Given a document with store set, getStoresInfoFromElement ', async ({ dom,
 
   const subshadow2level2Div = subShadowRoot.querySelector('.shadow-level-2')
 
-  assert(shadow3level3Div != null && subshadow2level2Div != null )
+  assert(shadow3level3Div != null && subshadow2level2Div != null)
 
   const level1Store = i18nTranslationStore()
   level1Store.loadTranslations({

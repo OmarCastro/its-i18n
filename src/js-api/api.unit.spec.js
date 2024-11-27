@@ -2,7 +2,7 @@ import { test } from '../../test-utils/unit/test.js'
 import { translate } from './api.js'
 import { i18nTranslationStore } from '../utils/store/translation-store.js'
 import { unsetStoreOnElement } from '../utils/store-map/store-map.js'
-import assert from 'node:assert';
+import assert from 'node:assert'
 import { provide } from '../utils/i18n-importer/provider.js'
 
 const html = String.raw
@@ -37,19 +37,19 @@ test('Given an HTML page with i18n-locale-map links, i18n should get values from
   })
 
   await step('where locale translations defined on canvas are loaded correctly', async () => {
-    expect(await translate('hello world', {element: canvas})).toEqual('ciao mondo')
+    expect(await translate('hello world', { element: canvas })).toEqual('ciao mondo')
   })
 
   await step('where specific locale translations loaded correctly', async () => {
-    expect(await translate('hello world', {locale: 'pt'})).toEqual('olá mundo')
+    expect(await translate('hello world', { locale: 'pt' })).toEqual('olá mundo')
   })
 
   await step('and return same result if not found correctly', async () => {
-    expect(await translate('not found', {locale: 'pt'})).toEqual('not found')
+    expect(await translate('not found', { locale: 'pt' })).toEqual('not found')
   })
 
   // @ts-ignore
-  delete globalThis.document 
+  delete globalThis.document
   unsetStoreOnElement(document.documentElement)
 })
 
@@ -68,9 +68,8 @@ test('Given an HTML page with i18n-locale-map links, i18n should load store when
       <body>
     `
   provide(i18nImporterImplFromLocation(location.href))
-  expect(await translate('hello world', {locale: 'pt'})).toEqual('olá mundo')
-  expect(await translate('not found', {locale: 'pt'})).toEqual('not found')
-
+  expect(await translate('hello world', { locale: 'pt' })).toEqual('olá mundo')
+  expect(await translate('not found', { locale: 'pt' })).toEqual('not found')
 
   // @ts-ignore
   delete globalThis.document
@@ -83,38 +82,36 @@ test('Given a store, translate() should search only from that store', async ({ d
   provide(i18nImporterImplFromLocation(location))
   const store = i18nTranslationStore()
   store.loadTranslations({
-    location: location+'i18n-definition-map.json',
+    location: location + 'i18n-definition-map.json',
     languages: await filesystemContents['i18n-definition-map.json']
   })
-  expect(await translate('hello world', {locale: 'pt', store})).toEqual('olá mundo')
-  expect(await translate('not found', {locale: 'pt', store})).toEqual('not found')
+  expect(await translate('hello world', { locale: 'pt', store })).toEqual('olá mundo')
+  expect(await translate('not found', { locale: 'pt', store })).toEqual('not found')
 
   // @ts-ignore
   delete globalThis.document
 })
 
 /**
- * 
- * @param {string} locHref 
+ *
+ * @param {string} locHref
  */
 const i18nImporterImplFromLocation = (locHref) => {
   /**
-   * @param {string | URL} url 
-   * @param {string | URL} base 
+   * @param {string | URL} url
+   * @param {string | URL} base
    */
-  function importFile(url, base){
+  function importFile (url, base) {
     const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-    const file = /**@type {filesystem[number]}*/(href.substring(locHref.length))
-    if(filesystem.includes(file)) { 
+    if (!href.startsWith(locHref)) { throw Error(`${href} not found from ${locHref}`) }
+    const file = /** @type {filesystem[number]} */(href.slice(locHref.length))
+    if (filesystem.includes(file)) {
       return filesystemContents[file]
     }
     throw Error(`${href} mapped to ${file} not found`)
   }
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
-
-
 
 const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 /**
@@ -123,7 +120,7 @@ const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 const readJson = async (path) => {
   const { readFile } = await import('node:fs/promises')
   const { join } = await import('node:path')
-  return await readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+  return await readFile(join(fsDir, path), { encoding: 'utf8' }).then(JSON.parse)
 }
 const filesystem = /** @type {const} */([
   'i18n-definition-map.json',

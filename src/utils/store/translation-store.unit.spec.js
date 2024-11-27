@@ -11,7 +11,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
   }
 
   /**
-   * @param {I18nDefinitionMap} languages 
+   * @param {I18nDefinitionMap} languages
    */
   const storeDataWithLangs = (languages) => ({ location: 'http://example.com', languages })
 
@@ -100,7 +100,7 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
         warn: [],
       })
       expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
-    },
+    }
   )
 
   console.warn = originalConsoleWarn
@@ -130,7 +130,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
   }
 
   await step('from "import/i18n.json" should load wihout problems', async () => {
-    const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
+    const impl = i18nImporterImplFromLocation(new URL('.', import.meta.url).href)
     provide(impl)
 
     const base = import.meta.url
@@ -151,7 +151,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
   })
 
   await step('from "import-outer/base/i18n.json" should load wihout problems', async () => {
-    const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
+    const impl = i18nImporterImplFromLocation(new URL('.', import.meta.url).href)
     provide(impl)
 
     const basePathFolder = './import-outer/base'
@@ -177,9 +177,9 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
 })
 
 test('Given a storeData loaded from "import/i18n.json", when getting translationsFromLanguage ', async ({ step, expect }) => {
-    /** @type {{ url: any, base: any }[]} */
+  /** @type {{ url: any, base: any }[]} */
   const importLanguageCalls = []
-  const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
+  const impl = i18nImporterImplFromLocation(new URL('.', import.meta.url).href)
 
   /** @type {typeof impl} */
   const mockImpl = {
@@ -332,27 +332,26 @@ test('Given a completed storeData with specific locales, when getting translatio
 })
 
 /**
- * 
- * @param {string} locHref 
+ *
+ * @param {string} locHref
  * @returns {Implementation}
  */
 const i18nImporterImplFromLocation = (locHref) => {
   /**
-   * @param {string | URL} url 
-   * @param {string | URL} base 
+   * @param {string | URL} url
+   * @param {string | URL} base
    */
-  function importFile(url, base){
+  function importFile (url, base) {
     const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-    const file = /**@type {filesystem[number]}*/(href.substring(locHref.length))
-    if(filesystem.includes(file)) { 
+    if (!href.startsWith(locHref)) { throw Error(`${href} not found from ${locHref}`) }
+    const file = /** @type {filesystem[number]} */(href.slice(locHref.length))
+    if (filesystem.includes(file)) {
       return filesystemContents[file]
     }
     throw Error(`${href} mapped to ${file} not found`)
   }
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
-
 
 const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 /**
@@ -361,7 +360,7 @@ const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 const readJson = async (path) => {
   const { readFile } = await import('node:fs/promises')
   const { join } = await import('node:path')
-  return await readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+  return await readFile(join(fsDir, path), { encoding: 'utf8' }).then(JSON.parse)
 }
 const filesystem = /** @type {const} */([
   'import/i18n.json',

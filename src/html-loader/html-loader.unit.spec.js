@@ -17,9 +17,7 @@ test('an HTML page with i18n-locale-map links, loadI18n should return a store', 
     <body>
   `
 
-
-
-  const impl = i18nImporterImplFromLocation(new URL('.',import.meta.url).href)
+  const impl = i18nImporterImplFromLocation(new URL('.', import.meta.url).href)
   provide(impl)
 
   const store = await loadI18n({ document, location })
@@ -60,7 +58,7 @@ test('an HTML page with i18n-locale-map links, loadI18n should return a store', 
     'where "en-UK" locale translations, while not being loaded and not being valid (it is en-GB), still gets from "en" locale ',
     async () => {
       expect(await store.translationsFromLanguage('en-UK')).toEqual(expectedTranslationsEN)
-    },
+    }
   )
 
   await step('where "pt" locale translations are loaded correctly ', async () => {
@@ -152,7 +150,7 @@ test('an HTML page with i18n-translation-map links, loadI18n should return a sto
         'hello world': 'hello world',
         'I like red color': 'I like red color',
       })
-    },
+    }
   )
 
   await step('where "pt" locale translations are loaded correctly ', async () => {
@@ -184,28 +182,26 @@ test('an HTML page with i18n-translation-map links, loadI18n should return a sto
   })
 })
 
-
 /**
- * 
- * @param {string} locHref 
+ *
+ * @param {string} locHref
  */
 const i18nImporterImplFromLocation = (locHref) => {
   /**
-   * @param {string | URL} url 
-   * @param {string | URL} base 
+   * @param {string | URL} url
+   * @param {string | URL} base
    */
-  function importFile(url, base){
+  function importFile (url, base) {
     const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-    const file = /**@type {filesystem[number]}*/(href.substring(locHref.length))
-    if(filesystem.includes(file)) { 
+    if (!href.startsWith(locHref)) { throw Error(`${href} not found from ${locHref}`) }
+    const file = /** @type {filesystem[number]} */(href.slice(locHref.length))
+    if (filesystem.includes(file)) {
       return filesystemContents[file]
     }
     throw Error(`${href} mapped to ${file} not found`)
   }
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
-
 
 const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 /**
@@ -214,7 +210,7 @@ const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 const readJson = async (path) => {
   const { readFile } = await import('node:fs/promises')
   const { join } = await import('node:path')
-  return await readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+  return await readFile(join(fsDir, path), { encoding: 'utf8' }).then(JSON.parse)
 }
 const filesystem = /** @type {const} */([
   'i18n-definition-map.json',
@@ -225,4 +221,3 @@ const filesystem = /** @type {const} */([
   'languages.pt.json',
 ])
 const filesystemContents = Object.fromEntries(filesystem.map(path => [path, readJson(path)]))
-

@@ -76,7 +76,6 @@ test('ElementLangObserver should trigger another event on node root', async ({ e
     level4DivLang: 'pt',
     level4DivNewLang: 'es',
   })
-
 })
 
 test('ElementLangObserver should trigger multiple observing elements when ancestor lang changed', async ({ expect, dom }) => {
@@ -97,12 +96,10 @@ test('ElementLangObserver should trigger multiple observing elements when ancest
     `
 
   const level3Div = document.querySelector('.level-3')
-  const level4Div = document.querySelector('.level-4')
   const level5Div = document.querySelector('.level-5')
   const level5_2Div = document.querySelector('.level-5-2')
   const triggeredEvents = {
     level3: false,
-    level4: false,
     level5: false,
     level5_2: false,
   }
@@ -121,7 +118,6 @@ test('ElementLangObserver should trigger multiple observing elements when ancest
   // assert
   expect(triggeredEvents).toEqual({
     level3: true,
-    level4: false,
     level5: true,
     level5_2: true,
   })
@@ -230,8 +226,6 @@ test('ElementLangObserver should trigger on shadowDom element when lang changed 
   const shadowLevel2Div = shadowRoot.querySelector('.shadow-level-2')
 
   // act
-
-  
   const shadowLevel2DivLang = getLanguageFromElement(shadowLevel2Div)
   await new Promise((resolve) => {
     new ElementLangObserver(resolve).observe(shadowLevel2Div)

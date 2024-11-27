@@ -2,7 +2,7 @@ import { test } from '../../../test-utils/unit/test.js'
 import { provide } from '../../utils/i18n-importer/provider.js'
 import { loadI18n } from '../../html-loader/html-loader.js'
 import { setStoreFromElement } from '../../utils/store-map/store-map.js'
-import assert from 'node:assert';
+import assert from 'node:assert'
 
 const html = String.raw
 
@@ -14,7 +14,7 @@ let defineWebComponent = async () => {
 }
 
 /**
- * @param {Element} element 
+ * @param {Element} element
  */
 const getPromiseFrom18nApplyEvent = (element) => {
   let resolve = () => {}
@@ -32,7 +32,7 @@ test('Given an HTML page with i18n-translation-map links and es lang on body, x-
   const { document } = dom
   const location = import.meta.url
 
-  provide(i18nImporterImplFromLocation(new URL('.',import.meta.url).href))
+  provide(i18nImporterImplFromLocation(new URL('.', import.meta.url).href))
 
   document.documentElement.innerHTML = html`
     <head>
@@ -67,7 +67,7 @@ test('Given an HTML page with i18n-translation-map links and "pt" lang on body a
   const { document } = dom
   const location = import.meta.url
 
-  provide(i18nImporterImplFromLocation(new URL('.',import.meta.url).href))
+  provide(i18nImporterImplFromLocation(new URL('.', import.meta.url).href))
 
   document.documentElement.innerHTML = html`
     <head>
@@ -105,7 +105,7 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
   const { document } = dom
   const location = import.meta.url
 
-  provide(i18nImporterImplFromLocation(new URL('.',import.meta.url).href))
+  provide(i18nImporterImplFromLocation(new URL('.', import.meta.url).href))
 
   document.documentElement.innerHTML = html`
     <head>
@@ -153,27 +153,25 @@ test('Given an element with conflicting data-i18n-* attributes, x-i18n should ap
 })
 
 /**
- * 
- * @param {string} locHref 
+ *
+ * @param {string} locHref
  */
 const i18nImporterImplFromLocation = (locHref) => {
   /**
-   * @param {string | URL} url 
-   * @param {string | URL} base 
+   * @param {string | URL} url
+   * @param {string | URL} base
    */
-  function importFile(url, base){
+  function importFile (url, base) {
     const href = new URL(url, base).href
-    if(!href.startsWith(locHref)){ throw Error(`${href} not found from ${locHref}`) }
-    const file = /**@type {filesystem[number]}*/(href.substring(locHref.length))
-    if(filesystem.includes(file)) { 
+    if (!href.startsWith(locHref)) { throw Error(`${href} not found from ${locHref}`) }
+    const file = /** @type {filesystem[number]} */(href.slice(locHref.length))
+    if (filesystem.includes(file)) {
       return filesystemContents[file]
     }
     throw Error(`${href} mapped to ${file} not found`)
   }
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
-
-
 
 const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 /**
@@ -182,7 +180,7 @@ const fsDir = new URL(import.meta.url).pathname + '--filesystem'
 const readJson = async (path) => {
   const { readFile } = await import('node:fs/promises')
   const { join } = await import('node:path')
-  return await readFile(join(fsDir, path), {encoding: "utf8"}).then(JSON.parse)
+  return await readFile(join(fsDir, path), { encoding: 'utf8' }).then(JSON.parse)
 }
 const filesystem = /** @type {const} */([
   'i18n-definition-map.json',

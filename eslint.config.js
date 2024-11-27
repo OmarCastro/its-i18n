@@ -11,8 +11,6 @@ import eslintPluginImportX from 'eslint-plugin-import-x'
 export default [
   {
     ignores: [
-      '**/*.spec.js',
-      '**/*.spec.ts',
       '**/*.min.js',
       '**/build',
       '**/node_modules',
@@ -62,5 +60,20 @@ export default [
     rules: {
       'import-x/no-unresolved': 0
     }
-  }
+  }, {
+    files: [
+      '**/*.spec.js',
+      '**/*.spec.ts',
+    ],
+    rules: {
+      'jsdoc/require-param-description': 0,
+      'jsdoc/require-returns': 0,
+      'jsdoc/require-returns-description': 0,
+      '@cspell/spellchecker': 0,
+      'max-lines-per-function': 0,
+      'sonarjs/no-duplicate-string': 0,
+      'sonarjs/no-identical-functions': 0
+    }
+  },
+
 ]
