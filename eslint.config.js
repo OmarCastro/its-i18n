@@ -1,12 +1,9 @@
 import globals from 'globals'
 import js from '@eslint/js'
 import neostandard from 'neostandard'
-import sonarjs from 'eslint-plugin-sonarjs'
 import jsdoc from 'eslint-plugin-jsdoc'
-// eslint-disable-next-line
 import cspellESLintPluginRecommended from '@cspell/eslint-plugin/recommended'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
-import eslintPluginImportX from 'eslint-plugin-import-x'
 
 export default [
   {
@@ -20,8 +17,6 @@ export default [
   ...neostandard(),
   js.configs.recommended,
   jsdoc.configs['flat/recommended-typescript-flavor'],
-  sonarjs.configs.recommended,
-  eslintPluginImportX.flatConfigs.recommended,
   cspellESLintPluginRecommended,
   {
     plugins: {
@@ -44,7 +39,6 @@ export default [
       'unicorn/no-array-push-push': ['warn'],
       'unicorn/prefer-node-protocol': ['error'],
       'unicorn/prefer-array-find': ['error'],
-      'sonarjs/cognitive-complexity': ['error', 10],
       'max-lines-per-function': ['warn', 75],
       '@cspell/spellchecker': 0
     },
@@ -71,8 +65,6 @@ export default [
       'jsdoc/require-returns-description': 0,
       '@cspell/spellchecker': 0,
       'max-lines-per-function': 0,
-      'sonarjs/no-duplicate-string': 0,
-      'sonarjs/no-identical-functions': 0
     }
   },
 

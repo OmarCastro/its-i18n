@@ -719,14 +719,14 @@ async function listReleasedVersions () {
   const changelogContent = await readFile(pathFromProject('CHANGELOG.md'))
   const versions = changelogContent.split('\n')
     .map(line => {
-      const match = line.match(/^## \[([0-9]+\.[[0-9]+\.[[0-9]+)]\s+-\s+([^\s]+)/)
+      const match = line.match(/^## \[(\d+\.\d+\.\d+)]\s+-\s+([^\s]+)/)
       if (!match) {
         return null
       }
       return { version: match[1], releaseDate: match[2] }
     }).filter(version => !!version)
   return versions.filter(version => {
-    return version.releaseDate.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)
+    return version.releaseDate.match(/\d{4}-\d{2}-\d{2}/)
   })
 }
 
