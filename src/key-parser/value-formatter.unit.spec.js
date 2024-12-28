@@ -59,15 +59,17 @@ test('Given a relative formatter, getFormatter result should format the number w
   const frLocale = new Intl.Locale('fr-FR')
   const jpLocale = new Intl.Locale('ja-JP')
 
+  const elapsedYears = new Date().getFullYear() - new Date(0).getFullYear()
+
   expect({
     'en-US': formatter.format([], usLocale, []),
     'en-GB': formatter.format([], gbLocale, []),
     'fr-FR': formatter.format([], frLocale, []),
     'ja-JP': formatter.format([], jpLocale, []),
   }).toEqual({
-    'en-US': 'unix epoch started 55 years ago',
-    'en-GB': 'unix epoch started 55 years ago',
-    'fr-FR': 'unix epoch started il y a 55 ans',
-    'ja-JP': 'unix epoch started 55 年前',
+    'en-US': `unix epoch started ${elapsedYears} years ago`,
+    'en-GB': `unix epoch started ${elapsedYears} years ago`,
+    'fr-FR': `unix epoch started il y a ${elapsedYears} ans`,
+    'ja-JP': `unix epoch started ${elapsedYears} 年前`,
   })
 })
