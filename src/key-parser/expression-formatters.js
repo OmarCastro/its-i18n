@@ -208,7 +208,30 @@ function relativeTimeDurationFormat (locale, d1, d2 = timeNowFrame()) {
   for (const [unit, duration] of durationUnitsEntries) {
     // "Math.abs" accounts for both "past" & "future" scenarios
     if (elapsed > duration) {
-      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsed / duration))
+      switch (unit) {
+        case 'year':
+        case 'month': {
+          const d1Date = new Date(d1)
+          const d1Months = d1Date.getFullYear() * 12 + d1Date.getMonth()
+          const d2Date = new Date(d2)
+          const d2Months = d2Date.getFullYear() * 12 + d2Date.getMonth()
+          const elapsedMonths = Math.abs(d1Months - d2Months)
+          if (elapsedMonths === 0) {
+            break
+          }
+          if (unit === 'year') {
+            const elapsedYears = Math.floor(elapsedMonths / 12)
+            if (elapsedYears === 0) {
+              break
+            }
+            return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsedYears))
+          }
+
+          return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsedMonths))
+        }
+        default:
+          return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsed / duration))
+      }
     }
   }
   return Intl.NumberFormat(locale.baseName, { style: 'unit', unit: 'seconds', unitDisplay: 'long' }).format(0)
