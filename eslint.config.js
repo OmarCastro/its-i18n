@@ -40,6 +40,7 @@ export default [
       'unicorn/prefer-node-protocol': ['error'],
       'unicorn/prefer-array-find': ['error'],
       'max-lines-per-function': ['warn', 75],
+      'jsdoc/valid-types': 0,
       '@cspell/spellchecker': 0
     },
   },
