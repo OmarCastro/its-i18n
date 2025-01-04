@@ -2,8 +2,7 @@
  * @satisfies {{[unit in Intl.RelativeTimeFormatUnit]?:number}}
  * @constant
  */
-const durationUnits = {
-  year: 1000 * 60 * 60 * 24 * 365,
+const durationUnitsInMillis = {
   month: 1000 * 60 * 60 * 24 * 365 / 12,
   day: 1000 * 60 * 60 * 24,
   hour: 1000 * 60 * 60,
@@ -11,18 +10,21 @@ const durationUnits = {
   second: 1000,
 }
 
+export const durationUnits = Object.freeze(/** @type {const} */(['hours', 'minutes', 'seconds', 'milliseconds', 'days', 'months', 'years', 'totalDays']))
+
 /**
  * @param {number} time1 - timestamp 1, in milliseconds since Epoch
  * @param {number} time2 - timestamp 2, in milliseconds since Epoch
+ * @returns {Duration} duration between timestamps
  */
 export function getDurationBetweenTimestamps (time1, time2) {
   const durationInMillis = Math.abs(time1 - time2)
 
-  const totalDays = Math.floor(durationInMillis / durationUnits.day)
-  const hours = Math.floor((durationInMillis % durationUnits.day) / durationUnits.hour)
-  const minutes = Math.floor((durationInMillis % durationUnits.hour) / durationUnits.minute)
-  const seconds = Math.floor((durationInMillis % durationUnits.minute) / durationUnits.second)
-  const milliseconds = durationInMillis % durationUnits.second
+  const totalDays = Math.floor(durationInMillis / durationUnitsInMillis.day)
+  const hours = Math.floor((durationInMillis % durationUnitsInMillis.day) / durationUnitsInMillis.hour)
+  const minutes = Math.floor((durationInMillis % durationUnitsInMillis.hour) / durationUnitsInMillis.minute)
+  const seconds = Math.floor((durationInMillis % durationUnitsInMillis.minute) / durationUnitsInMillis.second)
+  const milliseconds = durationInMillis % durationUnitsInMillis.second
 
   if (totalDays === 0) {
     return { hours, minutes, seconds, milliseconds, totalDays, years: 0, months: 0, days: 0 }
@@ -39,7 +41,7 @@ export function getDurationBetweenTimestamps (time1, time2) {
   const elapsedMonths = (diffMonths < 0 ? 12 - diffMonths : diffMonths) - (diffDays < 0 ? 1 : 0)
   const elapsedYears = diffYears - (diffMonths < 0 ? 1 : 0)
 
-  return { hours, minutes, seconds, totalDays, years: elapsedYears, months: elapsedMonths, days: elapsedDays }
+  return { hours, minutes, seconds, milliseconds, totalDays, years: elapsedYears, months: elapsedMonths, days: elapsedDays }
 }
 
 /**
@@ -50,3 +52,15 @@ export function getDurationBetweenTimestamps (time1, time2) {
 function daysInMonth (month, year) {
   return new Date(year, (month + 1) % 12, 0).getDate()
 }
+
+/**
+ * @typedef {object} Duration
+ * @property {number} hours - elapsed remaining hours
+ * @property {number} minutes - elapsed remaining minutes
+ * @property {number} seconds - elapsed remaining seconds
+ * @property {number} milliseconds - elapsed remaining milliseconds
+ * @property {number} days - elapsed remaining days
+ * @property {number} months - elapsed remaining months
+ * @property {number} years - elapsed years
+ * @property {number} totalDays - elapsed days
+ */
