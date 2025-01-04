@@ -10,8 +10,6 @@ const durationUnitsInMillis = {
   second: 1000,
 }
 
-export const durationUnits = Object.freeze(/** @type {const} */(['hours', 'minutes', 'seconds', 'milliseconds', 'days', 'months', 'years', 'totalDays']))
-
 /**
  * @param {number} time1 - timestamp 1, in milliseconds since Epoch
  * @param {number} time2 - timestamp 2, in milliseconds since Epoch
