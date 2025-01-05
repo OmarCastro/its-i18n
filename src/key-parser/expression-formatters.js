@@ -1,5 +1,6 @@
 import { isNumeric } from '../utils/algorithms/number.utils.js'
 import { parseISO8601, timeNowFrame } from '../utils/algorithms/time.utils.js'
+import { getDurationBetweenTimestamps } from '../utils/algorithms/duration.js'
 
 /** @type {FormatCall} */
 const formatAsIs = (text) => text
@@ -50,7 +51,7 @@ const baseFormatter = {
   },
 }
 
-/** @type {[Intl.RelativeTimeFormatUnit, number][]} */
+/** @satisfies {[Intl.RelativeTimeFormatUnit, number][]} */
 const durationUnitsEntries = [
   ['year', 1000 * 60 * 60 * 24 * 365],
   ['month', 1000 * 60 * 60 * 24 * 365 / 12],
@@ -59,6 +60,8 @@ const durationUnitsEntries = [
   ['minute', 1000 * 60],
   ['second', 1000],
 ]
+
+export const durationUnits = Object.freeze(/** @type {const} */(['years', 'months', 'days', 'hours', 'minutes', 'seconds']))
 
 /** @type {Record<string, Formatter>} */
 const baseRelativeTimeFormatter = {
@@ -182,13 +185,11 @@ const longDateTimeFormatOptions = {
  * @returns {string} formatted relative time
  */
 function relativeTimeFormat (locale, d1, d2 = timeNowFrame()) {
-  const elapsed = d1 - d2
   const formatter = new Intl.RelativeTimeFormat(locale.baseName, { numeric: 'auto' })
-
-  for (const [unit, duration] of durationUnitsEntries) {
-    // "Math.abs" accounts for both "past" & "future" scenarios
-    if (Math.abs(elapsed) > duration) {
-      return formatter.format(Math.floor(elapsed / duration), unit)
+  const duration = getDurationBetweenTimestamps(d1, d2)
+  for (const unit of durationUnits) {
+    if (duration[unit] > 0) {
+      return formatter.format(duration[unit] * Math.sign(d1 - d2), unit)
     }
   }
   return formatter.format(0, 'seconds')
@@ -202,36 +203,10 @@ function relativeTimeFormat (locale, d1, d2 = timeNowFrame()) {
  * @returns {string} formatted relative time
  */
 function relativeTimeDurationFormat (locale, d1, d2 = timeNowFrame()) {
-  // "Math.abs" accounts for both "past" & "future" scenarios
-  const elapsed = Math.abs(d1 - d2)
-
-  for (const [unit, duration] of durationUnitsEntries) {
-    // "Math.abs" accounts for both "past" & "future" scenarios
-    if (elapsed > duration) {
-      switch (unit) {
-        case 'year':
-        case 'month': {
-          const d1Date = new Date(d1)
-          const d1Months = d1Date.getFullYear() * 12 + d1Date.getMonth()
-          const d2Date = new Date(d2)
-          const d2Months = d2Date.getFullYear() * 12 + d2Date.getMonth()
-          const elapsedMonths = Math.abs(d1Months - d2Months)
-          if (elapsedMonths === 0) {
-            break
-          }
-          if (unit === 'year') {
-            const elapsedYears = Math.floor(elapsedMonths / 12)
-            if (elapsedYears === 0) {
-              break
-            }
-            return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsedYears))
-          }
-
-          return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsedMonths))
-        }
-        default:
-          return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(elapsed / duration))
-      }
+  const duration = getDurationBetweenTimestamps(d1, d2)
+  for (const unit of durationUnits) {
+    if (duration[unit] > 0) {
+      return Intl.NumberFormat(locale.baseName, { style: 'unit', unit, unitDisplay: 'long' }).format(duration[unit])
     }
   }
   return Intl.NumberFormat(locale.baseName, { style: 'unit', unit: 'seconds', unitDisplay: 'long' }).format(0)
