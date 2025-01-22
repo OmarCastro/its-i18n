@@ -48,7 +48,7 @@
     "codemirror": "^6.0.1",
     "esbuild": "^0.24.2",
     "eslint": "^9.18.0",
-    "eslint-plugin-jsdoc": "^50.6.1",
+    "eslint-plugin-jsdoc": "^50.6.2",
     "eslint-plugin-sonarjs": "^3.0.1",
     "eslint-plugin-unicorn": "^56.0.1",
     "expect": "^29.7.0",
