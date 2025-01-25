@@ -4,7 +4,7 @@
 [![latest version](https://omarcastro.github.io/its-i18n/reports/repo-release-a11y.svg)](https://github.com/OmarCastro/its-i18n/releases/latest)
 [![License](https://omarcastro.github.io/its-i18n/reports/license-badge-a11y.svg)](https://github.com/OmarCastro/its-i18n/blob/main/LICENSE)
 [![Continuous Integration Test Report](https://omarcastro.github.io/its-i18n/reports/test-results/test-results-badge-a11y.svg)](https://omarcastro.github.io/its-i18n/reports/playwright-report)
-[![Test Coverage Report](https://omarcastro.github.io/its-i18n/reports/coverage/final/coverage-badge-a11y.svg)](https://omarcastro.github.io/its-i18n/reports/coverage/final)
+[![Test Coverage Report](https://omarcastro.github.io/its-i18n/reports/coverage/unit/coverage-badge-a11y.svg)](https://omarcastro.github.io/its-i18n/reports/coverage/unit)
 
 
 A library used to apply i18n on html automatically
