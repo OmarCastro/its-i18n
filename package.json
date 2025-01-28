@@ -40,7 +40,7 @@
   "devDependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-json": "^6.0.1",
-    "@cspell/eslint-plugin": "^8.17.2",
+    "@cspell/eslint-plugin": "^8.17.3",
     "@dagrejs/dagre": "^1.1.4",
     "@playwright/test": "^1.50.0",
     "badge-maker": "^4.1.0",
@@ -48,7 +48,7 @@
     "codemirror": "^6.0.1",
     "esbuild": "^0.24.2",
     "eslint": "^9.19.0",
-    "eslint-plugin-jsdoc": "^50.6.2",
+    "eslint-plugin-jsdoc": "^50.6.3",
     "eslint-plugin-sonarjs": "^3.0.1",
     "eslint-plugin-unicorn": "^56.0.1",
     "expect": "^29.7.0",
@@ -61,7 +61,7 @@
     "neostandard": "^0.12.0",
     "open": "^10.1.0",
     "prismjs": "^1.29.0",
-    "stylelint": "^16.13.2",
+    "stylelint": "^16.14.1",
     "stylelint-config-standard": "^37.0.0",
     "typescript": "^5.7.3"
   }
