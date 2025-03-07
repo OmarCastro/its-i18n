@@ -14,17 +14,17 @@ A library used to apply i18n on html automatically
 
 You can find the full documentation [on the github page](https://omarcastro.github.io/its-i18n/).  
 
-This readme will the basic on how to get started in nodejs
+This readme will the basic on how to get started in nodejs.
 
 ### Getting started
 
-install the module using npm
+Install the module using npm:
 
 ```bash
 npm install its-i18n
 ```
 
-And then use it and register as a webcomponent
+The default import object is a custom element class, register it.
 
 ```javascript
 import element from 'its-i18n'
@@ -34,7 +34,7 @@ customElements.define('i18n-container', element)
 
 ### Examples
 
-You can see the examples [on the github page](https://omarcastro.github.io/its-i18n/#examples) and interact with them
+You can see the examples [on the github page](https://omarcastro.github.io/its-i18n/#examples) and interact with them.
 
 ### Contributing
 
@@ -48,8 +48,8 @@ cd its-i18n
 npm run dev:open
 ```
 
-`npm ci` runs automatically when `npm run dev:open` (or any of the npm scripts) when node_modules is absent on, if you do not wish to open the browser, run `npm run dev` instead
+`npm ci` runs automatically when `npm run dev:open` (or any of the npm scripts) when node_modules is absent. If you do not wish to open the browser, run `npm run dev` instead.
 
 # Playground
 
-You can play with the library by going to the `playground/` folder of by using an [online IDE](https://stackblitz.com/github/OmarCastro/its-i18n/tree/main/playground?file=index.html)
+You can play with the library by going to the `playground/` folder or by using an [online IDE](https://stackblitz.com/github/OmarCastro/its-i18n/tree/main/playground?file=index.html)

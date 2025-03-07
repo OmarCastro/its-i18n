@@ -393,7 +393,7 @@
         <h3> Pluralization & Specificity </h3>
 
         <p ss:markdown>
-            There are use cases when appliyng singular and plural nouns based of the amount used to identify it.
+            There are use cases when applying singular and plural nouns based of the amount used to identify it.
             
             Due to the possibility of template keys, it is easy to apply pluralization, simply add the key match with higher specificity
             that will be chosen in case of conflicting key match
@@ -407,16 +407,16 @@
 
             The key specificity is calculated in the following 2 variables
             1. amount of capture expressions
-            2. specificty of each capture expressions
+            2. specificity of each capture expressions
 
             A capture expressions, is the text between curly brackets ({}), as long as opening bracket is not escaped. So, when comparing 2 i18n keys,
-            the key with less capture expressions will have higher priority, indepenently of the specificty of each one. 
-            When the amount of capture expressions are equal, it will verify the specificty value of each capture expression. Each on has a defined 
+            the key with less capture expressions will have higher priority, independently of the specificity of each one. 
+            When the amount of capture expressions are equal, it will verify the specificity value of each capture expression. Each on has a defined 
             specificity value defined based on the specificity, e.g. `{number}` has a higher value than `{}`
 
             In the unlikely case that both calculated specificity has the same value, the i18n key defined later wins
 
-            The next example show the use of specificity to apply i18n pluraliztion.
+            The next example shows the use of specificity to apply i18n pluralization:
         </p>
 
 
@@ -464,14 +464,14 @@
 
         <p ss:markdown>
             Its-i18n also support time on i18n keys. The match groups that get the time are 3: 
-            - `{unix timestamp}` - macthes date as time since UNIX Epoch in seconds
-            - `{iso 8601}` - matches dates in ISO 8601 format
-            - `{date}` - matches both, checks first for unix timestamp, then for ISO 8601 format
+            - `{unix timestamp}` - macthes date as time since UNIX Epoch in seconds;
+            - `{iso 8601}` - matches dates in ISO 8601 format;
+            - `{date}` - matches both, checks first for unix timestamp, then for ISO 8601 format.
 
             There are time variants by adding "past" and "future" on the prefix the the following examples
-            - `{past unix timestamp}` - macthes date in the past as time since UNIX Epoch in seconds
-            - `{future iso 8601}` - matches dates in the future, in ISO 8601 format
-            - `{present date}` - matches dates in the present, both formats accepted, by default, the present match verifies if the time matches *in seconds*
+            - `{past unix timestamp}` - macthes date in the past as time since UNIX Epoch in seconds;
+            - `{future iso 8601}` - matches dates in the future, in ISO 8601 format;
+            - `{present date}` - matches dates in the present, both formats accepted, by default, the present match verifies if the time matches *in seconds*.
         </p>
 
 
@@ -532,7 +532,7 @@
 
             You can override the formatter by adding the vertical bar after the positional arguments (`{ 1 | formatter to use }`)
             
-            The next example shows how is the relative formatter is used by overriding the capture expression default formater
+            The next example shows how is the relative formatter is used by overriding the capture expression default formater:
         </p>
 
         <div class="example example--relative-time">
@@ -589,7 +589,7 @@
         <h3> Relative Time Duration </h3>
 
         <p ss:markdown>
-            While `relative time` is usefull for most use cases. There are 2 use cases it doesn't solve
+            While `relative time` is usefull for most use cases. There are 2 use cases it doesn't solve:
 
             1. Showing only the duration (e.g. "3 days" instead of "in 3 days")
             2. Show the duration in parts (e.g. "3 days and 3 hours" instead of "3 days")
@@ -665,9 +665,9 @@
 
         <p ss:markdown>
             You can set a relative time to seconds, but showing seconds without updating it regularly does not help, that's where
-            `data-i18n-tick-time` comes from, it updates the i18n content when outdated
+            `data-i18n-tick-time` comes from, it updates the i18n content when outdated.
 
-            The next example shows the relative formatter updating every second
+            The next example shows the relative formatter updating every second:
         </p>
 
 
@@ -730,7 +730,7 @@
             
             For that reason Its-i18n provides a JS API to apply i18n inside canvas.
 
-            The next example shows the usage of the JS api that reacts to canvas language change
+            The next example shows the usage of the JS api that reacts to canvas language change:
         </p>
 
         <div class="example example--canvas">
@@ -815,7 +815,7 @@
         <p ss:markdown>
             By using the JS API, the canvas element do not necessarily need to be inside the component. 
             
-            The next example shows the canvas working without being wrapped in the component
+            The next example shows the canvas working without being wrapped in the component:
         </p>
 
 
@@ -884,6 +884,12 @@
                 </script>
             </div>
         </div>
+        </section>
+
+        <section class="section section--playground" ss:markdown>
+            ## Playground
+
+            You can play with the library by going to the `playground/` folder or by using an [online IDE](https://stackblitz.com/github/OmarCastro/its-i18n/tree/main/playground?file=index.html)
         </section>
     </div>
     </body>
