@@ -104,6 +104,11 @@ document.querySelectorAll('.example').forEach(element => {
       node && node.setAttribute('lang', event.target.textContent)
     }
     if (event.target.matches('.data-i18n-edit')) {
+      const selector = event.target.getAttribute(bindSelectorAttr) || '[data-i18n]'
+      const node = element.querySelector(selector)
+      node && node.setAttribute('data-i18n', event.target.textContent)
+    }
+    if (event.target.matches('.data-i18n-text-edit')) {
       const selector = event.target.getAttribute(bindSelectorAttr) || '[data-i18n-text]'
       const node = element.querySelector(selector)
       node && node.setAttribute('data-i18n-text', event.target.textContent)
