@@ -127,7 +127,11 @@ function serveStaticPageIfExists (req, res, livereload, route) {
   // We don't care about performance for a dev server, so sync functions are fine.
   // If the route exists it's either the exact file we want or the path to a directory
   // in which case we'd serve up the 'index.html' file.
-  if (!existsSync(route)) { return false }
+  if (!existsSync(route)) {
+    const htmlRoute = route + '.html'
+    const htmlFileExists = existsSync(htmlRoute) && statSync(htmlRoute).isFile()
+    return htmlFileExists ? serveStaticPageIfExists(req, res, livereload, route + '.html') : false
+  }
   if (statSync(route).isDirectory()) {
     if (existsSync(path.join(route, 'index.html')) && !url.endsWith('/')) {
       res.setHeader('location', url + '/')
@@ -146,8 +150,15 @@ function serveStaticPageIfExists (req, res, livereload, route) {
       // browsers allow for tons of deviation
       // from *technically correct* HTML.
       file = `${file.toString()}\n\n<script>${CLIENT_WEBSOCKET_CODE}</script>`
-    } else if (route.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript')
+    } else {
+      const extToContentTypeMap = {
+        '.js': 'application/javascript',
+        '.svg': 'image/svg+xml'
+      }
+      const extName = path.extname(route)
+      if (Object.hasOwn(extToContentTypeMap, extName)) {
+        res.setHeader('Content-Type', extToContentTypeMap[extName])
+      }
     }
     res.writeHead(200)
     res.end(file)
