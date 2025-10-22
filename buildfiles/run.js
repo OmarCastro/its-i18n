@@ -406,9 +406,9 @@ async function lintStyles ({ onlyChanged }) {
   const result = await stylelint.lint({ files: finalFilePatterns })
   const filesLinted = result.results.length
   process.stdout.write(`linted ${filesLinted} files. `)
-  const stringFormatter = await stylelint.formatters.string
+  const tapFormatter = await stylelint.formatters.tap
 
-  const output = stringFormatter(result.results)
+  const output = tapFormatter(result.results)
   if (output) {
     console.log('\n' + output)
   } else {
@@ -420,7 +420,7 @@ async function lintStyles ({ onlyChanged }) {
 
 async function validateJson ({ onlyChanged }) {
   return await validateFiles({
-    patterns: ['*.json'],
+    patterns: ['*.json', '**/*.json'],
     onlyChanged,
     validation: async (file) => JSON.parse(await fs.readFile(file, 'utf8')),
   })
@@ -429,7 +429,7 @@ async function validateJson ({ onlyChanged }) {
 async function validateYaml ({ onlyChanged }) {
   const { load } = await import('js-yaml')
   return await validateFiles({
-    patterns: ['*.yml', '*.yaml'],
+    patterns: ['*.yml', '*.yaml', '**/*.yml', '**/*.yaml', '.*/**/*.yml'],
     onlyChanged,
     validation: async (file) => load(await fs.readFile(file, 'utf8')),
   })
@@ -670,8 +670,57 @@ async function listNonIgnoredFiles ({ ignorePath = '.gitignore', patterns } = {}
 
 async function getIgnorePatternsFromFile (filePath) {
   const content = await fs.readFile(filePath, 'utf8')
-  const lines = content.split('\n').filter(line => !line.startsWith('#') && line.trim() !== '')
+  const lines = content.split('\n')
+    .filter(line => !line.startsWith('#') && line.trim() !== '')
+    .map(gitignoreToGlob)
   return [...new Set(lines)]
+}
+
+function gitignoreToGlob (pattern) {
+  // Special case: Empty string
+  if (!pattern) { return pattern }
+
+  // strip off negation to make life easier
+  const negated = pattern.startsWith('!')
+  const patternToTest = negated ? pattern.slice(1) : pattern
+  let result = patternToTest
+  let leadingSlash = false
+
+  // strip off leading slash
+  if (patternToTest[0] === '/') {
+    leadingSlash = true
+    result = patternToTest.slice(1)
+  }
+
+  // For the most part, the first character determines what to do
+  switch (result[0]) {
+    case '*':
+      if (patternToTest[1] !== '*') {
+        result = '**/' + result
+      }
+      break
+
+    default:
+      if ((!leadingSlash && !result.includes('/')) || result.endsWith('/')) {
+        result = '**/' + result
+      }
+
+      // no further changes if the pattern ends with a wildcard
+      if (result.endsWith('*') || result.endsWith('?')) {
+        break
+      }
+
+      // differentiate between filenames and directory names
+      if (!/\.[a-z\d_-]+$/.test(result)) {
+        if (!result.endsWith('/')) {
+          result += '/'
+        }
+
+        result += '**'
+      }
+  }
+
+  return negated ? '!' + result : result
 }
 
 async function listChangedFilesMatching (...patterns) {
