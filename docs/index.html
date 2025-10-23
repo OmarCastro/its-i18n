@@ -6,16 +6,16 @@
         <meta name="keywords" content="i18n webcomponents">
         <meta charset="UTF-8">
         <script type="module" src="doc.js" async></script>
-        <link rel="modulepreload" href="chunk/!(*.lazy.)*.js" as="script" ss:repeat-glob>
-        <link rel="modulepreload" href="chunk/*.lazy.*.js" as="script" fetchpriority="low" ss:repeat-glob>
+        <link rel="modulepreload" href="chunk/!(*.lazy.)*.js" as="script" p-repeat-glob>
+        <link rel="modulepreload" href="chunk/*.lazy.*.js" as="script" fetchpriority="low" p-repeat-glob>
         <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="doc.css" ss:inline>
+        <link rel="stylesheet" href="doc.css" p-inline>
     </head>
     <body>
     <div class="sidebar">
         <div class="toc">
             <p><strong>Documentation</strong></p>
-            <template ss:toc></template>
+            <template p-toc></template>
             <p><strong><a href="contributing">How to contribute</a></strong></p>
         </div>
     </div>
@@ -25,23 +25,23 @@
 
         <section class="section section--badge">
 
-            <a href="https://github.com/OmarCastro/its-i18n/releases/latest" title="View release notes" ss:aria-label>
-                <img src="reports/repo-release-a11y.svg" ss:size ss:badge-attrs="-title"></img>
+            <a href="https://github.com/OmarCastro/its-i18n/releases/latest" title="View release notes" p-aria-label>
+                <img src="reports/repo-release-a11y.svg" p-size p-badge-attrs="-title"></img>
             </a>
-            <a href="https://www.npmjs.com/package/its-a-qrcode" title="View NPM package" ss:aria-label>
-                <img src="reports/npm-version-badge-a11y.svg" ss:size ss:badge-attrs="-title"></img>
+            <a href="https://www.npmjs.com/package/its-a-qrcode" title="View NPM package" p-aria-label>
+                <img src="reports/npm-version-badge-a11y.svg" p-size p-badge-attrs="-title"></img>
             </a>
-            <a href="https://github.com/OmarCastro/its-i18n" title="View code repository" ss:aria-label>
-                <img src="reports/repo-badge-a11y.svg" ss:size ss:badge-attrs="-title"></img>
+            <a href="https://github.com/OmarCastro/its-i18n" title="View code repository" p-aria-label>
+                <img src="reports/repo-badge-a11y.svg" p-size p-badge-attrs="-title"></img>
             </a>
-            <a href="https://github.com/OmarCastro/its-i18n/blob/main/LICENSE" title="View license on repository" ss:aria-label>
-                <img src="reports/license-badge-a11y.svg" ss:size ss:badge-attrs="-title"></img>
+            <a href="https://github.com/OmarCastro/its-i18n/blob/main/LICENSE" title="View license on repository" p-aria-label>
+                <img src="reports/license-badge-a11y.svg" p-size p-badge-attrs="-title"></img>
             </a>
-            <a href="reports/playwright-report" title="Show test results" ss:aria-label>
-                <img src="reports/test-results/test-results-badge-a11y.svg" ss:size ss:badge-attrs="-title"></img>
+            <a href="reports/playwright-report" title="Show test results" p-aria-label>
+                <img src="reports/test-results/test-results-badge-a11y.svg" p-size p-badge-attrs="-title"></img>
             </a>
-            <a href="reports/coverage/unit" title="Show test code coverage information" ss:aria-label>
-                <img src="reports/coverage/unit/coverage-badge-a11y.svg" ss:size ss:badge-attrs="-title"></img>
+            <a href="reports/coverage/unit" title="Show test code coverage information" p-aria-label>
+                <img src="reports/coverage/unit/coverage-badge-a11y.svg" p-size p-badge-attrs="-title"></img>
             </a>
         </section>
 
@@ -87,7 +87,7 @@
 
         </section>
 
-        <section class="section section--getting-started" ss:markdown>
+        <section class="section section--getting-started" p-markdown>
             ## Getting started
             ### CDN
 
@@ -116,7 +116,7 @@
 
         </section>
 
-        <section class="section section--getting-started" ss:markdown>
+        <section class="section section--getting-started" p-markdown>
             ## Features
 
             This component has the following features:
@@ -147,7 +147,7 @@
             Due to template keys. Not only simplifies the translation file, it makes them consistent
 
         </section>
-        <section class="section section--js" ss:markdown>
+        <section class="section section--js" p-markdown>
             ## Javascript API
 
             You can use JS api to work outside elements, or on element with programmatic content (e.g. canvas):
@@ -161,7 +161,7 @@
 
         <h2> Examples </h2>
 
-        <span ss:markdown>
+        <span p-markdown>
             This section will show some examples on how to use its-i18n library
 
             ### How to read the examples
@@ -315,7 +315,7 @@
 
         <h3> Multiple languages </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             The language used is based on the `lang` attribute. It will find the `lang` on the element and it's ancestors until the document root, the <code>&lt;html></code> element.
             If not found it will choose the language defined in the browser using `navigator.language`
         </p>
@@ -392,7 +392,7 @@
 
         <h3> Pluralization & Specificity </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             There are use cases when applying singular and plural nouns based of the amount used to identify it.
             
             Due to the possibility of template keys, it is easy to apply pluralization, simply add the key match with higher specificity
@@ -462,7 +462,7 @@
 
         <h3> Time </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             Its-i18n also support time on i18n keys. The match groups that get the time are 3: 
             - `{unix timestamp}` - macthes date as time since UNIX Epoch in seconds;
             - `{iso 8601}` - matches dates in ISO 8601 format;
@@ -523,7 +523,7 @@
 
         <h3> Relative Time </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             There are use cases that is desirable to show the relative time instead of the formatted time, i18n support relative
             time by specifyying the formatter to use.
 
@@ -588,7 +588,7 @@
 
         <h3> Relative Time Duration </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             While `relative time` is usefull for most use cases. There are 2 use cases it doesn't solve:
 
             1. Showing only the duration (e.g. "3 days" instead of "in 3 days")
@@ -663,7 +663,7 @@
 
         <h3> Tick Time </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             You can set a relative time to seconds, but showing seconds without updating it regularly does not help, that's where
             `data-i18n-tick-time` comes from, it updates the i18n content when outdated.
 
@@ -725,7 +725,7 @@
 
         <h3> Canvas </h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             Its-i18n is meant to be applied for all HTML elements, and canvas is an HTML element, but you need Javascript to paint on the canvas.
             
             For that reason Its-i18n provides a JS API to apply i18n inside canvas.
@@ -812,7 +812,7 @@
 
         <h3> Canvas only</h3>
 
-        <p ss:markdown>
+        <p p-markdown>
             By using the JS API, the canvas element do not necessarily need to be inside the component. 
             
             The next example shows the canvas working without being wrapped in the component:
@@ -886,7 +886,7 @@
         </div>
         </section>
 
-        <section class="section section--playground" ss:markdown>
+        <section class="section section--playground" p-markdown>
             ## Playground
 
             You can play with the library by going to the `playground/` folder or by using an [online IDE](https://stackblitz.com/github/OmarCastro/its-i18n/tree/main/playground?file=index.html)

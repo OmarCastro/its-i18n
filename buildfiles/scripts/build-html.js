@@ -93,19 +93,19 @@ queryAll('script.js-example').forEach(element => {
   element.replaceWith(pre)
 })
 
-queryAll('svg[ss\\:include]').forEach(element => {
-  const ssInclude = element.getAttribute('ss:include')
+queryAll('svg[p-include]').forEach(element => {
+  const ssInclude = element.getAttribute('p-include')
   const svgText = readFileImport(ssInclude)
   element.outerHTML = svgText
 })
 
-queryAll('[ss\\:markdown]:not([ss\\:include])').forEach(element => {
+queryAll('[p-markdown]:not([p-include])').forEach(element => {
   const md = dedent(element.innerHTML)
   element.innerHTML = marked(md, { mangle: false, headerIds: false })
 })
 
-queryAll('[ss\\:markdown][ss\\:include]').forEach(element => {
-  const ssInclude = element.getAttribute('ss:include')
+queryAll('[p-markdown][p-include]').forEach(element => {
+  const ssInclude = element.getAttribute('p-include')
   const md = readFileImport(ssInclude)
   element.innerHTML = marked(md, { mangle: false, headerIds: false })
 })
@@ -114,20 +114,20 @@ queryAll('code').forEach(element => {
   Prism.highlightElement(element, false)
 })
 
-queryAll('img[ss\\:size]').forEach(element => {
+queryAll('img[p-size]').forEach(element => {
   const imageSrc = element.getAttribute('src')
   const size = imageSizeFromFile(`${docsOutputPath}/${imageSrc}`)
-  element.removeAttribute('ss:size')
+  element.removeAttribute('p-size')
   element.setAttribute('width', `${size.width}`)
   element.setAttribute('height', `${size.height}`)
 })
 
-promises.push(...queryAll('img[ss\\:badge-attrs]').map(async (element) => {
+promises.push(...queryAll('img[p-badge-attrs]').map(async (element) => {
   const imageSrc = element.getAttribute('src')
   const svgText = await readFile(`${docsOutputPath}/${imageSrc}`, 'utf8')
   const div = document.createElement('div')
   div.innerHTML = svgText
-  element.removeAttribute('ss:badge-attrs')
+  element.removeAttribute('p-badge-attrs')
   const svg = div.querySelector('svg')
   if (!svg) { throw Error(`${docsOutputPath}/${imageSrc} is not a valid svg`) }
 
@@ -138,13 +138,13 @@ promises.push(...queryAll('img[ss\\:badge-attrs]').map(async (element) => {
   if (title) { element.setAttribute('title', title) }
 }))
 
-queryAll('link[href][rel="stylesheet"][ss\\:inline]').forEach(element => {
+queryAll('link[href][rel="stylesheet"][p-inline]').forEach(element => {
   const href = element.getAttribute('href')
   const cssText = fs.readFileSync(`${docsOutputPath}/${href}`, 'utf8')
   element.outerHTML = `<style>${cssText}</style>`
 })
 
-promises.push(...queryAll('link[href][ss\\:repeat-glob]').map(async (element) => {
+promises.push(...queryAll('link[href][p-repeat-glob]').map(async (element) => {
   const href = element.getAttribute('href')
   if (!href) { return }
   for await (const filename of getFiles(docsOutputPath)) {
@@ -154,7 +154,7 @@ promises.push(...queryAll('link[href][ss\\:repeat-glob]').map(async (element) =>
     for (const { name, value } of element.attributes) {
       link.setAttribute(name, value)
     }
-    link.removeAttribute('ss:repeat-glob')
+    link.removeAttribute('p-repeat-glob')
     link.setAttribute('href', relativePath)
     element.after(link)
   }
@@ -197,7 +197,7 @@ const tocUtils = {
 
 await Promise.all(promises)
 
-queryAll('[ss\\:toc]').forEach(element => {
+queryAll('[p-toc]').forEach(element => {
   const ol = document.createElement('ol')
   /** @type {[HTMLElement, HTMLElement][]} */
   const path = []
@@ -210,6 +210,10 @@ queryAll('[ss\\:toc]').forEach(element => {
   }
   element.replaceWith(ol)
 })
+
+queryAll('*').forEach(element => [...element.attributes]
+  .flatMap(attr => attr.name.startsWith('p-') ? [attr.name] : [])
+  .forEach(name => element.removeAttribute(name)))
 
 const minifiedHtml = '<!doctype html>' + minifyDOM(document.documentElement).outerHTML
 
