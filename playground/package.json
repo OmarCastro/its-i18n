@@ -2,7 +2,7 @@
   "description": "its-i18n playground",
   "type": "module",
   "scripts": {
-    "dev": "http-server"
+    "dev": "http-server -o /"
   },
   "repository": {
     "type": "git",
