@@ -8,7 +8,7 @@ import { ElementLangObserver } from '../src/element-lang-observer/element-lang-o
 import('../src/custom-elements/i18n-container/i18n-container.element').then(({ default: I18nElement }) => customElements.define('i18n-container', I18nElement))
 
 /**
- * @param {Record<string, any>} exampleObject  - example object data
+ * @param {Record<string, unknown>} exampleObject  - example object data
  * @param {Element} exampleContainer -  - example element
  */
 function updateStore (exampleObject, exampleContainer) {
@@ -26,7 +26,7 @@ function updateStore (exampleObject, exampleContainer) {
 }
 
 /**
- * @param {Record<string, any>} exampleObject - example object data
+ * @param {Record<string, unknown>} exampleObject - example object data
  * @param {Element} codeView - element container
  * @returns {Promise<EditorView>} codemirror EditorView object
  */
@@ -57,7 +57,7 @@ async function transformCodeViewToEditor (exampleObject, codeView) {
 }
 
 /**
- * @param {Record<string, any>} exampleObject - example object data
+ * @param {Record<string, unknown>} exampleObject - example object data
  * @param {Element} editorElement - editor element
  */
 async function applyExample (exampleObject, editorElement) {
