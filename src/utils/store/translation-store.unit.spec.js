@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { i18nTranslationStore } from './translation-store.js'
 import { provide } from '../i18n-importer/provider.js'
 /** @import {TestAPICall} from '../../../test-utils/unit/test.js' */

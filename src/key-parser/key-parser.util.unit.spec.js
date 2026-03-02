@@ -1,4 +1,4 @@
-import { test } from '../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { parseKey } from './key-parser.util.js'
 
 test('Given a simple string, parseKey should return a result with max priority', ({ expect }) => {

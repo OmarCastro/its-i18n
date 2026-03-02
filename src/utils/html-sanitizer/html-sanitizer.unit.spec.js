@@ -1,5 +1,4 @@
-// @ts-check
-import { test } from '../../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { sanitizeI18nHtml } from './html-sanitizer.js'
 
 test('Given a clean, sanitized html, sanitizeI18nHtml should return the same content', ({ expect }) => {

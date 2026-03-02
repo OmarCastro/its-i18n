@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { isInteger, isNumeric } from './number.utils.js'
 
 /** @type {*} */

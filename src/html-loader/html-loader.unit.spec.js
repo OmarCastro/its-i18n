@@ -1,4 +1,4 @@
-import { test } from '../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { loadI18n } from './html-loader.js'
 import { provide } from '../utils/i18n-importer/provider.js'
 

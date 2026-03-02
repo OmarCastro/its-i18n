@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { builder } from './i18n-merger.util.js'
 
 test('Given a single map, merge return a normalized definition', ({ expect }) => {

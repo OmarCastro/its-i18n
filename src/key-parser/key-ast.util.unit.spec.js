@@ -1,4 +1,4 @@
-import { test } from '../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { getAST, states } from './key-ast.util.js'
 
 test('Given a simple string, getAST should return an AST with one token', ({ expect }) => {

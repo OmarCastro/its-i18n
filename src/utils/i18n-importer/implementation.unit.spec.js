@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { importDefinitionMap, importTranslations } from './implementation.js'
 
 test('Given `fetch` returns a valid, normalized json, `importDefinitionMap` should return the same json', async ({ expect }) => {

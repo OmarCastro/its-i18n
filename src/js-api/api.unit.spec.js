@@ -1,4 +1,4 @@
-import { test } from '../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { translate } from './api.js'
 import { i18nTranslationStore } from '../utils/store/translation-store.js'
 import { unsetStoreOnElement } from '../utils/store-map/store-map.js'

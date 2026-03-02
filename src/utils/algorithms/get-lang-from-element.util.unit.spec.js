@@ -1,5 +1,5 @@
+import { test } from '#unit-test'
 import { getLanguageFromElement } from './get-lang-from-element.util.js'
-import { test } from '../../../test-utils/unit/test.js'
 
 const html = String.raw
 

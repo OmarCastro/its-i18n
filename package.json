@@ -27,6 +27,9 @@
     "dev-server:open": "node ./buildfiles/run.js dev-server:open",
     "help": "node ./buildfiles/run.js help"
   },
+  "imports": {
+    "#unit-test": "./test-utils/unit/test.util.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/OmarCastro/its-i18n.git"

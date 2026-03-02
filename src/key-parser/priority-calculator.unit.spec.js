@@ -1,4 +1,4 @@
-import { test } from '../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { getAST } from './key-ast.util.js'
 import { calculatePriority, getNumericValuePriority } from './priority-calculator.js'
 

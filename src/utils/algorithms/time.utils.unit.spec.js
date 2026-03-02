@@ -1,4 +1,4 @@
-import { test } from '../../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { parseISO8601 } from './time.utils.js'
 
 test('isNumeric unit tests...', ({ expect }) => {

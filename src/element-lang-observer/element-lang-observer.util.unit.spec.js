@@ -1,5 +1,5 @@
  
-import { test } from '../../test-utils/unit/test.js'
+import { test } from '#unit-test'
 import { getLanguageFromElement } from '../utils/algorithms/get-lang-from-element.util.js'
 import { domRootLangDispatchListener, ElementLangObserver } from './element-lang-observer.util.js'
 

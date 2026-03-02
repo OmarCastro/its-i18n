@@ -29,10 +29,12 @@ if ('Deno' in globalThis || globalThis.window == null) {
   globalThis.Document = windowObj.Document
   globalThis.window = windowObj
   globalThis.DOMParser = windowObj.DOMParser
+  globalThis.Path2D = windowObj.Path2D
   globalThis.requestAnimationFrame = windowObj.requestAnimationFrame
   globalThis.cancelAnimationFrame = windowObj.cancelAnimationFrame
   globalThis.requestIdleCallback = windowObj.requestIdleCallback
   globalThis.cancelIdleCallback = windowObj.cancelIdleCallback
+  globalThis.document = windowObj.document
   domResetFunction = () => {
     const { documentElement } = windowObj.document
     documentElement.innerHTML = '<head></head><body></body>'
