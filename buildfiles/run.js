@@ -261,40 +261,39 @@ async function execBuild () {
 }
 
 async function execLintCodeOnChanged () {
-  logStartStage('linc', 'lint using eslint')
-  const returnCodeLint = await lintCode({ onlyChanged: true }, { fix: true })
-  logStage('lint using stylelint')
-  const returnStyleLint = await lintStyles({ onlyChanged: true })
-  logStage('validating json')
-  const returnJsonLint = await validateJson({ onlyChanged: true })
-  logStage('validating yaml')
-  const returnYamlLint = await validateYaml({ onlyChanged: true })
-  let returnCodeTs = 0
-  logStage('typecheck with typescript')
+  logStartStage('linc', 'fetching changed files')
   const changedFiles = await listChangedFiles()
-  if ([...changedFiles].some(changedFile => changedFile.startsWith('src/'))) {
-    returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
-  } else {
-    process.stdout.write('no files to check...')
-  }
+  logStage('lint using eslint')
+  const returnCodeLint = await lintCode({ onlyChanged: true, changedFiles }, { fix: true })
+  logStage('spell check')
+  const returnCheckSpelling = await checkSpelling({ onlyChanged: true, changedFiles })
+  logStage('lint using stylelint')
+  const returnStyleLint = await lintStyles({ onlyChanged: true, changedFiles })
+  logStage('validating json')
+  const returnJsonLint = await validateJson({ onlyChanged: true, changedFiles })
+  logStage('validating yaml')
+  const returnYamlLint = await validateYaml({ onlyChanged: true, changedFiles })
+  logStage('typecheck')
+  const returnTypecheck = await typecheckSrc({ onlyChanged: true, changedFiles })
   logEndStage()
-  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
+  return returnCodeLint + returnCheckSpelling + returnTypecheck + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
 async function execLintCode () {
   logStartStage('lint', 'lint using eslint')
   const returnCodeLint = await lintCode({ onlyChanged: false }, { fix: true })
+    logStage('spell check')
+  const returnCheckSpelling = await checkSpelling({ onlyChanged: false })
   logStage('lint using stylelint')
   const returnStyleLint = await lintStyles({ onlyChanged: false })
   logStage('validating json')
   const returnJsonLint = await validateJson({ onlyChanged: false })
   logStage('validating yaml')
   const returnYamlLint = await validateYaml({ onlyChanged: false })
-  logStage('typecheck with typescript')
-  console.log('')
-  const returnCodeTs = await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
-  process.stdout.write('[lint] typecheck with typescript '); logEndStage()
-  return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
+  logStage('typecheck')
+  const returnTypecheck = await typecheckSrc({ onlyChanged: false })
+  logEndStage()
+  return returnCodeLint + returnCheckSpelling + returnTypecheck + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
 async function preCommitCheck () {
@@ -436,16 +435,21 @@ function wait (ms) {
 
 // @section 6 linters
 
-async function lintCode ({ onlyChanged }, options) {
-  const esLintFilePatterns = ['**/*.js']
-
-  const finalFilePatterns = onlyChanged ? await listChangedFilesMatching(...esLintFilePatterns) : esLintFilePatterns
+async function lintCode ({ onlyChanged, changedFiles }, options = {}) {
+  const finalFilePatterns = await listFileByLinterParams({patterns: ['**/*.js'], onlyChanged, changedFiles})
   if (finalFilePatterns.length <= 0) {
     process.stdout.write('no files to lint. ')
     return 0
   }
+  const config = (await import('./configs/eslint.config.js')).default
+
   const { ESLint } = await import('eslint')
-  const eslint = new ESLint(options)
+  const eslint = new ESLint({
+    baseConfig: config,
+    cache: true,
+    cacheLocation: pathFromProject('.tmp/eslintcache'),
+    ...options
+  })
   const formatter = await eslint.loadFormatter()
   const results = await eslint.lintFiles(finalFilePatterns)
 
@@ -468,20 +472,60 @@ async function lintCode ({ onlyChanged }, options) {
   return errorCount ? 1 : 0
 }
 
-async function lintStyles ({ onlyChanged }) {
-  const styleLintFilePatterns = ['**/*.css']
-  const finalFilePatterns = onlyChanged ? await listChangedFilesMatching(...styleLintFilePatterns) : styleLintFilePatterns
-  if (finalFilePatterns.length <= 0) {
+async function checkSpelling ({ onlyChanged, changedFiles }) {
+  const { load } = await import('js-yaml')
+
+  const configPath = pathFromProject('./buildfiles/configs/cspell.yaml')
+  const config = load(await readFile(configPath))
+  const ignorePaths = config.ignorePaths ?? []
+  const fileList = await listFileByLinterParams({patterns: ['*'], ignorePatterns: ignorePaths, onlyChanged, changedFiles})
+
+  if (fileList.length <= 0) {
+    process.stdout.write('no files to spell check. ')
+    return 0
+  }
+
+  const { lint, getDefaultReporter } = await import('cspell')
+  const options = {
+    cache: false,
+    color: false,
+    showPerfSummary: true,
+    issues: true,
+  }
+
+  const reporter = getDefaultReporter(options)
+
+  const results = await lint(fileList, {
+    config: pathFromProject('./buildfiles/configs/cspell.yaml'),
+    cache: true,
+    cacheLocation: '.tmp/cspellcache',
+  }, reporter)
+
+  const filesLinted = results.files
+  process.stdout.write(`checked ${filesLinted} files. `)
+
+  const errorCount = results.errors
+
+  if (errorCount <= 0) {
+    process.stdout.write('OK...')
+  }
+  return errorCount ? 1 : 0
+}
+
+
+async function lintStyles ({ onlyChanged, changedFiles }) {
+  const fileList = await listFileByLinterParams({patterns: ['**/*.css'], onlyChanged, changedFiles})
+  if (fileList.length <= 0) {
     process.stdout.write('no stylesheets to lint. ')
     return 0
   }
   const { default: stylelint } = await import('stylelint')
-  const result = await stylelint.lint({ files: finalFilePatterns })
+  const result = await stylelint.lint({ files: fileList, configFile: 'buildfiles/configs/.stylelintrc.yaml', ignorePath: '.gitignore' })
   const filesLinted = result.results.length
   process.stdout.write(`linted ${filesLinted} files. `)
-  const tapFormatter = await stylelint.formatters.tap
+  const stringFormatter = await stylelint.formatters.tap
 
-  const output = tapFormatter(result.results)
+  const output = stringFormatter(result.results)
   if (output) {
     console.log('\n' + output)
   } else {
@@ -508,8 +552,19 @@ async function validateYaml ({ onlyChanged }) {
   })
 }
 
-async function validateFiles ({ patterns, onlyChanged, validation }) {
-  const fileList = onlyChanged ? await listChangedFilesMatching(...patterns) : await listNonIgnoredFiles({ patterns })
+async function typecheckSrc ({ onlyChanged, changedFiles }) {
+  if (onlyChanged) {
+    const changedInSrc = [...changedFiles].some(changedFile => changedFile.startsWith('src/'))
+    if (!changedInSrc) {
+      process.stdout.write('no files to check...')
+      return 0
+    }
+  }
+  return await cmdSpawn('npx tsc --noEmit -p jsconfig.json')
+}
+
+async function validateFiles ({ patterns, onlyChanged, changedFiles, validation }) {
+  const fileList = await listFileByLinterParams({patterns, onlyChanged, changedFiles})
   if (fileList.length <= 0) {
     process.stdout.write('no files to lint. ')
     return 0
@@ -796,11 +851,28 @@ function gitignoreToGlob (pattern) {
   return negated ? '!' + result : result
 }
 
-async function listChangedFilesMatching (...patterns) {
+async function listChangedFilesMatching (patterns, ignorePatterns) {
+  return filterFilePathsByPatterns(await listChangedFiles(), patterns, ignorePatterns)
+}
+
+async function listFileByLinterParams ({patterns, onlyChanged, changedFiles, ignorePatterns }) {
+  if(onlyChanged && changedFiles) { return await filterFilePathsByPatterns(changedFiles, patterns, ignorePatterns) }
+  if(onlyChanged) { return await listChangedFilesMatching(patterns, ignorePatterns) }
+  return await listNonIgnoredFiles({ patterns, ignorePatterns })
+}
+
+async function filterFilePathsByPatterns (filePaths, patterns = [], ignorePatterns = []) {
+  const paths = Array.isArray(filePaths) ? filePaths : Array.from(filePaths)
+  const hasPatterns = patterns.length > 0
+  const hasIgnorePatterns = ignorePatterns.length > 0
+  if(!hasPatterns && !hasIgnorePatterns){ return paths }
   const { minimatch } = await import('minimatch')
-  const changedFiles = [...(await listChangedFiles())]
-  const intersection = patterns.flatMap(pattern => minimatch.match(changedFiles, pattern, { matchBase: true }))
-  return [...new Set(intersection)]
+  const matchers = patterns.map(pattern => minimatch.filter(pattern, { matchBase: true, dot: true }))
+  const matchedPaths = hasPatterns ? paths.filter(path => matchers.some(match => match(path))) : paths
+  if(!hasIgnorePatterns) { return matchedPaths }
+  const ignoreMatchers = ignorePatterns.map(pattern => minimatch.filter(pattern, { matchBase: true, dot: true }))
+  const filteredPaths = matchedPaths.filter(path => ignoreMatchers.every(match => !match(path)))
+  return filteredPaths
 }
 
 async function listChangedFiles () {

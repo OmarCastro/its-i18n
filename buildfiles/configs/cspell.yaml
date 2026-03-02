@@ -1,0 +1,34 @@
+
+language: en
+ignorePaths: 
+  - "**/*.spec.js"
+  - "**/buildfiles/**"
+  - "**/docs/doc.js"
+  - "**/docs/*.css"
+  - "**/dropdown-i18n.js"
+  - "**/package.json"
+  - "**/.gitignore"
+  - "**/*.pt.json"
+  - "**/*.en.json"
+  - "**/*.es.json"
+  - "**/*.it.json"
+  - "**/i18n/*.json"
+  - "**/docs" # it's i18n, there will be too many translated languages
+  - "**/playground" # it's i18n, there will be too many translated languages
+  - "**/smoke-test" # it's i18n, there will be too many translated languages
+words:
+  - hrefs # hyperlinks
+  - buildfiles # buildfiles location
+  - linc # lint changed files only
+  - millis # short of milliseconds
+  - ibute #used in i18n-container.element.js as to allow "attribute" as well as its shorthand "attr", which "ibute" is the remaining words to fill the long hand
+  - quotemeta # escapes regexp
+
+dictionaries:
+  - "softwareTerms"
+  - "misc"
+  - "en-gb"
+  - "css"
+  - "html"
+  - "js"
+  - "lorem-ipsum"
