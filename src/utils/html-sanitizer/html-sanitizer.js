@@ -1,4 +1,3 @@
-/* eslint @cspell/spellchecker: ['warn', {cspell: {dictionaries: ['html']}}] */
 /**
  *   A stricter sanitizer that allows only text related tags and attributes as to allow any sort of content formatting,
  * makes no sense to use pictures or forms as html content in i18n, you translate mostly text, so you use data-i18n on the

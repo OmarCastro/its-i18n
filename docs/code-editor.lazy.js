@@ -83,7 +83,6 @@ export const theme = EditorView.theme({
   },
 }, { dark: true })
 
-/* eslint @stylistic/no-multi-spaces: 0 */  // --> OFF
 // Use a class highlight style, so we can handle things in CSS.
 
 export const highlightStyle = HighlightStyle.define([
@@ -109,7 +108,7 @@ const baseExtensions = [
   json(),
   syntaxHighlighting(highlightStyle),
   theme,
-  EditorView.contentAttributes.of((e) => ({
+  EditorView.contentAttributes.of(() => ({
     'aria-label': 'code example',
   })),
 ]

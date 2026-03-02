@@ -1,4 +1,3 @@
-/* eslint @cspell/spellchecker: ['warn', {cspell: {words: ['Bagmati'] }}] */
 /** @import {IncomingMessage, ServerResponse} from 'node:http' */
 import https from 'node:https'
 import { readFileSync, statSync, existsSync } from 'node:fs'

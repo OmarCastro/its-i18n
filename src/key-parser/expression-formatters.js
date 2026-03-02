@@ -109,7 +109,7 @@ const baseDurationInUnitRelativeTimeFormatter = Object.fromEntries(
 
 /** @type {Record<string, Formatter>} */
 const baseToUnitRelativeTimeFormatter = Object.fromEntries(
-  durationUnitsEntries.map(([unit, duration]) => {
+  durationUnitsEntries.map(([unit]) => {
     return [`to ${unit}s`, {
       format: (text, locale) => {
         const date = isNumeric(text) ? new Date((+text) * 1000) : parseISO8601(text)

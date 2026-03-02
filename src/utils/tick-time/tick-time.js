@@ -1,5 +1,5 @@
-import { IterableWeakSet } from '../algorithms/iterable-weak-struct'
-import { timeNowFrame } from '../algorithms/time.utils'
+import { IterableWeakSet } from '../algorithms/iterable-weak-struct.js'
+import { timeNowFrame } from '../algorithms/time.utils.js'
 
 /**
  * A margin that improves the reliability of the next time value to change

@@ -1,5 +1,4 @@
-/* eslint-disable max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
-/* eslint @cspell/spellchecker: ['warn', {cspell: {words: ['contenteditable', 'Dirents'] }}] */
+/* eslint-disable jsdoc/require-param-description */
 
 import Prism from 'prismjs'
 import { minimatch } from 'minimatch'

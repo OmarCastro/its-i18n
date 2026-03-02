@@ -20,6 +20,7 @@ function getFallbackLanguage (element) {
  * @returns {string} corrected language
  */
 function handleInvalidLanguage (element, invalidLanguage) {
+  console.warn(`invalid language ${JSON.stringify(invalidLanguage)} found, ignoring it`)
   if (element === element.ownerDocument.documentElement) {
     return getFallbackLanguage(element)
   } else if (element.parentNode instanceof ShadowRoot) {

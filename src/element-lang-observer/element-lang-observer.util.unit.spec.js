@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+ 
 import { test } from '../../test-utils/unit/test.js'
 import { getLanguageFromElement } from '../utils/algorithms/get-lang-from-element.util.js'
 import { domRootLangDispatchListener, ElementLangObserver } from './element-lang-observer.util.js'
