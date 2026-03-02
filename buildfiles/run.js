@@ -1,5 +1,5 @@
 #!/usr/bin/env -S node --input-type=module
-/* eslint-disable camelcase, max-lines-per-function, jsdoc/require-jsdoc, jsdoc/require-param-description */
+/* eslint-disable jsdoc/require-param-description */
 /* eslint @cspell/spellchecker: ['warn', {cspell: {words: ['minifiers', 'linc', 'metafile', 'buildfiles', 'graphlib','dagre','dagrejs','anafanafo', 'xlink', 'ACMRTUB', 'rankdir', 'edgesep', 'ranksep'] }}] */
 /*
 This file is purposely large to easily move the code to multiple projects, its build code, not production.
@@ -17,7 +17,9 @@ To help navigate this file is divided by sections:
 @section 11 versioning utilities
 @section 12 badge utilities
 @section 13 module graph utilities
-@section 14 build tools plugins
+@section 14 docker utilities
+@section 15 git utilities
+@section 16 build tools plugins
 */
 import process from 'node:process'
 import fs, { readFile as fsReadFile, writeFile } from 'node:fs/promises'
@@ -29,6 +31,15 @@ import { exec as baseExec, execFile as baseExecFile, spawn } from 'node:child_pr
 const exec = promisify(baseExec)
 const execFile = promisify(baseExecFile)
 const readFile = (path) => fsReadFile(path, { encoding: 'utf8' })
+const exit = (exitCode) => {
+  if (typeof exitCode === 'number') {
+    process.exitCode = exitCode
+  }
+  setTimeout(() => {
+    console.error('Force exit after timeout')
+    process.exit()
+  }, 10_000).unref()
+}
 
 // @section 1 init
 
@@ -83,6 +94,14 @@ const tasks = {
     description: 'launch dev server and opens in browser',
     cb: async () => { await openDevServer({ openBrowser: true }); await wait(2 ** 30) },
   },
+  'pre-commit-check': {
+    description: 'executes pre-commit validation, validates the project with the staged changes only',
+    cb: () => preCommitCheck().then(exit),
+  },
+  'commit-msg-check': {
+    description: 'executes commit message validation',
+    cb: () => commitMsgCheck().then(exit),
+  },
   help: helpTask,
   '--help': helpTask,
   '-h': helpTask,
@@ -91,19 +110,23 @@ const tasks = {
 async function main () {
   if (args.length <= 0) {
     console.log(helpText())
-    return process.exit(0)
+    return exit(0)
   }
 
   const taskName = args[0]
 
   if (!Object.hasOwn(tasks, taskName)) {
     console.error(`unknown task ${taskName}\n\n${helpText()}`)
-    return process.exit(1)
+    return exit(1)
+  }
+
+  const isInsideDocker = await isInsideDockerContainer()
+  if (!isInsideDocker) {
+    await checkGitHooks()
   }
 
   await checkNodeModulesFolder()
   await tasks[taskName].cb()
-  return process.exit(0)
 }
 
 await main()
@@ -274,9 +297,59 @@ async function execLintCode () {
   return returnCodeLint + returnCodeTs + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
+async function preCommitCheck () {
+  logStartStage('precommit', 'lint and test')
+
+  const result = await executeOnStagedOnly(async () => {
+    // const testTask = quickRunUnitTests()
+    const codeLint = execLintCodeOnChanged()
+    const testVersionAlign = alignTestFrameworkVersion()
+    const exitCodes = await Promise.all([/* testTask,  */codeLint, testVersionAlign])
+    const exitCode = exitCodes.reduce((a, b) => a + b)
+    return exitCode
+  })
+  logEndStage()
+  return result
+}
+
+async function commitMsgCheck () {
+  console.log('[commitmsg] validating commit message')
+  const args = process.argv.slice(3)
+  const commitFile = args[0]
+  const commitMessage = readFileSync(commitFile)
+  const regex = /(((build|chore|ci|docs|feat|fix|perf|ops|refactor|revert|style|test|review|rebase|release)(\(.*\))?!?:)) (.|\s|\r|\n)+/
+  let result = 0
+  if (!regex.test(commitMessage)) {
+    console.error('[commitmsg] ERROR: Commit message is not following the Conventional Commit standard. expected one of the follwing prefixes: ' +
+      'build, chore, ci,docs, feat, fix, perf, ops, refactor, revert, style, test, review, rebase, release')
+    result = 1
+  }
+  return result
+}
+
 async function execGithubBuildWorkflow () {
   await execTests()
   await execBuild()
+}
+
+async function alignTestFrameworkVersion () {
+  const playwrightVersion = await getPlayWrightVersion()
+  const files = await listNonIgnoredFiles({ patterns: ['.github/workflows/*.yaml'] })
+  const regexp = /(?<=mcr\.microsoft\.com\/playwright:v)(?<version>[.0-9]+)/g
+  const result = await Array.fromAsync(files.map(async file => {
+    const data = await readFile(file)
+    const updatedData = data.replaceAll(regexp, playwrightVersion)
+    if (updatedData !== data) {
+      await writeFile(file, updatedData)
+      return file
+    }
+    return ''
+  }))
+  const updatedFiles = result.filter(Boolean)
+  if (updatedFiles.length) {
+    console.log('updated playwright version on files: %s', updatedFiles)
+  }
+  return 0
 }
 
 // @section 4 utils
@@ -761,6 +834,14 @@ async function readPackageJson () {
   return await readFile(pathFromProject('package.json')).then(str => JSON.parse(str))
 }
 
+function getPackageJson () {
+  const { cache } = getPackageJson
+  if (cache) { return cache }
+  getPackageJson.cache = JSON.parse(readFileSync(pathFromProject('package.json')))
+  setTimeout(() => { getPackageJson.cache = undefined }, 1000).unref()
+  return getPackageJson.cache
+}
+
 // @section 11 versioning utilities
 
 async function listReleasedVersions () {
@@ -781,6 +862,10 @@ async function listReleasedVersions () {
 async function getLatestReleasedVersion () {
   const releasedVersions = await listReleasedVersions()
   return releasedVersions[0]
+}
+
+function getPlayWrightVersion () {
+  return getPackageJson().devDependencies['@playwright/test'].replaceAll('^', '')
 }
 
 // @section 12 badge utilities
@@ -1086,7 +1171,82 @@ async function createModuleGraphSvg (moduleGraphJson) {
   </svg>`
 }
 
-// @section 14 build tools plugins
+// @section 14 docker utilities
+
+async function isDockerRunning () {
+  isDockerRunning.cachedResult ??= await cmdSpawn('docker info', { stdio: 'ignore' }) === 0
+  return isDockerRunning.cachedResult
+}
+
+async function isInsideDockerContainer () {
+  isInsideDockerContainer.cachedResult ??= existsSync('/.dockerenv') ||
+    (await readFile('/proc/self/cgroup').then(text => text.includes('docker')).catch(() => false)) ||
+    (await readFile('/proc/self/mountinfo').then(text => text.includes('/docker/containers/')).catch(() => false))
+  return isInsideDockerContainer.cachedResult
+}
+
+async function runInDocker ({ command, imageName, volumes, workdir, env, user, rmOnFinish }) {
+  const volumeParams = volumes ? Object.entries(volumes).map(([host, guest]) => `-v '${host}:${guest}' `) : ''
+  const envParams = env ? Object.entries(env).map(([key, val]) => `-e '${key}=${val}' `) : ''
+  const workdirParam = workdir ? `-w '${workdir}' ` : ''
+  const userParam = user ? `-u '${user}' ` : ''
+  const rmParam = rmOnFinish ? '--rm ' : ''
+  return await cmdSpawn(`docker run -t ${rmParam}${userParam}${volumeParams}${envParams}${workdirParam} ${imageName} ${command}`)
+}
+
+// @section 15 git utilities
+
+async function git (/** @type {string[]} */...args) {
+  return (await execCmd('git', args.flat())).stdout.trim().toString().split('\n')
+}
+
+async function checkGitHooks () {
+  const expectedHooksPath = 'buildfiles/git-hooks/'
+  const stdoutLines = await git('config', 'get', 'core.hooksPath').catch(() => [])
+  const hooksPath = stdoutLines[0]
+  if (hooksPath !== expectedHooksPath) {
+    if (hooksPath == null || hooksPath.trim() === '') {
+      console.log('git hooks not set, setting git hooks path to ', expectedHooksPath)
+    } else {
+      console.log('updating git hooks path to ', expectedHooksPath)
+    }
+
+    await git('config', 'set', 'core.hooksPath', expectedHooksPath)
+  }
+}
+
+async function listStashedFiles () {
+  const diffExec = git('diff', '--name-only', '--staged')
+  return new Set([...(await diffExec)].filter(filename => filename.trim().length > 0))
+}
+
+async function executeOnStagedOnly (callback, { stageChanges = true } = {}) {
+  const stagedFiles = await listStashedFiles()
+  if (stagedFiles.size > 0) {
+    logStage('Stash unstaged + untracked files')
+    await git('stash', 'push', '--keep-index', '-u', '-m', 'Stash unstaged + untracked files')
+    let returnCode = 0
+    try {
+      logStage('executing tasks on staged only')
+      returnCode = await callback()
+    } catch {
+      returnCode = 1
+    } finally {
+      if (returnCode === 0 && stageChanges) {
+        logStage('Staging new changes')
+        await git('add', '-u')
+      } else {
+        logStage('cleaning up changes')
+        await git('restore', '.')
+      }
+      logStage('Pop stash')
+      await git('stash', 'pop', '--index')
+    }
+  }
+  return 0
+}
+
+// @section 16 build tools plugins
 
 /**
  * @returns {Promise<import('esbuild').Plugin>} - esbuild plugin
