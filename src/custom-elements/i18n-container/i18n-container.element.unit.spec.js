@@ -1,8 +1,7 @@
-import { test } from '#unit-test'
+import { test, assert } from '#unit-test'
 import { provide } from '../../utils/i18n-importer/provider.js'
 import { loadI18n } from '../../html-loader/html-loader.js'
 import { setStoreFromElement } from '../../utils/store-map/store-map.js'
-import assert from 'node:assert'
 
 const html = String.raw
 
@@ -173,15 +172,6 @@ const i18nImporterImplFromLocation = (locHref) => {
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
-const fsDir = new URL(import.meta.url).pathname + '--filesystem'
-/**
- * @param {string} path
- */
-const readJson = async (path) => {
-  const { readFile } = await import('node:fs/promises')
-  const { join } = await import('node:path')
-  return await readFile(join(fsDir, path), { encoding: 'utf8' }).then(JSON.parse)
-}
 const filesystem = /** @type {const} */([
   'i18n-definition-map.json',
   'languages.en.json',
@@ -189,4 +179,11 @@ const filesystem = /** @type {const} */([
   'languages.it.json',
   'languages.pt.json',
 ])
-const filesystemContents = Object.fromEntries(filesystem.map(path => [path, readJson(path)]))
+
+const filesystemContents = {
+  'i18n-definition-map.json': import('./i18n-container.element.unit.spec.js--filesystem/i18n-definition-map.json', {with: {type: 'json'}}).then(module => module.default),
+  'languages.en.json': import('./i18n-container.element.unit.spec.js--filesystem/languages.en.json', {with: {type: 'json'}}).then(module => module.default),
+  'languages.es.json': import('./i18n-container.element.unit.spec.js--filesystem/languages.es.json', {with: {type: 'json'}}).then(module => module.default),
+  'languages.it.json': import('./i18n-container.element.unit.spec.js--filesystem/languages.it.json', {with: {type: 'json'}}).then(module => module.default),
+  'languages.pt.json': import('./i18n-container.element.unit.spec.js--filesystem/languages.pt.json', {with: {type: 'json'}}).then(module => module.default),
+}

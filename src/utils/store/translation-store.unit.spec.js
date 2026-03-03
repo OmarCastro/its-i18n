@@ -353,15 +353,6 @@ const i18nImporterImplFromLocation = (locHref) => {
   return { importDefinitionMap: importFile, importTranslations: importFile }
 }
 
-const fsDir = new URL(import.meta.url).pathname + '--filesystem'
-/**
- * @param {string} path
- */
-const readJson = async (path) => {
-  const { readFile } = await import('node:fs/promises')
-  const { join } = await import('node:path')
-  return await readFile(join(fsDir, path), { encoding: 'utf8' }).then(JSON.parse)
-}
 const filesystem = /** @type {const} */([
   'import/i18n.json',
   'import/translations.en.json',
@@ -372,4 +363,15 @@ const filesystem = /** @type {const} */([
   'import-outer/languages/es/translations.es.json',
   'import-outer/languages/pt/translations.pt.json',
 ])
-const filesystemContents = Object.fromEntries(filesystem.map(path => [path, readJson(path)]))
+
+const filesystemContents = {
+  'import/i18n.json': import('./translation-store.unit.spec.js--filesystem/import/i18n.json', {with: {type: 'json'}}).then(module => module.default),
+  'import/translations.en.json': import('./translation-store.unit.spec.js--filesystem/import/translations.en.json', {with: {type: 'json'}}).then(module => module.default),
+  'import/translations.es.json': import('./translation-store.unit.spec.js--filesystem/import/translations.es.json', {with: {type: 'json'}}).then(module => module.default),
+  'import/translations.pt.json': import('./translation-store.unit.spec.js--filesystem/import/translations.pt.json', {with: {type: 'json'}}).then(module => module.default),
+  'import-outer/base/i18n.json': import('./translation-store.unit.spec.js--filesystem/import-outer/base/i18n.json', {with: {type: 'json'}}).then(module => module.default),
+  'import-outer/languages/en/translations.en.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/en/translations.en.json', {with: {type: 'json'}}).then(module => module.default),
+  'import-outer/languages/es/translations.es.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/es/translations.es.json', {with: {type: 'json'}}).then(module => module.default),
+  'import-outer/languages/pt/translations.pt.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/pt/translations.pt.json', {with: {type: 'json'}}).then(module => module.default),
+}
+
