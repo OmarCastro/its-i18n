@@ -47,6 +47,16 @@ const pathFromProject = (path) => new URL(path, projectPathURL).pathname
 process.chdir(pathFromProject('.'))
 let updateDevServer = () => {}
 
+const configuration = {
+  bundleDistName: 'i18n.element.js',
+}
+
+configuration.minfiedBundleDistName ??= (({ bundleDistName: distName }) => {
+  if (distName.endsWith('.min.js')) { return distName }
+  if (distName.endsWith('.js')) { return distName.replace(/\.[^/.]+$/, '') + '.min.js' }
+  return distName + '.min.js'
+})(configuration)
+
 const args = process.argv.slice(2)
 
 // @section 2 tasks
@@ -198,6 +208,57 @@ async function execTests () {
   await cp_R('reports', 'build/docs/reports')
 }
 
+/**
+ * @param {string} outputDir - output dir to compile to
+ */
+async function buildESM (outputDir) {
+  const esbuild = await import('esbuild')
+
+  const fileListJS = await listNonIgnoredFiles({ patterns: ['src/**/!(*.spec).js'] })
+  const fileListJsJob = fileListJS.map(async (path) => {
+    const js = readFileSync(path).toString()
+    const updatedJs = js
+      .replaceAll('.element.html"', '.element.html.generated.js"')
+      .replaceAll(".element.html'", ".element.html.generated.js'")
+      .replaceAll('.element.css"', '.element.css.generated.js"')
+      .replaceAll(".element.css'", ".element.css.generated.js'")
+      .replaceAll('.inline.html"', '.inline.html.generated.js"')
+      .replaceAll(".inline.html'", ".inline.html.generated.js'")
+      .replaceAll('.inline.css"', '.inline.css.generated.js"')
+      .replaceAll(".inline.css'", ".inline.css.generated.js'")
+
+    const noSrcPath = path.split('/').slice(1).join('/')
+    const outfile = pathFromProject(`${outputDir}/${noSrcPath}`)
+    const outdir = dirname(outfile)
+    if (!existsSync(outdir)) { await mkdir_p(outdir) }
+    return fs.writeFile(outfile, updatedJs)
+  })
+
+  const fileListCSS = await listNonIgnoredFiles({ patterns: ['src/**/*.element.css', 'src/**/*.inline.css'] })
+  const fileListCssJob = fileListCSS.map(async (path) => {
+    const minCss = await minifyCss(await readFile(path))
+    const minCssJs = await esbuild.transform(minCss, { loader: 'text', format: 'esm' })
+    const noSrcPath = path.split('/').slice(1).join('/')
+    const outfile = pathFromProject(`${outputDir}/${noSrcPath}.generated.js`)
+    const outdir = dirname(outfile)
+    if (!existsSync(outdir)) { await mkdir_p(outdir) }
+    return fs.writeFile(outfile, `// generated code from ${path}\n${minCssJs.code}`)
+  })
+
+  const fileListHtml = await listNonIgnoredFiles({ patterns: ['src/**/*.element.html', 'src/**/*.inline.html'] })
+  const fileListHtmlJob = fileListHtml.map(async (path) => {
+    const minHtml = await minifyHtml(await readFile(path))
+    const minHtmlJs = await esbuild.transform(minHtml, { loader: 'text', format: 'esm' })
+    const noSrcPath = path.split('/').slice(1).join('/')
+    const outfile = pathFromProject(`${outputDir}/${noSrcPath}.generated.js`)
+    const outdir = dirname(outfile)
+    if (!existsSync(outdir)) { await mkdir_p(outdir) }
+    return fs.writeFile(outfile, `// generated code from ${path}\n${minHtmlJs.code}`)
+  })
+
+  await Promise.all([...fileListJsJob, ...fileListCssJob, ...fileListHtmlJob])
+}
+
 async function buildUnitTests ({ includeBrowser = false } = {}) {
   const toImportCode = (outputPathFolder, file) => {
     const importPath = relative(outputPathFolder, file)
@@ -288,74 +349,108 @@ function esBuildCommonParams () {
 
 
 async function execBuild () {
-  logStartStage('build', 'clean tmp dir')
+  await buildTest()
+  await buildDocs()
+}
 
-  await rm_rf('.tmp/build')
-  await mkdir_p('.tmp/build/dist', '.tmp/build/docs')
-
-  logStage('bundle')
+async function buildTest () {
+  logStartStage('build:test', 'bundle')
 
   const esbuild = await import('esbuild')
 
-  const commonBuildParams = {
-    ...esBuildCommonParams(),
-    bundle: true,
-    minify: true,
-    sourcemap: true,
-    plugins: [await getESbuildPlugin()],
-  }
+  const commonBuildParams = esBuildCommonParams()
 
-  const esbuild1 = esbuild.build({
+  const buildPath = 'build'
+  const esmDistPath = `${buildPath}/dist/esm`
+  const minDistPath = `${buildPath}/dist`
+  const docsPath = `${buildPath}/docs`
+  const docsEsmDistPath = `${docsPath}/dist/esm`
+  const minSrcDistPath = `${buildPath}/src-dist`
+
+  await buildESM(esmDistPath)
+  await buildESM(docsEsmDistPath)
+
+  /**
+   * Builds minified files mapped from ESM, as it is most likely used in production.
+   */
+  const buildDistFromEsm = esbuild.build({
+    ...commonBuildParams,
+    entryPoints: [`${esmDistPath}/entrypoint/browser.js`],
+    outfile: `${minDistPath}/${configuration.minfiedBundleDistName}`,
+    format: 'esm',
+    sourcemap: true,
+    minify: true,
+  })
+
+  /**
+   * Builds minified files mapped from the original source code.
+   * This will the correct mapping to the original code path. With
+   * it the test code coverage will be correct when merging unit tests
+   * and UI tests.
+   */
+  const buildSrcDist = esbuild.build({
     ...commonBuildParams,
     entryPoints: ['src/entrypoint/browser.js'],
-    outfile: '.tmp/build/dist/i18n.element.min.js',
+    outfile: `${minSrcDistPath}/${configuration.minfiedBundleDistName}`,
     format: 'esm',
+    sourcemap: true,
     metafile: true,
+    minify: true,
     plugins: [await getESbuildPlugin()],
   })
 
-  const esbuild2 = esbuild.build({
+  await Promise.all([buildDistFromEsm, buildSrcDist])
+
+  await cp_R(minDistPath, docsPath)
+  const metafile = (await buildSrcDist).metafile
+  await mkdir_p('reports')
+  logStage('generating module graph')
+  await writeFile('reports/module-graph.json', JSON.stringify(metafile, null, 2))
+  const svg = await createModuleGraphSvg(metafile)
+  await writeFile('reports/module-graph.svg', svg)
+
+  await buildUnitTests({ includeBrowser: true })
+
+  logEndStage()
+}
+
+async function buildDocs () {
+  logStartStage('build:docs', 'build docs')
+
+  const esbuild = await import('esbuild')
+  const commonBuildParams = esBuildCommonParams()
+
+  const buildPath = 'build'
+  const docsPath = `${buildPath}/docs`
+
+  /**
+   * Builds documentation specific JS code
+   */
+  const buildDocsJS = esbuild.build({
     ...commonBuildParams,
     entryPoints: ['docs/doc.js'],
-    outdir: '.tmp/build/docs',
+    outdir: docsPath,
     splitting: true,
     chunkNames: 'chunk/[name].[hash]',
     format: 'esm',
     plugins: [await getESbuildPlugin()],
   })
 
-  const esbuild3 = esbuild.build({
+  /**
+   * Builds documentation styles
+   */
+  const buildDocsStyles = esbuild.build({
     ...commonBuildParams,
     entryPoints: ['docs/doc.css'],
-    outfile: '.tmp/build/docs/doc.css',
-    plugins: [await getESbuildPlugin()],
+    outfile: `${docsPath}/doc.css`,
   })
 
-  await Promise.all([esbuild1, esbuild2, esbuild3])
-
-  const metafile = (await esbuild1).metafile
-
-  await mkdir_p('reports')
-  await writeFile('reports/module-graph.json', JSON.stringify(metafile, null, 2))
-  const svg = await createModuleGraphSvg(metafile)
-  await writeFile('reports/module-graph.svg', svg)
-
-  logStage('copy reports')
-
-  await cp_R('reports', '.tmp/build/docs/reports')
-
-  logStage('build html')
-
-  await exec(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`)
-  await exec(`${process.argv[0]} buildfiles/scripts/build-html.js contributing.html`)
-
-  logStage('move to final dir')
-
-  await rm_rf('build')
-  await cp_R('.tmp/build', 'build')
-  await cp_R('build/dist', 'build/docs/dist')
-
-  await buildUnitTests({ includeBrowser: true })
+  await Promise.all([
+    buildDocsJS, buildDocsStyles,
+    fs.cp('docs/favicon.png', `${docsPath}/favicon.png`),
+    exec(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`),
+    exec(`${process.argv[0]} buildfiles/scripts/build-html.js contributing.html`),
+  ])
 
   logEndStage()
 }
