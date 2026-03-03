@@ -32,6 +32,15 @@ export const formatted = (strings, ...values) => String.raw(
   { raw: strings },
   ...values.map(value => inspect(value))
 )
+
+
+/** @type {(target: unknown) => asserts target} */
+export const assert = (target) => {
+  if(!target){
+    throw Error("assertion failed")
+  }
+}
+
 /**
  * @typedef {(description: string, fn: TestCall, info: TestInfo) => any} Test
  */
