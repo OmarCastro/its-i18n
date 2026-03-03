@@ -12,7 +12,7 @@ const invariant = (check, errorMessageThunk) => {
 }
 
 export const isEqual = (a, b) => {
-  if (a === b) {
+  if (Object.is(a, b)) {
     return true
   }
 
@@ -54,6 +54,7 @@ const validateRejects = async (method, expectedError) => {
 /** @type {ExpectApi} */
 export const expect = (target) => ({
   toBe: (expected) => invariant(Object.is(target, expected), formatted`Expected ${target} to be ${expected}`),
+  toBeTruthy: () => invariant(target, formatted`Expected ${target} to be thruthy`),
   toEqual: (expected) => invariant(isEqual(target, expected), formatted`Expected ${target} to equal ${expected}`),
   toStrictEqual: (expected) => invariant(isEqual(target, expected), formatted`Expected ${target} to toStrictEqual ${expected}`),
   toThrow: (expected) => validateThrows(target, expected),
@@ -87,6 +88,6 @@ export const expect = (target) => ({
  * @typedef {{
  *  (target: Promise) => PromiseExpectMatchers & BaseExpectMatchers
  *  (target: Function) => FunctionExpectMatchers & PromiseExpectMatchers & BaseExpectMatchers
- *  (target: any) => BaseExpectMatchers
+ *  (target: unknown) => BaseExpectMatchers
  * }} ExpectApi
  */
