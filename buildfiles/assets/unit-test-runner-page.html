@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <title>unit test page</title>
+  <style>
+  body {
+    background-color: #e5e5e5;
+    color: #303540;
+    font-family: Arial;
+    margin: 0;
+  }
+
+  body:not(.done) > * {opacity: 0.001;}
+
+  body[data-report-type="badge"] {
+    overflow: hidden;
+    &:not(.done)::before {
+    content: " ";
+    display: block;
+    height: 28px;
+    background: url({{badge-img-href}}) no-repeat
+    }
+  }
+
+@media (prefers-color-scheme: dark) {
+  body {background-color: #202530;color: #dddcdf;}
+  a { color: #6ad; }
+  a:visited { color: #d8d;}
+}</style>
+
+  <script type="module" src="{{test-run-script}}" defer></script>
+</head>
+<body></body>
+  <script>
+  const reportType = new URLSearchParams(window.location.search).get('report-type') || 'text'
+  document.body.dataset.reportType = reportType
+
+  const reportInfo = {
+    reportType,
+    badgeUrl: new URL("{{badge-img-href}}", window.location.href)
+  }
+  globalThis[Symbol.for("unit-test-info")] = reportInfo
+  </script>
+
+</html>

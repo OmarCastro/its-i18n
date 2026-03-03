@@ -22,7 +22,7 @@ To help navigate this file is divided by sections:
 */
 import process from 'node:process'
 import fs, { readFile as fsReadFile, writeFile } from 'node:fs/promises'
-import { resolve, basename } from 'node:path'
+import { resolve, basename, dirname, relative } from 'node:path'
 import { existsSync, readFileSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { exec as baseExec, execFile as baseExecFile, spawn } from 'node:child_process'
@@ -68,6 +68,10 @@ const tasks = {
   test: {
     description: 'builds the project',
     cb: async () => { await execTests(); process.exit(0) },
+  },
+  'test:unit-only': {
+    description: 'quickly run unit tests of the project, showing a simple report, mostly used for precommit check',
+    cb: () => quickRunUnitTests().then(exit),
   },
   linc: {
     description: 'validates the code only on changed files',
@@ -150,6 +154,14 @@ async function execDevEnvironment ({ openBrowser = false } = {}) {
   }
 }
 
+async function quickRunUnitTests () {
+  logStartStage('test', 'quick build & run unit tests')
+  await buildUnitTests()
+  const result = await cmdSpawn('TZ=UTC node build/tests/run-unit-tests.js')
+  logEndStage()
+  return result
+}
+
 async function execTests () {
   logStartStage('test', 'run tests')
 
@@ -186,6 +198,95 @@ async function execTests () {
   await cp_R('reports', 'build/docs/reports')
 }
 
+async function buildUnitTests ({ includeBrowser = false } = {}) {
+  const toImportCode = (outputPathFolder, file) => {
+    const importPath = relative(outputPathFolder, file)
+    return `import ${JSON.stringify(importPath)}\n`
+  }
+
+  const unitTestFiles = await listNonIgnoredFiles({ patterns: ['*.unit.spec.js'] })
+
+  const outputs = [{
+    setupPath: 'test-utils/unit/setup-unit-test-systems.js',
+    outputPath: 'build/tests/run-unit-tests.js',
+  }, {
+    setupPath: 'test-utils/unit/setup-unit-test-browser.js',
+    outputPath: 'build/tests/run-unit-tests--browser.js',
+  }, {
+    setupPath: 'test-utils/unit/setup-unit-test-browser.js',
+    outputPath: 'build/docs/tests/unit-tests.js',
+  }]
+
+  const unitTestRunnerAssets = {
+    html: null,
+    badge: null,
+  }
+
+  await Promise.all(outputs.map(async ({ setupPath, outputPath }) => {
+    const isBrowser = setupPath === 'test-utils/unit/setup-unit-test-browser.js'
+    if (isBrowser && !includeBrowser) {
+      return
+    }
+    const outputPathFolder = dirname(outputPath)
+    const outputPathNoExtension = outputPath.slice(0, outputPath.lastIndexOf('.'))
+    const outputPathMinified = outputPathNoExtension + '.min.js'
+    await mkdir_p(outputPathFolder)
+
+    const testSetupCode = toImportCode(outputPathFolder, setupPath)
+    const testFileImports = unitTestFiles.map(file => toImportCode(outputPathFolder, file)).join('')
+    const code = testSetupCode + testFileImports
+    await writeFile(outputPath, code)
+    if (!isBrowser) {
+      return
+    }
+
+    const esbuild = await import('esbuild')
+    await esbuild.build({
+      ...esBuildCommonParams(),
+      entryPoints: [outputPath],
+      outfile: outputPathMinified,
+      platform: isBrowser ? 'browser' : 'node',
+      format: 'esm',
+      minify: true,
+    })
+
+    unitTestRunnerAssets.html ??= readFile('./buildfiles/assets/unit-test-runner-page.html')
+    const htmlOutputPath = outputPathNoExtension + '.html'
+    const badgeOutputPath = outputPathNoExtension + '.badge.svg'
+    const htmlContent = (await unitTestRunnerAssets.html)
+      .replaceAll('{{test-run-script}}', relative(outputPathFolder, outputPathMinified))
+      .replaceAll('{{badge-img-href}}', relative(outputPathFolder, badgeOutputPath))
+    await writeFile(htmlOutputPath, htmlContent)
+    unitTestRunnerAssets.badge ??= await (async () => {
+      const svg = await makeBadge({
+        label: 'in browser tests',
+        message: 'Running...',
+        color: getBadgeColors().blue,
+        logo: asciiIconSvg('✔'),
+      })
+
+      return await applyA11yTheme(svg, { replaceIconToText: '✔' })
+    })()
+
+    await writeFile(badgeOutputPath, unitTestRunnerAssets.badge)
+  }))
+}
+
+/**
+ * @returns {import('esbuild').BuildOptions} common build option for esbuild
+ */
+function esBuildCommonParams () {
+  return {
+    target: ['es2022'],
+    bundle: true,
+    minify: false,
+    sourcemap: false,
+    absWorkingDir: pathFromProject('.'),
+    logLevel: 'info',
+  }
+}
+
+
 async function execBuild () {
   logStartStage('build', 'clean tmp dir')
 
@@ -197,12 +298,10 @@ async function execBuild () {
   const esbuild = await import('esbuild')
 
   const commonBuildParams = {
-    target: ['es2022'],
+    ...esBuildCommonParams(),
     bundle: true,
     minify: true,
     sourcemap: true,
-    absWorkingDir: pathFromProject('.'),
-    logLevel: 'info',
     plugins: [await getESbuildPlugin()],
   }
 
@@ -255,6 +354,8 @@ async function execBuild () {
   await rm_rf('build')
   await cp_R('.tmp/build', 'build')
   await cp_R('build/dist', 'build/docs/dist')
+
+  await buildUnitTests({ includeBrowser: true })
 
   logEndStage()
 }
