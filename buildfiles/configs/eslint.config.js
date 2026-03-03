@@ -69,6 +69,7 @@ export default [
     rules: {
       'jsdoc/require-param-description': 0,
       'jsdoc/require-returns-description': 0,
+      'max-lines-per-function': 0,
       'no-unused-vars': 0,
       'import/no-restricted-paths': ['error',{
         "zones": [
