@@ -29,7 +29,8 @@ test('Given a default number formatter, getFormatter result should format the nu
   expect(formatter.format(['0.001'], frLocale, defaultFormatters)).toEqual('1 meter is 0,001 kilometers')
 })
 
-test('Given a default unix timestamp formatter, getFormatter result should format the number with the correct separator', ({ expect }) => {
+test('Given a default unix timestamp formatter, getFormatter result should format the number with the correct separator', ({ expect, timezone }) => {
+  timezone.useUTC()
   const ast = getAST('1 million seconds since unix is in {0}')
   const formatter = getFormatter(ast)
   const defaultFormatters = [captureExpressions.named['unix timestamp'].defaultFormat]
