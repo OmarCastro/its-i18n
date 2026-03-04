@@ -128,26 +128,24 @@ globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTests
  * @param {number} report.passed - amount of passed tests
  * @param {number} report.total - total amount tests
  */
-function reportLogs (report) {
-
-  const inIframe = window.self !== window.top
+async function reportLogs (report) {
   const { body } = window.document
   const { reportType } = globalThis[Symbol.for('unit-test-info')]
-  if (inIframe) {
-    window.top.postMessage({ message: 'unit test report', data: report })
-  }
+  const svgPromise = createSVGResponse(report)
   if (reportType === 'badge') {
-    createSVGResponse(report).then(svg => {
-      body.innerHTML = svg
-      body.classList.add('done')
-    })
+    const svg = await svgPromise
+    body.innerHTML = svg
   } else {
     body.replaceChildren(...report.logs.split('\n').map(log => {
       const div = document.createElement('div')
       div.textContent = log
       return div
     }))
-    body.classList.add('done')
+  }
+  const inIframe = window.self !== window.top
+  if (inIframe) {
+    const svg = await svgPromise
+    window.top.postMessage({ message: 'unit test report', data: report, badgeSvg: svg })
   }
 }
 

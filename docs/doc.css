@@ -318,3 +318,10 @@ pre:hover code span[contenteditable="true"]::before {
     border-top-width: 2px;
     cursor: initial;
 }
+
+iframe.test-frame:not(.done) {
+    border: none;
+    position: absolute;
+    width: 1px;
+    pointer-events:none
+}
