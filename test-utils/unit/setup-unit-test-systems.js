@@ -3,6 +3,7 @@ globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTests
   const { expect } = await import('./simple-expect.js')
   const { window, resetDom } = await import('./init-dom.js')
   const { setup: setupFetchMock, teardown: teardownFetchMock } = await import('./fetch-mock.js')
+  const { setup: setupTimezoneMock, teardown: teardownTimezoneMock } = await import('./timezone-mock.js')
   const { gc } = await import('./gc.js')
 
     /**
@@ -75,12 +76,16 @@ globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTests
               resetDom()
               return window
             },
+            get timezone() {
+              return setupTimezoneMock()
+            },
             get fetch () {
               return setupFetchMock()
             }
           })
         } finally {
           teardownFetchMock()
+          teardownTimezoneMock()
         }
 
       }

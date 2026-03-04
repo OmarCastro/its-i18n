@@ -71,5 +71,6 @@ export const assert = (target) => {
  * @property {TestAPICall} step - test step
  * @property {Window} dom - dom fixture
  * @property {import('./fetch-mock.js').MockApi} fetch - dom fixture
+ * @property {import('./timezone-mock.js').MockApi} timezone - dom fixture
  * @property {import('./gc.js').gc} gc - dom fixture
  */

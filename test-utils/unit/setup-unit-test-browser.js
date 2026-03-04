@@ -2,6 +2,7 @@
 globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTestsForSystems () {
   const { expect } = await import('./simple-expect.js')
   const { setup: setupFetchMock, teardown: teardownFetchMock } = await import('./fetch-mock.js')
+  const { setup: setupTimezoneMock, teardown: teardownTimezoneMock } = await import('./timezone-mock.js')
 
   /**
    * @param {string} message - message to show on the report on skip
@@ -91,6 +92,9 @@ globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTests
             get fetch () {
               return setupFetchMock()
             },
+            get timezone() {
+              return setupTimezoneMock()
+            },
             get gc () {
               skip(noopGC.status.reason)
               return noopGC
@@ -98,6 +102,7 @@ globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTests
           }, { skip })
         } finally {
           teardownFetchMock()
+          teardownTimezoneMock()
         }
 
       }
