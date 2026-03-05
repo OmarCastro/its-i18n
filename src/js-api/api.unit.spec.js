@@ -8,8 +8,8 @@ const html = String.raw
 
 test('Given an HTML page with i18n-locale-map links, i18n should get values from the page', async ({ dom, step, expect }) => {
   const { document, location } = dom
-  globalThis.document = document
   unsetStoreOnElement(document.documentElement)
+  provide(i18nImporterImplFromLocation(location.href))
 
   document.documentElement.innerHTML = html`
       <head>
@@ -24,7 +24,6 @@ test('Given an HTML page with i18n-locale-map links, i18n should get values from
   const canvas = document.querySelector('canvas')
   assert(canvas != null)
 
-  provide(i18nImporterImplFromLocation(location.href))
 
   await step('where "en" locale translations are loaded correctly ', async () => {
     expect(await translate('hello world')).toEqual('hello world')
@@ -47,13 +46,11 @@ test('Given an HTML page with i18n-locale-map links, i18n should get values from
     expect(await translate('not found', { locale: 'pt' })).toEqual('not found')
   })
 
-  delete globalThis.document
   unsetStoreOnElement(document.documentElement)
 })
 
 test('Given an HTML page with i18n-locale-map links, i18n should load store when translating with custom locales', async ({ dom, step, expect }) => {
   const { document, location } = dom
-  globalThis.document = document
   unsetStoreOnElement(document.documentElement)
 
   document.documentElement.innerHTML = html`
@@ -69,8 +66,6 @@ test('Given an HTML page with i18n-locale-map links, i18n should load store when
   expect(await translate('hello world', { locale: 'pt' })).toEqual('olá mundo')
   expect(await translate('not found', { locale: 'pt' })).toEqual('not found')
 
-  // @ts-ignore
-  delete globalThis.document
   unsetStoreOnElement(document.documentElement)
 })
 
@@ -85,9 +80,6 @@ test('Given a store, translate() should search only from that store', async ({ d
   })
   expect(await translate('hello world', { locale: 'pt', store })).toEqual('olá mundo')
   expect(await translate('not found', { locale: 'pt', store })).toEqual('not found')
-
-  // @ts-ignore
-  delete globalThis.document
 })
 
 /**
@@ -95,14 +87,16 @@ test('Given a store, translate() should search only from that store', async ({ d
  * @param {string} locHref
  */
 const i18nImporterImplFromLocation = (locHref) => {
+  const locationCheck = new URL('.', locHref).href
+
   /**
    * @param {string | URL} url
    * @param {string | URL} base
    */
   function importFile (url, base) {
     const href = new URL(url, base).href
-    if (!href.startsWith(locHref)) { throw Error(`${href} not found from ${locHref}`) }
-    const file = /** @type {filesystem[number]} */(href.slice(locHref.length))
+    if (!href.startsWith(locationCheck)) { throw Error(`${href} not found from ${locHref}`) }
+    const file = /** @type {filesystem[number]} */(href.slice(locationCheck.length))
     if (filesystem.includes(file)) {
       return filesystemContents[file]
     }
