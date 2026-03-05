@@ -1,8 +1,14 @@
 /** @import {IncomingMessage, ServerResponse} from 'node:http' */
 import https from 'node:https'
-import { readFileSync, statSync, existsSync } from 'node:fs'
-import { writeFile, mkdir } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { writeFile, mkdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
+
+/**
+ * Get path stats, or null if it doesn't exist
+ * @param {import('node:fs').PathLike} path - path
+ */
+const statOrNull = (path) => stat(path).catch(() => null)
 
 const CLIENT_WEBSOCKET_CODE = `
 (() => {
@@ -54,9 +60,8 @@ async function getTLSCertificate () {
   }
 
   return {
-    key: readFileSync(keyFilePath),
-    cert: readFileSync(certFilePath),
-
+    key: await readFile(keyFilePath),
+    cert: await readFile(certFilePath),
   }
 }
 
@@ -79,7 +84,7 @@ export function Server () {
    * @param {IncomingMessage} req - incoming request
    * @param {ServerResponse} res - response api
    */
-  function requestHandler (req, res) {
+  async function requestHandler (req, res) {
     const method = req.method.toLowerCase()
     if (method === 'get') {
       if (req.url === '/live-sse') {
@@ -89,7 +94,7 @@ export function Server () {
 
       // No need to ensure the route can't access other local files,
       // since this is for development only.
-      if (serveStaticPageIfExists(req, res, true)) {
+      if (await serveStaticPageIfExists(req, res, true)) {
         return
       }
     }
@@ -114,34 +119,36 @@ export function Server () {
  * @param {ServerResponse} res - response api
  * @param {boolean} livereload - flag to enable/disable livereload
  * @param {string} [route] - route
- * @returns {boolean} Whether or not the page exists and was served
+ * @returns {Promise<boolean>} Whether or not the page exists and was served
  */
-function serveStaticPageIfExists (req, res, livereload, route) {
+async function serveStaticPageIfExists (req, res, livereload, route) {
   const { url } = req
   if (!url) { return false }
   if (!route) {
     const urlPath = new URL(url, `http://${req.headers.host}`).pathname
     route = path.normalize(path.join(rootPath, urlPath))
   }
-  // We don't care about performance for a dev server, so sync functions are fine.
-  // If the route exists it's either the exact file we want or the path to a directory
-  // in which case we'd serve up the 'index.html' file.
-  if (!existsSync(route)) {
+
+  const stat = await statOrNull(route)
+  if (!stat) {
     const htmlRoute = route + '.html'
-    const htmlFileExists = existsSync(htmlRoute) && statSync(htmlRoute).isFile()
-    return htmlFileExists ? serveStaticPageIfExists(req, res, livereload, route + '.html') : false
+    const htmlRouteStat = await statOrNull(htmlRoute)
+    const htmlFileExists = !!(htmlRouteStat?.isFile())
+    return htmlFileExists ? await serveStaticPageIfExists(req, res, livereload, htmlRoute) : false
   }
-  if (statSync(route).isDirectory()) {
-    if (existsSync(path.join(route, 'index.html')) && !url.endsWith('/')) {
+  if (stat.isDirectory()) {
+    const indexRoute = path.join(route, 'index.html')
+    const indexRouteStat = await statOrNull(indexRoute)
+    if (indexRouteStat && !url.endsWith('/')) {
       res.setHeader('location', url + '/')
       res.writeHead(303)
       res.end()
       return true
     }
-    return serveStaticPageIfExists(req, res, livereload, path.join(route, 'index.html'))
-  } else if (statSync(route).isFile()) {
+    return await serveStaticPageIfExists(req, res, livereload, indexRoute)
+  } else if (stat.isFile()) {
     /** @type {string|Buffer} */
-    let file = readFileSync(route)
+    let file = await readFile(route)
     if (route.endsWith('.html') && livereload) {
       // Inject the client-side websocket code.
       // This sounds fancier than it is; simply
@@ -152,7 +159,8 @@ function serveStaticPageIfExists (req, res, livereload, route) {
     } else {
       const extToContentTypeMap = {
         '.js': 'application/javascript',
-        '.svg': 'image/svg+xml'
+        '.css': 'text/css',
+        '.svg': 'image/svg+xml',
       }
       const extName = path.extname(route)
       if (Object.hasOwn(extToContentTypeMap, extName)) {
