@@ -1,10 +1,10 @@
 /** @import { Expect } from 'expect' */
 globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTestsForSystems () {
   const { expect } = await import('./simple-expect.js')
-  const { window, resetDom } = await import('./init-dom.js')
-  const { setup: setupFetchMock, teardown: teardownFetchMock } = await import('./fetch-mock.js')
-  const { setup: setupTimezoneMock, teardown: teardownTimezoneMock } = await import('./timezone-mock.js')
-  const { gc } = await import('./gc.js')
+  const { window, resetDom } = await import('./fixtures/dom.unit.fixture.js')
+  const { setup: setupFetchMock, teardown: teardownFetchMock } = await import('./fixtures/fetch.unit.fixture.js')
+  const { setup: setupTimezoneMock, teardown: teardownTimezoneMock } = await import('./fixtures/timezone.unit.fixture.js')
+  const { gc } = await import('./fixtures/garbage-collector.unit.fixture.js')
 
     /**
      * @param {string} message - message to show on the report on skip
