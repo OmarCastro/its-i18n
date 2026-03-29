@@ -1,6 +1,5 @@
 @import url("./code-example.css");
 
-
 :root {
     --bg-color: #e5e5e5;
     --bg-code-color: #f3f3f3;
@@ -14,8 +13,6 @@
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
     font-size: 1em;
 }
-
-
 
 @media (prefers-color-scheme: dark) {
     :root {
@@ -32,6 +29,14 @@
 
     a { color: #6ad; }
     a:visited { color: #d8d;}
+}
+
+
+iframe.test-frame {
+    border: none;
+    position: absolute;
+    width: 1px;
+    pointer-events:none
 }
 
 body {
@@ -317,11 +322,4 @@ pre:hover code span[contenteditable="true"]::before {
     border-top-color: var(--tab-active-color);
     border-top-width: 2px;
     cursor: initial;
-}
-
-iframe.test-frame:not(.done) {
-    border: none;
-    position: absolute;
-    width: 1px;
-    pointer-events:none
 }
