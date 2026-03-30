@@ -11,18 +11,42 @@ const invariant = (check, errorMessageThunk) => {
   }
 }
 
-export const isEqual = (a, b) => {
+/**
+ * @param {*} a 
+ * @param {*} b 
+ * @param {*[]} stack - stack to detect circular references
+ * @returns 
+ */
+function isEqual(a, b, stack = []) {
   if (Object.is(a, b)) {
     return true
   }
 
-  const bothAreObjects = a && b && typeof a === 'object' && typeof b === 'object' && Array.isArray(a) === Array.isArray(b)
+  const bothAreObjects = a && b && typeof a === 'object' && typeof b === 'object'
+  
+  if(!bothAreObjects){
+    return false
+  }
 
-  return Boolean(
-    bothAreObjects &&
-      Object.keys(a).length === Object.keys(b).length &&
-      Object.entries(a).every(([k, v]) => isEqual(v, b[k]))
-  )
+  const circularReference = stack.find(record => record[0] === a)
+  if(circularReference){
+    // only check if points to the same object, if it doesn't, fail even it is equal
+    return circularReference[1] === b
+  }
+  circularReference.push([a, b])
+
+
+  if(Array.isArray(a)){
+    if(!Array.isArray(b) || a.length !== b.length || a.some((v, i) => !isEqual(v, b[i], stack))) return false
+  }
+
+  if(Object.keys(a).length !== Object.keys(b).length ||
+    Object.entries(a).some(([k, v]) => !isEqual(v, b[k], stack))){
+      return false
+    }
+
+  circularReference.pop()
+  return true
 }
 
 const validateThrows = (method, expectedError) => {
