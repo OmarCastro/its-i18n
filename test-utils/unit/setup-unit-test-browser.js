@@ -240,7 +240,7 @@ Time Metrics
     `.split('\n').map(log => {
       const pre = createElement('pre')
       pre.classList.toggle("passed", log.includes("PASS"))
-      pre.classList.toggle("faild", log.includes("FAIL"))
+      pre.classList.toggle("failed", log.includes("FAIL"))
       pre.textContent = log || " "
       pre.style.margin = "0"
       return pre
