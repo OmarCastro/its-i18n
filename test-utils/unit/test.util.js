@@ -30,14 +30,14 @@ const inspect = (await import('object-inspect')).default
 
 export const formatted = (strings, ...values) => String.raw(
   { raw: strings },
-  ...values.map(value => inspect(value))
+  ...values.map(value => inspect(value)),
 )
 
 
 /** @type {(target: unknown) => asserts target} */
 export const assert = (target) => {
-  if(!target){
-    throw Error("assertion failed")
+  if (!target) {
+    throw Error('assertion failed')
   }
 }
 
@@ -72,5 +72,5 @@ export const assert = (target) => {
  * @property {Window} dom - dom fixture
  * @property {import('./fixtures/fetch.unit.fixture.js').MockApi} fetch - dom fixture
  * @property {import('./fixtures/timezone.unit.fixture.js').MockApi} timezone - dom fixture
- * @property {import('./fixtures/garbage-collector.unit.fixture.js').gc} gc - dom fixture
+ * @property {import('./fixtures/garbage-collector.unit.fixture.js').GarbageCollectionApi} gc - dom fixture
  */

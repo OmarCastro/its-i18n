@@ -8,7 +8,7 @@ export function setup () {
   const mockData = {
     fetchHistory: [],
     mockedEntries: [],
-    isErrorThrownOnMockNotFound: false
+    isErrorThrownOnMockNotFound: false,
   }
   globalThis.fetch = customFetch.bind(null, mockData)
   return buildApi(mockData)
@@ -29,27 +29,27 @@ const buildApi = (mockData) => Object.freeze({
   fetchHistory: {
     get data () { return [...mockData.fetchHistory] },
     get inputs () { return mockData.fetchHistory.map(({ inputs }) => inputs) },
-    get inputHrefs () { return mockData.fetchHistory.map(({ inputs }) => getHrefFromFetchRequest(inputs[0])) }
+    get inputHrefs () { return mockData.fetchHistory.map(({ inputs }) => getHrefFromFetchRequest(inputs[0])) },
   },
   mock (regex, response) {
     const entry = {
       regex,
-      response: response instanceof Response ? response.clone() : response
+      response: response instanceof Response ? response.clone() : response,
     }
     mockData.mockedEntries.push(entry)
   },
   throwErrorOnNonMockedRequests () {
     mockData.isErrorThrownOnMockNotFound = true
-  }
+  },
 })
 
 /**
  * @param {Parameters<typeof originalFetch>[0]} fetchParam - original `fetch()` arguments
  */
 const getHrefFromFetchRequest = (fetchParam) => {
-  if (typeof fetchParam === 'string') return fetchParam
-  if (fetchParam instanceof URL) return fetchParam.toString()
-  if (fetchParam instanceof Request) return fetchParam.url.toString()
+  if (typeof fetchParam === 'string') { return fetchParam }
+  if (fetchParam instanceof URL) { return fetchParam.toString() }
+  if (fetchParam instanceof Request) { return fetchParam.url.toString() }
   return ''
 }
 
@@ -75,7 +75,7 @@ async function customFetch (mockData, ...args) {
     output = e instanceof Error ? e : Error('error executing fetch()', { cause: e })
   }
   const historyEntry = {
-    inputs: args, output
+    inputs: args, output,
   }
   fetchHistory.push(historyEntry)
   if (output instanceof Error) {
