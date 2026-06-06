@@ -83,13 +83,21 @@ const tasks = {
     description: 'quickly run unit tests of the project, showing a simple report, mostly used for precommit check',
     cb: () => quickRunUnitTests().then(exit),
   },
-  linc: {
-    description: 'validates the code only on changed files',
-    cb: async () => { process.exit(await execLintCodeOnChanged()) },
+  'lint': {
+    description: 'validates the project',
+    cb: () => execLintCode().then(exit),
   },
-  lint: {
-    description: 'validates the code',
-    cb: async () => { process.exit(await execLintCode()) },
+  'linc': {
+    description: 'validates only changed files',
+    cb: () => execLintCodeOnChanged().then(exit),
+  },
+  'format': {
+    description: 'format the project code',
+    cb: () => execFormatCode().then(exit),
+  },
+  'formac': {
+    description: 'formats only changed files code',
+    cb: () => execFormatCodeOnChanged().then(exit),
   },
   dev: {
     description: 'setup dev environment',
@@ -477,7 +485,7 @@ async function execLintCodeOnChanged () {
 async function execLintCode () {
   logStartStage('lint', 'lint using eslint')
   const returnCodeLint = await lintCode({ onlyChanged: false }, { fix: true })
-    logStage('spell check')
+  logStage('spell check')
   const returnCheckSpelling = await checkSpelling({ onlyChanged: false })
   logStage('lint using stylelint')
   const returnStyleLint = await lintStyles({ onlyChanged: false })
@@ -491,14 +499,29 @@ async function execLintCode () {
   return returnCodeLint + returnCheckSpelling + returnTypecheck + returnStyleLint + returnJsonLint + returnYamlLint
 }
 
+async function execFormatCode () {
+  logStartStage('format', 'formatting code')
+  const returnCodeLint = await formatCode({ onlyChanged: false })
+  logEndStage()
+  return returnCodeLint
+}
+
+async function execFormatCodeOnChanged () {
+  logStartStage('formac', 'formatting changed code')
+  const returnCodeLint = await formatCode({ onlyChanged: true })
+  logEndStage()
+  return returnCodeLint
+}
+
 async function preCommitCheck () {
   logStartStage('precommit', 'lint and test')
 
   const result = await executeOnStagedOnly(async () => {
-    // const testTask = quickRunUnitTests()
+    await execFormatCodeOnChanged()
+    const testTask = quickRunUnitTests()
     const codeLint = execLintCodeOnChanged()
     const testVersionAlign = alignTestFrameworkVersion()
-    const exitCodes = await Promise.all([/* testTask,  */codeLint, testVersionAlign])
+    const exitCodes = await Promise.all([testTask, codeLint, testVersionAlign])
     const exitCode = exitCodes.reduce((a, b) => a + b)
     return exitCode
   })
@@ -745,6 +768,40 @@ async function validateYaml ({ onlyChanged }) {
     onlyChanged,
     validation: async (file) => load(await fs.readFile(file, 'utf8')),
   })
+}
+
+async function formatCode ({ onlyChanged, changedFiles }) {
+  const finalFilePatterns = await listFileByLinterParams({ patterns: ['**/*.js'], onlyChanged, changedFiles })
+  if (finalFilePatterns.length <= 0) {
+    process.stdout.write('no files to lint. ')
+    return 0
+  }
+
+  const config = (await import('./configs/eslint.stylistic.config.js')).default
+
+  const { ESLint } = await import('eslint')
+  const eslint = new ESLint({
+    baseConfig: config,
+    fix: true,
+  })
+
+  const formatter = await eslint.loadFormatter()
+  const results = await eslint.lintFiles(finalFilePatterns)
+  await ESLint.outputFixes(results)
+
+  const filesLinted = results.length
+  process.stdout.write(`formatted ${filesLinted} files. `)
+
+  const errorCount = results.reduce((acc, result) => acc + result.errorCount, 0)
+
+  const resultLog = formatter.format(results)
+  if (resultLog) {
+    console.log('')
+    console.log(resultLog)
+  } else {
+    process.stdout.write('OK...')
+  }
+  return errorCount ? 1 : 0
 }
 
 async function typecheckSrc ({ onlyChanged, changedFiles }) {
