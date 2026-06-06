@@ -188,7 +188,7 @@ export function getAST (key) {
     const ch = key.codePointAt(i) ?? -1
 
     const nextState = currentMachineState[ch] ?? defaultNextState[currentState]
-    if (nextState == null || nextState === currentState) continue
+    if (nextState == null || nextState === currentState) {continue}
 
     if (nextState === PREVIOUS) {
       upOneLevel(i)
@@ -270,7 +270,7 @@ export function getAST (key) {
 
 /**
  * @typedef {object} AST_In_Progress
- * A "work in progress" AST, it is just a object used to build the {@see AST}
+ * A "work in progress" AST, it is just a object used to build the {@link AST} 
  * @property {TmpToken[]} tokens - the direct descendant of the root tree
  */
 

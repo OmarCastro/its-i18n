@@ -5,7 +5,7 @@ import { timeNowFrame } from '../algorithms/time.utils.js'
  * A margin that improves the reliability of the next time value to change
  * due to possible protections to fingerprinting on the client side
  *
- * {@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now}
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now}
  */
 const MARGIN_MILLIS = 100
 
