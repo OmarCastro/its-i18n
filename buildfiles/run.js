@@ -67,7 +67,7 @@ const helpTask = {
 }
 
 const tasks = {
-  build: {
+  'build': {
     description: 'builds the project',
     cb: async () => { await execBuild(); process.exit(0) },
   },
@@ -75,7 +75,7 @@ const tasks = {
     description: 'runs build for github action',
     cb: async () => { await execGithubBuildWorkflow(); process.exit(0) },
   },
-  test: {
+  'test': {
     description: 'builds the project',
     cb: async () => { await execTests(); process.exit(0) },
   },
@@ -99,7 +99,7 @@ const tasks = {
     description: 'formats only changed files code',
     cb: () => execFormatCodeOnChanged().then(exit),
   },
-  dev: {
+  'dev': {
     description: 'setup dev environment',
     cb: async () => { await execDevEnvironment(); process.exit(0) },
   },
@@ -123,7 +123,7 @@ const tasks = {
     description: 'executes commit message validation',
     cb: () => commitMsgCheck().then(exit),
   },
-  help: helpTask,
+  'help': helpTask,
   '--help': helpTask,
   '-h': helpTask,
 }
@@ -161,7 +161,7 @@ async function execDevEnvironment ({ openBrowser = false } = {}) {
 
   const watcher = watchDirs(
     new URL('src', projectPathURL).pathname,
-    new URL('docs', projectPathURL).pathname
+    new URL('docs', projectPathURL).pathname,
   )
 
   for await (const change of watcher) {
@@ -553,7 +553,7 @@ async function alignTestFrameworkVersion () {
   const playwrightVersion = await getPlayWrightVersion()
   const files = await listNonIgnoredFiles({ patterns: ['.github/workflows/*.yaml'] })
   const regexp = /(?<=mcr\.microsoft\.com\/playwright:v)(?<version>[.0-9]+)/g
-  const result = await Array.fromAsync(files.map(async file => {
+  const result = await Array.fromAsync(files.map(async (file) => {
     const data = await readFile(file)
     const updatedData = data.replaceAll(regexp, playwrightVersion)
     if (updatedData !== data) {
@@ -646,7 +646,7 @@ async function openDevServer ({ openBrowser = false } = {}) {
 }
 
 function wait (ms) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(resolve, ms)
   })
 }
@@ -654,7 +654,7 @@ function wait (ms) {
 // @section 6 linters
 
 async function lintCode ({ onlyChanged, changedFiles }, options = {}) {
-  const finalFilePatterns = await listFileByLinterParams({patterns: ['**/*.js'], onlyChanged, changedFiles})
+  const finalFilePatterns = await listFileByLinterParams({ patterns: ['**/*.js'], onlyChanged, changedFiles })
   if (finalFilePatterns.length <= 0) {
     process.stdout.write('no files to lint. ')
     return 0
@@ -666,7 +666,7 @@ async function lintCode ({ onlyChanged, changedFiles }, options = {}) {
     baseConfig: config,
     cache: true,
     cacheLocation: pathFromProject('.tmp/eslintcache'),
-    ...options
+    ...options,
   })
   const formatter = await eslint.loadFormatter()
   const results = await eslint.lintFiles(finalFilePatterns)
@@ -696,7 +696,7 @@ async function checkSpelling ({ onlyChanged, changedFiles }) {
   const configPath = pathFromProject('./buildfiles/configs/cspell.yaml')
   const config = load(await readFile(configPath))
   const ignorePaths = config.ignorePaths ?? []
-  const fileList = await listFileByLinterParams({patterns: ['*'], ignorePatterns: ignorePaths, onlyChanged, changedFiles})
+  const fileList = await listFileByLinterParams({ patterns: ['*'], ignorePatterns: ignorePaths, onlyChanged, changedFiles })
 
   if (fileList.length <= 0) {
     process.stdout.write('no files to spell check. ')
@@ -732,7 +732,7 @@ async function checkSpelling ({ onlyChanged, changedFiles }) {
 
 
 async function lintStyles ({ onlyChanged, changedFiles }) {
-  const fileList = await listFileByLinterParams({patterns: ['**/*.css'], onlyChanged, changedFiles})
+  const fileList = await listFileByLinterParams({ patterns: ['**/*.css'], onlyChanged, changedFiles })
   if (fileList.length <= 0) {
     process.stdout.write('no stylesheets to lint. ')
     return 0
@@ -816,7 +816,7 @@ async function typecheckSrc ({ onlyChanged, changedFiles }) {
 }
 
 async function validateFiles ({ patterns, onlyChanged, changedFiles, validation }) {
-  const fileList = await listFileByLinterParams({patterns, onlyChanged, changedFiles})
+  const fileList = await listFileByLinterParams({ patterns, onlyChanged, changedFiles })
   if (fileList.length <= 0) {
     process.stdout.write('no files to lint. ')
     return 0
@@ -954,7 +954,7 @@ async function minifyDOM (domElement) {
  */
 function cmdSpawn (command, options = {}) {
   const p = spawn('/bin/sh', ['-c', command], { stdio: 'inherit', ...options })
-  return new Promise((resolve) => { p.on('exit', resolve) })
+  return new Promise(resolve => { p.on('exit', resolve) })
 }
 
 async function execCmd (command, args) {
@@ -987,9 +987,10 @@ async function * getFiles (dir) {
 
 async function getFilesAsArray (dir) {
   const arr = []
-  for await (const i of getFiles(dir)) arr.push(i)
+  for await (const i of getFiles(dir)) { arr.push(i) }
   return arr
 }
+
 /**
  * Watch directories for file changes
  * @param  {...string} dirs
@@ -1107,9 +1108,9 @@ async function listChangedFilesMatching (patterns, ignorePatterns) {
   return filterFilePathsByPatterns(await listChangedFiles(), patterns, ignorePatterns)
 }
 
-async function listFileByLinterParams ({patterns, onlyChanged, changedFiles, ignorePatterns }) {
-  if(onlyChanged && changedFiles) { return await filterFilePathsByPatterns(changedFiles, patterns, ignorePatterns) }
-  if(onlyChanged) { return await listChangedFilesMatching(patterns, ignorePatterns) }
+async function listFileByLinterParams ({ patterns, onlyChanged, changedFiles, ignorePatterns }) {
+  if (onlyChanged && changedFiles) { return await filterFilePathsByPatterns(changedFiles, patterns, ignorePatterns) }
+  if (onlyChanged) { return await listChangedFilesMatching(patterns, ignorePatterns) }
   return await listNonIgnoredFiles({ patterns, ignorePatterns })
 }
 
@@ -1117,11 +1118,11 @@ async function filterFilePathsByPatterns (filePaths, patterns = [], ignorePatter
   const paths = Array.isArray(filePaths) ? filePaths : Array.from(filePaths)
   const hasPatterns = patterns.length > 0
   const hasIgnorePatterns = ignorePatterns.length > 0
-  if(!hasPatterns && !hasIgnorePatterns){ return paths }
+  if (!hasPatterns && !hasIgnorePatterns) { return paths }
   const { minimatch } = await import('minimatch')
   const matchers = patterns.map(pattern => minimatch.filter(pattern, { matchBase: true, dot: true }))
   const matchedPaths = hasPatterns ? paths.filter(path => matchers.some(match => match(path))) : paths
-  if(!hasIgnorePatterns) { return matchedPaths }
+  if (!hasIgnorePatterns) { return matchedPaths }
   const ignoreMatchers = ignorePatterns.map(pattern => minimatch.filter(pattern, { matchBase: true, dot: true }))
   const filteredPaths = matchedPaths.filter(path => ignoreMatchers.every(match => !match(path)))
   return filteredPaths
@@ -1437,7 +1438,7 @@ async function createModuleGraphSvg (moduleGraphJson) {
       return [file, {
         textWidthPx, textHeighthPx, height, width,
       }]
-    })
+    }),
   )
 
   Object.entries(inputs).forEach(([file, info]) => {

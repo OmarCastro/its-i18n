@@ -228,11 +228,11 @@ const pBadgeAttributesTasks = queryAll('img[p-badge-attrs]').map(async (element)
   if (title) { element.setAttribute('title', title) }
 })
 
-const minifyStylesTasks = queryAll('style').map(async element => {
+const minifyStylesTasks = queryAll('style').map(async (element) => {
   element.innerHTML = await minifyCss(element.innerHTML)
 })
 
-const inlineCSSTasks = queryAll('link[href][rel="stylesheet"][p-inline]').map(async element => {
+const inlineCSSTasks = queryAll('link[href][rel="stylesheet"][p-inline]').map(async (element) => {
   const href = element.getAttribute('href')
   const cssText = readFileImport(href)
   element.outerHTML = `<style>${await minifyCss(cssText)}</style>`
@@ -261,7 +261,7 @@ await Promise.all([
   ...pBadgeAttributesTasks,
   ...minifyStylesTasks,
   ...inlineCSSTasks,
-  ...repeatGlobLinksTask
+  ...repeatGlobLinksTask,
 ])
 
 const tocUtils = {

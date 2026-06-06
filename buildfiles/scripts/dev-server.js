@@ -50,7 +50,7 @@ async function getTLSCertificate () {
 
     const result = {
       key: cert.key,
-      cert: `${cert.cert}\n${ca.cert}`
+      cert: `${cert.cert}\n${ca.cert}`,
 
     }
 
@@ -103,13 +103,13 @@ export function Server () {
   }
 
   const httpsOptions = {
-    ...certificate
+    ...certificate,
   }
   const server = https.createServer(httpsOptions, requestHandler)
 
   return {
     listen: (port) => { server.listen(port) },
-    update: () => sessions.forEach(session => session.write('data: reload\n\n'))
+    update: () => sessions.forEach(session => session.write('data: reload\n\n')),
   }
 }
 
@@ -183,7 +183,7 @@ function sseStart (sessions, res) {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    Connection: 'keep-alive'
+    'Connection': 'keep-alive',
   })
 
   sessions.add(res)

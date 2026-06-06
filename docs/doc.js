@@ -128,7 +128,7 @@ function reactElementNameChange (event) {
   const componentName = event.target.closest('.component-name-edit')
   if (componentName == null) { return }
   const newText = componentName.textContent
-  document.body.querySelectorAll('.component-name-edit').forEach(ref => { if (componentName !== ref) ref.textContent = newText })
+  document.body.querySelectorAll('.component-name-edit').forEach(ref => { if (componentName !== ref) { ref.textContent = newText } })
   document.body.querySelectorAll('.component-name-ref').forEach(ref => { ref.textContent = newText })
 }
 
@@ -147,7 +147,7 @@ async function paintHelloWorldOnCanvas (canvas) {
   context.fillText(text, 10, 50)
 }
 
-const observer = new ElementLangObserver((records) => {
+const observer = new ElementLangObserver(records => {
   for (const record of records) {
     if (record.target instanceof HTMLCanvasElement) {
       paintHelloWorldOnCanvas(record.target)
@@ -161,19 +161,18 @@ document.querySelectorAll('canvas.canvas-example').forEach(canvas => {
 })
 
 const testFrame = document.querySelector('iframe.test-frame')
-if(testFrame){
-  const childWindow = testFrame.contentWindow;
-  window.addEventListener('message', message => {
-      if (message.source !== childWindow) {
-          return; // Skip message in this event listener
-      }
-      if(message.data.message === "unit test report" && message.data.badgeSvg){
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(message.data.badgeSvg, "image/svg+xml");
-        const svg = doc.querySelector("svg")
-        testFrame.previousElementSibling.replaceWith(svg)
-      }
-      // ...
-  });
+if (testFrame) {
+  const childWindow = testFrame.contentWindow
+  window.addEventListener('message', (message) => {
+    if (message.source !== childWindow) {
+      return // Skip message in this event listener
+    }
+    if (message.data.message === 'unit test report' && message.data.badgeSvg) {
+      var parser = new DOMParser()
+      var doc = parser.parseFromString(message.data.badgeSvg, 'image/svg+xml')
+      const svg = doc.querySelector('svg')
+      testFrame.previousElementSibling.replaceWith(svg)
+    }
+    // ...
+  })
 }
-
