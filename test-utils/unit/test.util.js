@@ -73,4 +73,5 @@ export const assert = (target) => {
  * @property {import('./fixtures/fetch.unit.fixture.js').MockApi} fetch - dom fixture
  * @property {import('./fixtures/timezone.unit.fixture.js').MockApi} timezone - dom fixture
  * @property {import('./fixtures/garbage-collector.unit.fixture.js').GarbageCollectionApi} gc - dom fixture
+ * @property {ReturnType<typeof import('./fixtures/console.unit.fixture.js').setup>} console - dom fixture
  */
