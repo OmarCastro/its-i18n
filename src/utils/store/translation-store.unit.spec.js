@@ -5,7 +5,9 @@ import { provide } from '../i18n-importer/provider.js'
 /** @import {Implementation} from '../i18n-importer/provider.js' */
 /** @import {I18nDefinitionMap} from '../i18n-importer/i18n-importer.js' */
 
-test('Given a new store, when loadTranslations ', async ({ step: originalStep, expect }) => {
+
+test('Given a new store, when loadTranslations ', async ({ step: originalStep, expect, console }) => {
+  console.doNotLog()
   const translations = {
     'untranslated text': 'untranslated text',
   }
@@ -15,22 +17,9 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
    */
   const storeDataWithLangs = (languages) => ({ location: 'http://example.com', languages })
 
-  /** @type {{ error: any[], warn: any[] }} */
-  const consoleCalls = { error: [], warn: [] }
-  const originalConsoleWarn = console.warn
-  const originalConsoleError = console.error
-  console.warn = (...args) => {
-    consoleCalls.warn.push(args)
-  }
-
-  console.error = (...args) => {
-    consoleCalls.error.push(args)
-  }
-
   /** @type {TestAPICall} */
   const step = async (...args) => {
-    consoleCalls.error.length = 0
-    consoleCalls.warn.length = 0
+    console.resetCallLog()
     return await originalStep.apply(null, args)
   }
 
@@ -41,26 +30,25 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
       pt: { translations },
       es: { translations },
     }))
-    await expect(consoleCalls).toEqual({ error: [], warn: [] })
+    await expect(console.calls).toEqual({})
     await expect(Object.keys(store.data.languages)).toEqual(['en', 'pt', 'es'])
   })
   await step('with "en" & "en-US", should load wihout problems', async () => {
     const store = i18nTranslationStore()
     store.loadTranslations(storeDataWithLangs({
-      en: { translations },
+      'en': { translations },
       'en-US': { translations },
     }))
-    await expect(consoleCalls).toEqual({ error: [], warn: [] })
+    await expect(console.calls).toEqual({})
     await expect(Object.keys(store.data.languages)).toEqual(['en', 'en-US'])
   })
   await step('with "en" & "en-UK", should warn about invalid locale "en-UK" and fixes it to "en-GB"', async () => {
     const store = i18nTranslationStore()
     store.loadTranslations(storeDataWithLangs({
-      en: { translations },
+      'en': { translations },
       'en-UK': { translations },
     }))
-    expect(consoleCalls).toEqual({
-      error: [],
+    expect(console.calls).toEqual({
       warn: [
         ['Warning on %s::%s, %s', 'http://example.com', '.["en-UK"]', 'invalid locale "en-UK", fixed to locale "en-GB"'],
       ],
@@ -71,15 +59,14 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
   await step('with "en", "en-UK" & "en-GB", should log error of invalid & conflicting locale and should be discarded', async () => {
     const store = i18nTranslationStore()
     store.loadTranslations(storeDataWithLangs({
-      en: { translations },
+      'en': { translations },
       'en-UK': { translations },
       'en-GB': { translations },
     }))
-    await expect(consoleCalls).toEqual({
+    await expect(console.calls).toEqual({
       error: [
         ['Error on %s::%s, %s', 'http://example.com', '.["en-UK"]', 'invalid locale "en-UK", it also conflicts with correct locale "en-GB", it will be ignored'],
       ],
-      warn: [],
     })
     await expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
   })
@@ -89,43 +76,26 @@ test('Given a new store, when loadTranslations ', async ({ step: originalStep, e
     () => {
       const store = i18nTranslationStore()
       store.loadTranslations(storeDataWithLangs({
-        en: { translations },
+        'en': { translations },
         'en-GB': { translations },
         'en-ABC': { translations },
       }))
-      expect(consoleCalls).toEqual({
+      expect(console.calls).toEqual({
         error: [
           ['Error on %s::%s, %s', 'http://example.com', '.["en-ABC"]', 'invalid locale "en-ABC", it will be ignored'],
         ],
-        warn: [],
       })
       expect(Object.keys(store.data.languages)).toEqual(['en', 'en-GB'])
-    }
+    },
   )
-
-  console.warn = originalConsoleWarn
-  console.error = originalConsoleError
 })
 
-test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect }) => {
-  /** @type {{ error: any[], warn: any[] }} */
-  const consoleCalls = { error: [], warn: [] }
-  const originalConsoleWarn = console.warn
-  const originalConsoleError = console.error
-  /** @type {typeof console.warn} */
-  console.warn = (...args) => {
-    consoleCalls.warn.push(args)
-  }
-
-  /** @type {typeof console.error} */
-  console.error = (...args) => {
-    consoleCalls.error.push(args)
-  }
+test('Given a new store, when loadTranslations from location', async ({ step: originalStep, expect, console }) => {
+  console.doNotLog()
 
   /** @type {TestAPICall} */
   const step = async (...args) => {
-    consoleCalls.error.length = 0
-    consoleCalls.warn.length = 0
+    console.resetCallLog()
     return await originalStep.apply(null, args)
   }
 
@@ -142,7 +112,7 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
       location: new URL(location, base).pathname,
       languages: json,
     })
-    expect(consoleCalls).toEqual({ error: [], warn: [] })
+    expect(console.calls).toEqual({})
     expect(store.data.languages).toEqual({
       en: { import: ['./translations.en.json'], translations: {} },
       es: { import: ['./translations.es.json'], translations: {} },
@@ -164,16 +134,13 @@ test('Given a new store, when loadTranslations from location', async ({ step: or
       location: new URL(location, base).pathname,
       languages: json,
     })
-    expect(consoleCalls).toEqual({ error: [], warn: [] })
+    expect(console.calls).toEqual({})
     expect(store.data.languages).toEqual({
       en: { import: ['../languages/en/translations.en.json'], translations: {} },
       es: { import: ['../languages/es/translations.es.json'], translations: {} },
       pt: { import: ['../languages/pt/translations.pt.json'], translations: {} },
     })
   })
-
-  console.warn = originalConsoleWarn
-  console.error = originalConsoleError
 })
 
 test('Given a storeData loaded from "import/i18n.json", when getting translationsFromLanguage ', async ({ step, expect }) => {
@@ -275,7 +242,7 @@ test('Given a completed storeData with specific locales, when getting translatio
   const storeData = {
     location: '',
     languages: {
-      en: {
+      'en': {
         translations: {
           'hello world': 'hello world',
           'I like red color': 'I like red color',
@@ -287,7 +254,7 @@ test('Given a completed storeData with specific locales, when getting translatio
           'I like red color': 'I like red colour',
         },
       },
-      pt: {
+      'pt': {
         translations: {
           'hello world': 'olá mundo',
           'I like red color': 'Gosto da cor vermelha',
@@ -299,7 +266,7 @@ test('Given a completed storeData with specific locales, when getting translatio
           'I will go in a bus': 'Eu vou de ônibus',
         },
       },
-      es: {
+      'es': {
         translations: {
           'hello world': 'hola mundo',
           'I like red color': 'Me gusta la color roja',
@@ -365,13 +332,12 @@ const filesystem = /** @type {const} */([
 ])
 
 const filesystemContents = {
-  'import/i18n.json': import('./translation-store.unit.spec.js--filesystem/import/i18n.json', {with: {type: 'json'}}).then(module => module.default),
-  'import/translations.en.json': import('./translation-store.unit.spec.js--filesystem/import/translations.en.json', {with: {type: 'json'}}).then(module => module.default),
-  'import/translations.es.json': import('./translation-store.unit.spec.js--filesystem/import/translations.es.json', {with: {type: 'json'}}).then(module => module.default),
-  'import/translations.pt.json': import('./translation-store.unit.spec.js--filesystem/import/translations.pt.json', {with: {type: 'json'}}).then(module => module.default),
-  'import-outer/base/i18n.json': import('./translation-store.unit.spec.js--filesystem/import-outer/base/i18n.json', {with: {type: 'json'}}).then(module => module.default),
-  'import-outer/languages/en/translations.en.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/en/translations.en.json', {with: {type: 'json'}}).then(module => module.default),
-  'import-outer/languages/es/translations.es.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/es/translations.es.json', {with: {type: 'json'}}).then(module => module.default),
-  'import-outer/languages/pt/translations.pt.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/pt/translations.pt.json', {with: {type: 'json'}}).then(module => module.default),
+  'import/i18n.json': import('./translation-store.unit.spec.js--filesystem/import/i18n.json', { with: { type: 'json' } }).then(module => module.default),
+  'import/translations.en.json': import('./translation-store.unit.spec.js--filesystem/import/translations.en.json', { with: { type: 'json' } }).then(module => module.default),
+  'import/translations.es.json': import('./translation-store.unit.spec.js--filesystem/import/translations.es.json', { with: { type: 'json' } }).then(module => module.default),
+  'import/translations.pt.json': import('./translation-store.unit.spec.js--filesystem/import/translations.pt.json', { with: { type: 'json' } }).then(module => module.default),
+  'import-outer/base/i18n.json': import('./translation-store.unit.spec.js--filesystem/import-outer/base/i18n.json', { with: { type: 'json' } }).then(module => module.default),
+  'import-outer/languages/en/translations.en.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/en/translations.en.json', { with: { type: 'json' } }).then(module => module.default),
+  'import-outer/languages/es/translations.es.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/es/translations.es.json', { with: { type: 'json' } }).then(module => module.default),
+  'import-outer/languages/pt/translations.pt.json': import('./translation-store.unit.spec.js--filesystem/import-outer/languages/pt/translations.pt.json', { with: { type: 'json' } }).then(module => module.default),
 }
-

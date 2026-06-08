@@ -36,7 +36,8 @@ test('getLanguageFromElement should get correctly defined lang value', ({ expect
   })
 })
 
-test('getLanguageFromElement should ignore incorrectly defined html lang value', ({ expect, dom }) => {
+test('getLanguageFromElement should ignore incorrectly defined html lang value', ({ expect, dom, console }) => {
+  console.doNotLog()
   // prepare
   const { document } = dom
   document.body.innerHTML = html`
