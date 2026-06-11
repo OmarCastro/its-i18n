@@ -89,9 +89,9 @@ globalThis[Symbol.for('custom-unit-test-setup')] = async function setupUnitTests
   return { test, expect }
 }
 
-const loadersProp = Symbol("loadersProp")
-const cacheProp = Symbol("cacheProp")
-const postTestCallback = Symbol("postTestCallback")
+const loadersProp = Symbol('loadersProp')
+const cacheProp = Symbol('cacheProp')
+const postTestCallback = Symbol('postTestCallback')
 
 const fixtureLoaderMap = {
   dom: async () => await import('./fixtures/dom.unit.fixture.js'),
@@ -101,47 +101,47 @@ const fixtureLoaderMap = {
   gc: async () => await import('./fixtures/garbage-collector.unit.fixture.js'),
 }
 
-function loadFixtures(fixturesObj, fn){
+function loadFixtures (fixturesObj, fn) {
   const loadProps = fixturesObj[loadersProp] ?? {}
   const fixturesToLoad = extractFixtureNamesToLoad(fn)
-  if(fixturesToLoad.every(name => Object.hasOwn(loadProps, name))){
+  if (fixturesToLoad.every(name => Object.hasOwn(loadProps, name))) {
     return fixturesObj
   }
-  for(const name of fixturesToLoad) {
-    if(Object.hasOwn(loadProps, name) || !Object.hasOwn(fixtureLoaderMap, name)){ continue }
+  for (const name of fixturesToLoad) {
+    if (Object.hasOwn(loadProps, name) || !Object.hasOwn(fixtureLoaderMap, name)) { continue }
     loadProps[name] = new Promise(resolve => resolve(performance.now()))
-                  .then((start) => Promise.all([start, fixtureLoaderMap[name]()]))
+                  .then(start => Promise.all([start, fixtureLoaderMap[name]()]))
                   .then(([start, module]) => {
-                      console.log(`[unit-test] fixture "${name}" loaded in ${+(performance.now() - start).toFixed(1)}ms`)
-                      return module
+                    console.log(`[unit-test] fixture "${name}" loaded in ${+(performance.now() - start).toFixed(1)}ms`)
+                    return module
                   })
-    
+
   }
   return buildFixtureProtoObject(loadProps)
 }
 
-function extractFixtureNamesToLoad(fn){
+function extractFixtureNamesToLoad (fn) {
   const fnText = String(fn)
-  const fistParenIndex = fnText.indexOf("(") + 1
-  const functionParams = fnText.slice(fistParenIndex, fnText.indexOf(")", fistParenIndex))
-  if(functionParams === "" || functionParams === "{}"){ return [] }
-  const fixturesToLoad = functionParams.slice(1, -1).split(",").map(s => s.trim())
+  const fistParenIndex = fnText.indexOf('(') + 1
+  const functionParams = fnText.slice(fistParenIndex, fnText.indexOf(')', fistParenIndex))
+  if (functionParams === '' || functionParams === '{}') { return [] }
+  const fixturesToLoad = functionParams.slice(1, -1).split(',').map(s => s.trim())
   return fixturesToLoad
 }
 
-function buildFixtureProtoObject(loadProps){
+function buildFixtureProtoObject (loadProps) {
   const result = {
-    [loadersProp]: loadProps
+    [loadersProp]: loadProps,
   }
 
   Object.entries(loadProps).forEach(([name, fixtureLoader]) => {
-    fixtureLoader.then(({setup, teardown}) => {
+    fixtureLoader.then(({ setup, teardown }) => {
       Object.defineProperty(result, name, {
-        get(){
+        get () {
           this[cacheProp][name] ??= setup()
-          typeof teardown === "function" && this[postTestCallback].add(teardown)
+          typeof teardown === 'function' && this[postTestCallback].add(teardown)
           return this[cacheProp][name]
-        }
+        },
       })
     })
   })
