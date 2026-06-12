@@ -206,8 +206,8 @@ async function execTests () {
   ])
 
   const files = await getFilesAsArray(`${COVERAGE_DIR}/unit`)
-  const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('buildfiles/assets/coverage-report-base.css', path))
-  const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('buildfiles/assets/coverage-report-prettify.css', path))
+  const cpBase = files.filter(path => basename(path) === 'base.css').map(path => fs.cp('dev-tools/assets/coverage-report-base.css', path))
+  const cpPrettify = files.filter(path => basename(path) === 'prettify.css').map(path => fs.cp('dev-tools/assets/coverage-report-prettify.css', path))
   await Promise.all([rmTmp, rmBak, ...cpBase, ...cpPrettify])
 
   logStage('copy reports to documentation')
@@ -319,7 +319,7 @@ async function buildUnitTests ({ includeBrowser = false } = {}) {
       minify: true,
     })
 
-    unitTestRunnerAssets.html ??= readFile('./buildfiles/assets/unit-test-runner-page.html')
+    unitTestRunnerAssets.html ??= readFile('./dev-tools/assets/unit-test-runner-page.html')
     const htmlOutputPath = outputPathNoExtension + '.html'
     const badgeOutputPath = outputPathNoExtension + '.badge.svg'
     const htmlContent = (await unitTestRunnerAssets.html)
@@ -456,8 +456,8 @@ async function buildDocs () {
   await Promise.all([
     buildDocsJS, buildDocsStyles,
     fs.cp('docs/favicon.png', `${docsPath}/favicon.png`),
-    exec(`${process.argv[0]} buildfiles/scripts/build-html.js index.html`),
-    exec(`${process.argv[0]} buildfiles/scripts/build-html.js contributing.html`),
+    exec(`${process.argv[0]} dev-tools/scripts/build-html.js index.html`),
+    exec(`${process.argv[0]} dev-tools/scripts/build-html.js contributing.html`),
   ])
 
   logEndStage()
@@ -693,7 +693,7 @@ async function lintCode ({ onlyChanged, changedFiles }, options = {}) {
 async function checkSpelling ({ onlyChanged, changedFiles }) {
   const { load } = await import('js-yaml')
 
-  const configPath = pathFromProject('./buildfiles/configs/cspell.yaml')
+  const configPath = pathFromProject('./dev-tools/configs/cspell.yaml')
   const config = load(await readFile(configPath))
   const ignorePaths = config.ignorePaths ?? []
   const fileList = await listFileByLinterParams({ patterns: ['*'], ignorePatterns: ignorePaths, onlyChanged, changedFiles })
@@ -714,7 +714,7 @@ async function checkSpelling ({ onlyChanged, changedFiles }) {
   const reporter = getDefaultReporter(options)
 
   const results = await lint(fileList, {
-    config: pathFromProject('./buildfiles/configs/cspell.yaml'),
+    config: pathFromProject('./dev-tools/configs/cspell.yaml'),
     cache: true,
     cacheLocation: '.tmp/cspellcache',
   }, reporter)
@@ -738,7 +738,7 @@ async function lintStyles ({ onlyChanged, changedFiles }) {
     return 0
   }
   const { default: stylelint } = await import('stylelint')
-  const result = await stylelint.lint({ files: fileList, configFile: 'buildfiles/configs/.stylelintrc.yaml', ignorePath: '.gitignore' })
+  const result = await stylelint.lint({ files: fileList, configFile: 'dev-tools/configs/.stylelintrc.yaml', ignorePath: '.gitignore' })
   const filesLinted = result.results.length
   process.stdout.write(`linted ${filesLinted} files. `)
   const stringFormatter = await stylelint.formatters.tap
@@ -1526,7 +1526,7 @@ async function git (/** @type {string[]} */...args) {
 }
 
 async function checkGitHooks () {
-  const expectedHooksPath = 'buildfiles/git-hooks/'
+  const expectedHooksPath = 'dev-tools/git-hooks/'
   const stdoutLines = await git('config', 'get', 'core.hooksPath').catch(() => [])
   const hooksPath = stdoutLines[0]
   if (hooksPath !== expectedHooksPath) {

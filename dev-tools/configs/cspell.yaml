@@ -2,7 +2,7 @@
 language: en
 ignorePaths: 
   - "**/*.spec.js"
-  - "**/buildfiles/**"
+  - "**/dev-tools/**"
   - "**/docs/doc.js"
   - "**/docs/*.css"
   - "**/dropdown-i18n.js"
@@ -18,7 +18,6 @@ ignorePaths:
   - "**/smoke-test" # it's i18n, there will be too many translated languages
 words:
   - hrefs # hyperlinks
-  - buildfiles # buildfiles location
   - linc # lint changed files only
   - millis # short of milliseconds
   - ibute #used in i18n-container.element.js as to allow "attribute" as well as its shorthand "attr", which "ibute" is the remaining words to fill the long hand
