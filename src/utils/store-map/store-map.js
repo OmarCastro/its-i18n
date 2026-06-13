@@ -44,7 +44,7 @@ export const setStoreFromElement = (element, store) => {
 export const getStoresInfoFromElement = function * (target) {
   for (const element of traverseUpDom(target)) {
     const store = map.get(element)
-    if (store) yield { store, element }
+    if (store) { yield { store, element } }
   }
   yield noStoresFound
 }

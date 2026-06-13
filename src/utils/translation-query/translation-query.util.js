@@ -177,7 +177,7 @@ function translatorFromValue (valueTemplate, match) {
  * An object used to optimize queries from a {@link Translations} object, it is generated the fist time it is called
  * {@link queryFromTranslations} for each new {@link Translations} object
  * @property {{[key: string]: QueryResult}}  cache        - query result cache map used for memoization
- * @property {OptimizedTranslations}        optimizedMap - optimized translation map @see OptimizedTranslations
+ * @property {OptimizedTranslations}        optimizedMap - optimized translation map, see {@link OptimizedTranslations}
  */
 
 /**

@@ -17,10 +17,10 @@ async function loadLocaleMaps ({ document, location, merger }) {
     return merger
   }
 
-  const deferredMapPromises = localeMaps.flatMap((link) => {
+  const deferredMapPromises = localeMaps.flatMap(link => {
     const href = link.getAttribute('href')
-    if (!href) return []
-    return [importDefinitionMap(href, locationHref).then((result) => ({ result, location: new URL(href, locationHref) }))]
+    if (!href) { return [] }
+    return [importDefinitionMap(href, locationHref).then(result => ({ result, location: new URL(href, locationHref) }))]
   })
 
   const promiseResults = await Promise.allSettled(deferredMapPromises)

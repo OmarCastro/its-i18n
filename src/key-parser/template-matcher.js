@@ -122,7 +122,7 @@ function captureExpressionInfoFromToken (captureToken) {
  * @returns {Matcher} matcher function
  */
 const expressionMatcher = (regex, captureExpressionsInfo) => (text) => {
-  if (typeof text !== 'string') return noMatch
+  if (typeof text !== 'string') { return noMatch }
   const matches = text.match(regex)
   if (matches == null) {
     return noMatch
@@ -139,7 +139,7 @@ const expressionMatcher = (regex, captureExpressionsInfo) => (text) => {
     paramMatchInfo.push(matchResult.expressionInfo)
   }
 
-  const defaultFormatters = paramMatchInfo.map((info) => info.defaultFormat)
+  const defaultFormatters = paramMatchInfo.map(info => info.defaultFormat)
 
   return {
     isMatch: true,
@@ -153,16 +153,16 @@ const expressionMatcher = (regex, captureExpressionsInfo) => (text) => {
  * @returns {Matcher} matcher function
  */
 function getMatcherFromTokens (tokens) {
-  const captureTokens = tokens.filter((token) => token.type === states.capture)
+  const captureTokens = tokens.filter(token => token.type === states.capture)
 
   if (captureTokens.length <= 0) {
-    const textToMatch = tokens.map((token) => token.text).join('')
+    const textToMatch = tokens.map(token => token.text).join('')
     return exactStringMatcher(textToMatch)
   }
 
   const captureExpressionsInfo = captureTokens.map(captureExpressionInfoFromToken)
 
-  const regexStr = tokens.map((token) => token.type === states.capture ? '(.*)' : escape(token.text)).join('')
+  const regexStr = tokens.map(token => token.type === states.capture ? '(.*)' : escape(token.text)).join('')
 
   const regex = new RegExp('^' + regexStr + '$')
 
