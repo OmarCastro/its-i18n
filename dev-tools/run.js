@@ -1498,25 +1498,11 @@ async function createModuleGraphSvg (moduleGraphJson) {
 
 // @section 14 docker utilities
 
-async function isDockerRunning () {
-  isDockerRunning.cachedResult ??= await cmdSpawn('docker info', { stdio: 'ignore' }) === 0
-  return isDockerRunning.cachedResult
-}
-
 async function isInsideDockerContainer () {
   isInsideDockerContainer.cachedResult ??= existsSync('/.dockerenv') ||
     (await readFile('/proc/self/cgroup').then(text => text.includes('docker')).catch(() => false)) ||
     (await readFile('/proc/self/mountinfo').then(text => text.includes('/docker/containers/')).catch(() => false))
   return isInsideDockerContainer.cachedResult
-}
-
-async function runInDocker ({ command, imageName, volumes, workdir, env, user, rmOnFinish }) {
-  const volumeParams = volumes ? Object.entries(volumes).map(([host, guest]) => `-v '${host}:${guest}' `) : ''
-  const envParams = env ? Object.entries(env).map(([key, val]) => `-e '${key}=${val}' `) : ''
-  const workdirParam = workdir ? `-w '${workdir}' ` : ''
-  const userParam = user ? `-u '${user}' ` : ''
-  const rmParam = rmOnFinish ? '--rm ' : ''
-  return await cmdSpawn(`docker run -t ${rmParam}${userParam}${volumeParams}${envParams}${workdirParam} ${imageName} ${command}`)
 }
 
 // @section 15 git utilities
