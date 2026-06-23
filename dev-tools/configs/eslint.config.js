@@ -115,6 +115,8 @@ export default [
       'unicorn/no-array-push-push': ['warn'],
       'unicorn/prefer-node-protocol': ['error'],
       'unicorn/prefer-array-find': ['error'],
+      'unicorn/no-nonstandard-builtin-properties': ['error'],
+      'unicorn/prefer-url-can-parse': ['error'],
       'jsdoc/valid-types': 0,
       'jsdoc/reject-any-type': 0,
       'jsdoc/require-jsdoc': 0,
