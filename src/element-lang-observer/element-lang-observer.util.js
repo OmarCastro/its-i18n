@@ -27,6 +27,8 @@ export const domRootLangDispatchListener = {
 export const rootEventName = 'lang-change-dispatched'
 
 export class ElementLangObserver {
+  /** @type {{callback: ElementLangObserverHandler}} */
+  [data]
   /**
    * @param {ElementLangObserverHandler} callback - handler callback
    */
@@ -69,7 +71,7 @@ function langMutationObserverCallback (records) {
     const rootNode = recordTarget.getRootNode()
     rootNodesToTrigger.add(rootNode)
     const observingElements = rootNodes.get(rootNode)?.observingElements
-    observingElements && observingElements.forEach((node) => {
+    observingElements && observingElements.forEach(node => {
       if (validatedNodes.has(node)) {
         return
       }
